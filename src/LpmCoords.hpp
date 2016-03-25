@@ -10,7 +10,7 @@
 template <typename scalarType> class LpmCoords
 {
 	public :
-		LpmCoords( const int nDim, const int nMax ) : _n(0), _nDim(nDim), _nMax(nMax) { 
+		LpmCoords( const int nDim, const int nMax ) : _nDim(nDim), _nMax(nMax) { 
 			switch (nDim) {
 				case (2) : {
 					x.reserve(nMax);
@@ -71,7 +71,7 @@ template <typename scalarType> class LpmCoords
 				z.push_back( vec.z );
 		};
 		
-		void replace( const scalarType nx = 0.0, const scalarType ny = 0.0, const scalarType nz = 0.0, const size_t index ) {
+		void replace( const scalarType nx, const scalarType ny, const scalarType nz, const size_t index ) {
 			x[index] = nx;
 			y[index] = ny;
 			if ( _nDim != 2 )
@@ -110,7 +110,7 @@ template <typename scalarType> class LpmCoords
 		void scalarMultiplyAll( const scalarType multiplier ) {
 			switch (_nDim ) {
 				case (2) : {
-					for ( size_t i = 0; size_t < x.size(); ++i ) {
+					for ( size_t i = 0; i < x.size(); ++i ) {
 						x[i] *= multiplier;
 						y[i] *= multiplier;
 						z[i] *= multiplier;
@@ -118,7 +118,7 @@ template <typename scalarType> class LpmCoords
 				}
 				break;
 				case (3) : {
-					for ( size_t i = 0; size_t < x.size(); ++i ) {
+					for ( size_t i = 0; i < x.size(); ++i ) {
 						x[i] *= multiplier;
 						y[i] *= multiplier;
 						z[i] *= multiplier;
@@ -134,7 +134,7 @@ template <typename scalarType> class LpmCoords
 			return distance( vecA, vecB );
 		};
 		
-		virtual scalarType midpoint( const size_t indexA, const size_t indexB ) const {
+		virtual XyzVector<scalarType> midpoint( const size_t indexA, const size_t indexB ) const {
 			XyzVector<scalarType> vecA = *this[indexA];
 			XyzVector<scalarType> vecB = *this[indexB];
 			return midpoint( vecA, vecB );
@@ -143,12 +143,12 @@ template <typename scalarType> class LpmCoords
 		virtual XyzVector<scalarType> centroid( const std::vector<size_t> indices ) const {
 			std::vector< XyzVector<scalarType> > vecs;
 			for ( size_t i = 0; i < indices.size(); ++i ) {
-				vecs.push_back( XyzVector<scalarType>( *this[indices[i]] );
+				vecs.push_back( XyzVector<scalarType>( *this[indices[i]] ) );
 			}
 			return centroid( vecs );
 		};
 		
-		virtual scalarType triArea( const size_t indexA, const size_t indexB, const size_t indexC ) {
+		virtual scalarType triArea( const size_t indexA, const size_t indexB, const size_t indexC ) const {
 			XyzVector<scalarType> vecA = *this[indexA];
 			XyzVector<scalarType> vecB = *this[indexB];
 			XyzVector<scalarType> vecC = *this[indexC];

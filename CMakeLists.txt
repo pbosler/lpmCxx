@@ -26,7 +26,8 @@ set(CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS} ${MPI_LINK_FLAGS})
 #
 configure_file ( "${PROJECT_SOURCE_DIR}/config.h.in" "${PROJECT_BINARY_DIR}/lpmConfig.h")
 
-include_directories("${PROJECT_SOURCE_DIR}" "${MPI_INCLUDE_PATH}" "${PROJECT_BINARY_DIR}")
+include_directories("${PROJECT_SOURCE_DIR}" "${PROJECT_SRC_DIR}/src" "${MPI_INCLUDE_PATH}" "${PROJECT_BINARY_DIR}")
+message( "Project_Src_Dir = " ${PROJECT_SOURCE_DIR})
 
 #
 # Add subdirectories

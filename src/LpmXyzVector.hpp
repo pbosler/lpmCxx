@@ -127,4 +127,42 @@ template <typename scalarType> scalarType triArea( const XyzVector<scalarType>& 
 	return 0.5 * diff1.crossProduct(diff2).magnitude();
 }
 
+template <typename scalarType> scalarType sphereDistance( const XyzVector<scalarType>& vecA, const XyzVector<scalarType>& vecB, 
+	const scalarType radius = 1.0 ){
+	XyzVector<scalarType> cProd = vecA.crossProduct(vecB);
+	const scalarType cProdNorm = cProd.magnitude();
+	const scalarType dotProd = vecA.dotProduct(vecB);
+	return std::atan2( cProdNorm, dotProd ) * radius;
+}
+
+template <typename scalarType> scalarType sphereTriArea( const XyzVector<scalarType>& vecA, 
+	const XyzVector<scalarType>& vecB, const XyzVector<scalarType>& vecC, const scalarType radius = 1.0){
+	const scalarType side1 = sphereDistance(vecA, vecB);
+	const scalarType side2 = sphereDistance(vecB, vecC);
+	const scalarType side3 = sphereDistance(vecC, vecA);
+	const scalarType halfPerim = 0.5 * ( side1 + side2 + side3 );
+	const scalarType zz = std::tan( 0.5 * halfPerim ) * std::tan( 0.5 * (halfPerim - side1) ) *
+		std::tan( 0.5 * ( halfPerim - side2 ) ) * std::tan( 0.5 * ( halfPerim - side3 ) );
+	return 4.0 * std::atan2( zz, 1.0 ) * radius * radius;
+}
+
+template <typename scalarType> XyzVector<scalarType> sphereCentroid( const std::vector<XyzVector<scalarType> > vecs, 
+	const scalarType radius = 1.0 ) {
+	XyzVector<scalarType> cntd(0.0, 0.0, 0.0);
+	for ( int i = 0; i < vecs.size(); ++i)
+		cntd += vecs[i];
+	cntd.scale( 1.0 / vecs.size() );
+	cntd.normalize();
+	cntd.scale( radius );
+	return cntd;
+}
+
+template <typename scalarType> XyzVector<scalarType> sphereMidpoint( const XyzVector<scalarType>& vecA, 
+	const XyzVector<scalarType>& vecB, const scalarType radius = 1.0 ) {
+	XyzVector<scalarType> midpt( 0.5 * (vecA.x + vecB.x), 0.5 * (vecA.y + vecB.y), 0.5 * (vecA.z + vecB.z ) );
+	midpt.normalize();
+	midpt.scale(radius);
+	return midpt;
+}
+
 #endif
