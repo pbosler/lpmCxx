@@ -1,5 +1,6 @@
 add_library( lpmLib GlobalConstants.cpp OutputMessage.cpp Logger.cpp
 					LpmXyzVector.hpp LpmCoords.hpp
+					LpmParticles.hpp
 				    #xyzVector.cpp Particles.cpp Field.cpp
 				    #Edges.cpp Faces.cpp PolyMesh2d.cpp 
 				    #RefinementType.cpp 

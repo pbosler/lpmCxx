@@ -10,7 +10,7 @@
 template <typename scalarType> class LpmCoords
 {
 	public :
-		LpmCoords( const int nDim, const int nMax ) : _nDim(nDim), _nMax(nMax) { 
+		LpmCoords( const int nDim = 3, const int nMax = 0) : _nDim(nDim), _nMax(nMax) { 
 			switch (nDim) {
 				case (2) : {
 					x.reserve(nMax);
