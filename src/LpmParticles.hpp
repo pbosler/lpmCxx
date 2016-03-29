@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <string>
 #include "OutputMessage.h"
 #include "Logger.h"
 #include "LpmXyzVector.hpp"
@@ -32,7 +33,21 @@ template <typename scalarType> class LpmParticles {
 				}
 			};
 			
-		void size_t size() const { return physCoords.size(); }	
+		size_t size() const { return physCoords.size(); }	
+		
+		scalarType totalVolume() const {
+			scalarType result = 0.0;
+			for (size_t i = 0; i < volume.size(); ++i )
+				result += volume[i];
+			return result;
+		}
+		
+		scalarType totalArea() const {
+			scalarType result = 0.0;
+			for ( size_t i = 0; i < area.size(); ++i )
+				result += area[i];
+			return result;
+		}
 	
 		void insert( const XyzVector<scalarType> physX, const XyzVector<scalarType> lagX, const scalarType areaOrVolume = 0.0 ) {
 			physCoords.insert(physX);
@@ -111,8 +126,6 @@ template <typename scalarType> class LpmParticles {
 		int _procRank;
 		
 		Logger* log;
-		OutputMessage::priority logLevel;
-		
 };
 
 #endif

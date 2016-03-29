@@ -28,8 +28,7 @@ Logger* Logger::Instance( const OutputMessage::priority level, const int procRan
 {
     if ( _instance == NULL)
         _instance = new Logger( level, procRank, numProcs);
-    else
-    {
+    else {
         if ( _instance->_baseLevel > level)
             _instance->_baseLevel = level;
     }
@@ -56,13 +55,11 @@ Logger::Logger( const OutputMessage::priority logLevel, const int procRank, cons
  */
 void Logger::logMessage( const OutputMessage msg) const
 {
-    if ( msg.getPriority() < _allOutputLevel)
-    {
+    if ( msg.getPriority() < _allOutputLevel) {
         if ( _procRank == 0 && msg.getPriority() >= _baseLevel)
             cout << msg << endl;
     }
-    else
-    {
+    else {
         cout << "proc " << _procRank << " :" << endl;
         cout << msg << endl;
     }
@@ -77,14 +74,11 @@ void Logger::logMessage( const LongMessage longMsg ) const
 {
 	if ( longMsg.getPriority() < _allOutputLevel )
 	{
-		if ( _procRank == 0 && longMsg.getPriority() >= _baseLevel )
-		{
+		if ( _procRank == 0 && longMsg.getPriority() >= _baseLevel ) {
 			cout << longMsg << std::endl;
-			
 		}
 	}
-	else
-	{
+	else {
 		cout << "proc " << _procRank << " : " << endl;
 		cout << longMsg << endl;
 	}
