@@ -57,11 +57,10 @@ void Logger::logMessage( const OutputMessage msg) const
 {
     if ( msg.getPriority() < _allOutputLevel) {
         if ( _procRank == 0 && msg.getPriority() >= _baseLevel)
-            cout << msg << endl;
+            cout << "proc 0: " <<  msg << endl;
     }
     else {
-        cout << "proc " << _procRank << " :" << endl;
-        cout << msg << endl;
+        cout << "proc " << _procRank << " :" << msg << endl;
     }
 };
 
@@ -75,11 +74,10 @@ void Logger::logMessage( const LongMessage longMsg ) const
 	if ( longMsg.getPriority() < _allOutputLevel )
 	{
 		if ( _procRank == 0 && longMsg.getPriority() >= _baseLevel ) {
-			cout << longMsg << std::endl;
+			cout << "proc 0: " << longMsg << std::endl;
 		}
 	}
 	else {
-		cout << "proc " << _procRank << " : " << endl;
-		cout << longMsg << endl;
+		cout << "proc " << _procRank << " : " << longMsg << endl;
 	}
 }

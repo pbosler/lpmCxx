@@ -46,7 +46,6 @@ private:
     int _procRank;
     int _numProcs;
     static Logger* _instance;
-    
 };
 
 #endif /* defined(__LPM__Logger__) */

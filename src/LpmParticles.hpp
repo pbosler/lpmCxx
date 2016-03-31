@@ -13,31 +13,34 @@ using LpmXyzVector::XyzVector;
 
 template <typename scalarType> class LpmParticles {
 	public :
-		LpmParticles( const int nDim = 3, const int nMax = 0, const int nProcs, const int pRank, 
-					  const OutputMessage::priority logLevel = OutputMessage::debugPriority )
-			 :  physCoords( nDim, nMax ), lagCoords( nDim, nMax ), _numProcs(nProcs), _procRank(pRank)
-			{ 
-				log = Logger::Instance( logLevel, pRank, nProcs );
-				switch ( nDim ) {
-					case (2) : {
-						area.reserve(nMax);
-					}
+		enum geomType { PlanarCartesian, Euclidean3d, SphericalSurface };
+		
+		LpmParticles( const geomType, const size_t nMax, const int procRank, const int nProcs ) {
+			log = Logger::Instance( OutputMessage::debugPriority, procRank, nProcs );
+			geometry = geomType;
+			switch ( geomType ) {
+				case ( PlanarCartesian ) : {
+					physCoords = new LpmEuclideanCoords<scalarType>( 2, nMax, procRank, nProcs );
+					lagCoords = new LpmEuclideanCoords<scalarType>(2, nMax, procRank, nProcs );
+					area.reserve(nMax);
 					break;
-					case (3) : {
-						volume.reserve(nMax);
-					}
-					break;
-					default : {
-						OutputMessage errMsg("Constructor ERROR: invalid nDim", OutputMessage::errorPriority,
-							"LpmParticles::LpmParticles");
-						log->logMessage(errMsg);
-						break;
-					}
 				}
-			};
+				case ( Euclidean3d ) : {
+					physCoords = new LpmEuclideanCoords<scalarType>( 3, nMax, procRank, nProcs );
+					lagCoords = new LpmEuclideanCoords<scalarType>(3, nMax, procRank, nProcs );
+					volume.reserve(nMax);
+					break;
+				}
+				case ( SphericalSurface ) : {
+					physCoords = new LpmSphereCoords<scalarType>( 3, nMax, procRank, nProcs );
+					lagCoords = new LpmSphereCoords<scalarType>( 3, nMax, procRank, nProcs );
+					area.reserve(nMax);
+					break;
+				}
+			} 
+		};
 			
 		size_t size() const { return physCoords.size(); }	
-		
 		int nDim() const { return physCoords.nDim(); }
 		size_t nMax() const { return physCoords.nMax(); }
 		
@@ -73,102 +76,15 @@ template <typename scalarType> class LpmParticles {
 			return result;
 		}
 	
-		void insert( const XyzVector<scalarType> physX, const XyzVector<scalarType> lagX, 
-					 const scalarType areaOrVolume = 0.0 ) {
-			physCoords.insert(physX);
-			lagCoords.insert(physX);
-			switch ( _nDim ) {
-				case (2) : {
-					area.push_back( areaOrVolume );
-				}
-				break;
-				case (3) : {
-					volume.push_back(areaOrVolume);
-				}
-				break;
-			}
-		};
-		
-		void insert( const scalarType nx = 0.0, const scalarType ny = 0.0, const scalarType nz = 0.0, 
-					 const scalarType areaOrVolume = 0.0 ) {
-			physCoords.insert( nx, ny, nz );
-			lagCoords.insert(nx, ny, nz );
-			switch ( _nDim ) {
-				case (2) : {
-					area.push_back(areaOrVolume);
-				}
-				break;
-				case (3) : {
-					volume.push_back(areaOrVolume);
-				}
-				break;
-			}
-		};
-		
-		void replace( const size_t index, const XyzVector<scalarType> physX, const XyzVector<scalarType> lagX, 
-					  const scalarType areaOrVolume = 0.0 ) {
-			physCoords.replace( index, physX );
-			lagCoords.replace( index, lagX );
-			switch ( _nDim ) {
-				case (2) : {
-					area[index] = areaOrVolume;
-				}
-				break;
-				case (3) : {
-					volume[index] = areaOrVolume;
-				}
-				break;
-			}
-		};
-		
-		void replacePhysCood( const size_t index, const XyzVector<scalarType> physX, 
-							  const scalarType areaOrVolume = 0.0 ) {
-			physCoords.replace( index, physX );
-			switch ( _nDim ) {
-				case (2) : {
-					area[index] = areaOrVolume;
-				}
-				break;
-				case (3) : {
-					volume[index] = areaOrVolume;
-				}
-				break;
-			}
-		};
-		
-		void replaceLagCoord( const size_t index, const XyzVector<scalarType> lagX ) { 
-				lagCoords.replace( index, lagX );	
-		};
-				
-		scalarType dotProduct( const size_t indexA, const size_t indexB ) const {
-			return physCoords.dotProduct( indexA, index B);
-		};
-		
-		XyzVector<scalarType> crossProduct( const size_t indexA, const size_t indexB ) const {
-			return physCoords.crossProduct( indexA, index B );
-		};
-		
-		scalarType distance( const size_t indexA, const size_t indexB ) const {
-			return physCoords.distance( indexA, indexB );
-		};
-		
-		XyzVector<scalarType> midpoint( const size_t indexA, const size_t indexB ) const {
-			return physCoords.midpoint(indexA, indexB);
-		};
-		
-		XyzVector<scalarType> centroid( std::vector<size_t> indices ) const {
-			return physCoords.centroid( indices );
-		};
-		
 	protected :	
+		geomType geometry;
 		int _numProcs;
 		int _procRank;
 		
 		Logger* log;
 	
-	private :
-		LpmCoords<scalarType> physCoords;
-		LpmCoords<scalarType> lagCoords;
+		LpmCoords<scalarType>* physCoords;
+		LpmCoords<scalarType>* lagCoords;
 		std::vector<scalarType> area;
 		std::vector<scalarType> volume;
 	

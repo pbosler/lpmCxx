@@ -12,8 +12,9 @@ using LpmXyzVector::XyzVector;
 
 template <typename scalarType> class LpmSphereCoords : public LpmCoords<scalarType> {
 	public :
-		LpmSphereCoords( const int nMax, const scalarType radius = 1.0) : 
-			LpmCoords<scalarType>( 3, nMax), _radius(radius) {};
+		LpmSphereCoords( const size_t nMax = 0, const int pRank = 0, const int nProcs = 1, 
+			const scalarType radius = 1.0) : 
+			LpmCoords<scalarType>( 3, nMax, pRank, nProcs ), _radius(radius) {};
 		
 		scalarType distance( const size_t indexA, const size_t indexB ) const {
 			XyzVector<scalarType> vecA = LpmCoords<scalarType>::coordVector(indexA);

@@ -6,7 +6,7 @@
 #include "OutputMessage.h"
 #include "Logger.h"
 #include "LpmXyzVector.hpp"
-#include "LpmCoords.hpp"
+#include "LpmEuclideanCoords.hpp"
 #include "LpmSphereCoords.hpp"
 #include "GlobalConstants.h"
 
@@ -31,7 +31,7 @@ int main ( int argc, const char* argv[] ) {
     OutputMessage test1Start( ss.str(), OutputMessage::remarkPriority, "main");
     log->logMessage(test1Start);
     
-    LpmCoords<ST> planeCoords( 2, 13 );
+    LpmEuclideanCoords<ST> planeCoords( 2, 13 );
     
     planeCoords.insert( -1.0, 1.0 ); //0
     planeCoords.insert( -1.0, 0.0 ); //1
