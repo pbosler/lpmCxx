@@ -39,6 +39,11 @@ template <typename scalarType> class LpmParticles {
 				}
 			} 
 		};
+		
+		~LpmParticles() { 
+			delete physCoords;
+			delete lagCoords;
+		};
 			
 		size_t size() const { return physCoords.size(); }	
 		int nDim() const { return physCoords.nDim(); }
