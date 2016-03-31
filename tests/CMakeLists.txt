@@ -1,7 +1,10 @@
 include(CTest)
 
-#add_executable ( lpmBaseObsTest.exe baseTest.cpp )
-#target_link_libraries( lpmBaseObsTest.exe lpmLib )
+add_executable ( lpmBaseObsTest.exe baseTest.cpp )
+target_link_libraries( lpmBaseObsTest.exe lpmLib )
+
+add_executable ( lpmCoordsUnitTest.exe lpmCoordsUnitTest.cpp )
+target_link_libraries( lpmCoordsUnitTest.exe lpmLib )
 
 #add_executable ( lpmParticlesAndFieldTest.exe ParticlesAndFieldTest.cpp )
 #target_link_libraries( lpmParticlesAndFieldTest.exe lpmLib )
@@ -15,7 +18,8 @@ include(CTest)
 #install ( TARGETS lpmBaseObsTest.exe lpmParticlesAndFieldTest.exe lpmPlanarMeshTest.exe lpmSphereMeshTest.exe
 #		  DESTINATION bin )
 
-#add_test( baslibTest lpmBaseObsTest.exe )
+add_test( baselibTest lpmBaseObsTest.exe )
+add_test( coordsTest lpmCoordsUnitTest.exe )
 #add_test( particlesAndFieldTest lpmParticlesAndFieldTest.exe )
 #add_test( planarMeshTest lpmPlanarMeshTest.exe )
 #add_test( sphereMeshTest lpmSphereMeshTest.exe )

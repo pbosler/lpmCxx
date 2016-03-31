@@ -10,8 +10,10 @@ include_directories( "${PROJECT_SRC_DIR}/src" )
 #
 # install targets
 #				 
-install ( FILES GlobalConstants.h OutputMessage.h Logger.h
-				#xyzVector.h Particles.h Field.h
+install ( FILES GlobalConstants.h OutputMessage.h Logger.h 
+				LpmXyzVector.hpp LpmCoords.hpp LpmSphereCoords.hpp
+				LpmParticles.hpp
+				#Field.h
 				#Edges.h Faces.h PolyMesh2d.h
 				#RefinementType.h
 		  DESTINATION include )

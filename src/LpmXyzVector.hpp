@@ -6,6 +6,8 @@
 #include <vector>
 #include "GlobalConstants.h"
 
+namespace LpmXyzVector {
+
 template < typename scalarType > class XyzVector
 {
 	public :
@@ -62,7 +64,7 @@ template <typename scalarType> XyzVector<scalarType> operator * ( const XyzVecto
 	return XyzVector<scalarType>( vecA.x * vecB.x, vecA.y * vecB.y, vecA.z * vecB.z); }
 
 template <typename scalarType> std::ostream& operator << ( std::ostream& os, const XyzVector<scalarType>& vec ) {
-	os << "(" << vec.x << ", " << vec.y << ", " << vec.z << ")\n" ; return os; }
+	os << "(" << vec.x << ", " << vec.y << ", " << vec.z << ")" ; return os; }
 	
 template <typename scalarType> scalarType atan4( const scalarType y, const scalarType x ) {
 	static const scalarType PI = GlobalConstants::Instance()->Pi(); 
@@ -119,8 +121,6 @@ template <typename scalarType> scalarType distance( const XyzVector<scalarType>&
 	return std::sqrt( (vecB.x - vecA.x) * (vecB.x - vecA.x) + (vecB.y - vecA.y) * ( vecB.y - vecA.y) + (vecB.z - vecA.z) * (vecB.z - vecA.z));
 }
 
-//template <typename scalarType> scalarType triArea( const std::vector<XyzVector<scalarType> > vecs ) { }
-
 template <typename scalarType> scalarType triArea( const XyzVector<scalarType>& vecA, const XyzVector<scalarType>& vecB, const XyzVector<scalarType>& vecC){
 	XyzVector<scalarType> diff1 = vecB - vecA;
 	XyzVector<scalarType> diff2 = vecC - vecA;
@@ -129,10 +129,9 @@ template <typename scalarType> scalarType triArea( const XyzVector<scalarType>& 
 
 template <typename scalarType> scalarType sphereDistance( const XyzVector<scalarType>& vecA, const XyzVector<scalarType>& vecB, 
 	const scalarType radius = 1.0 ){
-	XyzVector<scalarType> cProd = vecA.crossProduct(vecB);
-	const scalarType cProdNorm = cProd.magnitude();
+	const XyzVector<scalarType> cProd = vecA.crossProduct(vecB);
 	const scalarType dotProd = vecA.dotProduct(vecB);
-	return std::atan2( cProdNorm, dotProd ) * radius;
+	return std::atan2( cProd.magnitude(), dotProd ) * radius;
 }
 
 template <typename scalarType> scalarType sphereTriArea( const XyzVector<scalarType>& vecA, 
@@ -143,7 +142,7 @@ template <typename scalarType> scalarType sphereTriArea( const XyzVector<scalarT
 	const scalarType halfPerim = 0.5 * ( side1 + side2 + side3 );
 	const scalarType zz = std::tan( 0.5 * halfPerim ) * std::tan( 0.5 * (halfPerim - side1) ) *
 		std::tan( 0.5 * ( halfPerim - side2 ) ) * std::tan( 0.5 * ( halfPerim - side3 ) );
-	return 4.0 * std::atan2( zz, 1.0 ) * radius * radius;
+	return 4.0 * std::atan2( std::sqrt(zz), 1.0 ) * radius * radius;
 }
 
 template <typename scalarType> XyzVector<scalarType> sphereCentroid( const std::vector<XyzVector<scalarType> > vecs, 
@@ -165,4 +164,5 @@ template <typename scalarType> XyzVector<scalarType> sphereMidpoint( const XyzVe
 	return midpt;
 }
 
+}
 #endif
