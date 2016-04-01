@@ -6,6 +6,9 @@ target_link_libraries( lpmBaseObsTest.exe lpmLib )
 add_executable ( lpmCoordsUnitTest.exe lpmCoordsUnitTest.cpp )
 target_link_libraries( lpmCoordsUnitTest.exe lpmLib )
 
+add_executable ( lpmParticlesAndFieldsUnitTest.exe lpmParticlesAndFieldTest.cpp )
+target_link_libraries( lpmParticlesAndFieldsUnitTest.exe lpmLib )
+
 #add_executable ( lpmParticlesAndFieldTest.exe ParticlesAndFieldTest.cpp )
 #target_link_libraries( lpmParticlesAndFieldTest.exe lpmLib )
 
@@ -20,6 +23,7 @@ target_link_libraries( lpmCoordsUnitTest.exe lpmLib )
 
 add_test( baselibTest lpmBaseObsTest.exe )
 add_test( coordsTest lpmCoordsUnitTest.exe )
+add_test( particlesAndFieldTest lpmParticlesAndFieldsUnitTest.exe )
 #add_test( particlesAndFieldTest lpmParticlesAndFieldTest.exe )
 #add_test( planarMeshTest lpmPlanarMeshTest.exe )
 #add_test( sphereMeshTest lpmSphereMeshTest.exe )

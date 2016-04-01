@@ -15,10 +15,10 @@ template <typename scalarType> class LpmParticles {
 	public :
 		enum geomType { PlanarCartesian, Euclidean3d, SphericalSurface };
 		
-		LpmParticles( const geomType, const size_t nMax, const int procRank, const int nProcs ) {
+		LpmParticles( const geomType geomKind, const size_t nMax, const int procRank, const int nProcs ) {
 			log = Logger::Instance( OutputMessage::debugPriority, procRank, nProcs );
-			geometry = geomType;
-			switch ( geomType ) {
+			geometry = geomKind;
+			switch ( geomKind ) {
 				case ( PlanarCartesian ) : {
 					physCoords = new LpmEuclideanCoords<scalarType>( 2, nMax, procRank, nProcs );
 					lagCoords = new LpmEuclideanCoords<scalarType>(2, nMax, procRank, nProcs );
@@ -45,9 +45,9 @@ template <typename scalarType> class LpmParticles {
 			delete lagCoords;
 		};
 			
-		size_t size() const { return physCoords.size(); }	
-		int nDim() const { return physCoords.nDim(); }
-		size_t nMax() const { return physCoords.nMax(); }
+		size_t size() const { return physCoords->size(); }	
+		int nDim() const { return physCoords->nDim(); }
+		size_t nMax() const { return physCoords->nMax(); }
 		
 		scalarType totalVolume() const {
 			scalarType result = 0.0;

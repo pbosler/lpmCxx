@@ -14,7 +14,7 @@ using LpmXyzVector::XyzVector;
 
 template <typename scalarType> class LpmField2d : public LpmScalarField<scalarType> {
 	public :
-		LpmField2d( const int nMax, const std::string name = " ", const std::string units = " ", 
+		LpmField2d( const size_t nMax, const std::string name = " ", const std::string units = " ", 
 			const int pRank = 0, const int nProcs = 1 ) : LpmScalarField<scalarType>(nMax, name, units, pRank, nProcs) {
 			vals1.reserve(nMax);
 		};
@@ -22,7 +22,7 @@ template <typename scalarType> class LpmField2d : public LpmScalarField<scalarTy
 		LpmField2d( const LpmParticles<scalarType>& particles, const std::string name = " ", 
 			const std::string units = " ", const int pRank = 0, const int nProcs = 1 ) :
 			LpmScalarField<scalarType>( particles, name, units, pRank, nProcs ) {
-				vals1.reserve(nMax);
+				vals1.reserve(particles.size());
 			};
 		
 		virtual ~LpmField2d() {};
