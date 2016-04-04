@@ -17,12 +17,9 @@
 typedef double ST;
 using LpmXyzVector::XyzVector;
 
-// ST legendre54( const ST z ) {
-// 	return z * ( z * z - 1.0 ) * ( z * z - 1.0 );
-// }
-
 ST sphHarm54( const ST lat, const ST lon) {
-	return std::cos( 4.0 * lon ) * std::pow( std::sin(lat), 4) * std::cos(lat);
+	static const ST amp = (3.0 / 16.0 ) * std::sqrt(385.0 / (2.0 * GlobalConstants::Instance()->Pi()));
+	return amp * std::cos( 4.0 * lon ) * std::pow( std::sin(lat), 4) * std::cos(lat);
 }
 
 int main ( int argc, const char* argv[] ) {
