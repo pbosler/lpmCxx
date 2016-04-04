@@ -17,6 +17,14 @@
 typedef double ST;
 using LpmXyzVector::XyzVector;
 
+// ST legendre54( const ST z ) {
+// 	return z * ( z * z - 1.0 ) * ( z * z - 1.0 );
+// }
+
+ST sphHarm54( const ST lat, const ST lon) {
+	return std::cos( 4.0 * lon ) * std::pow( std::sin(lat), 4) * std::cos(lat);
+}
+
 int main ( int argc, const char* argv[] ) {
 	Logger* log = Logger::Instance(OutputMessage::debugPriority);
 
@@ -98,6 +106,39 @@ int main ( int argc, const char* argv[] ) {
     */
 	OutputMessage test2start("TEST 2: 3D Particles and Fields", OutputMessage::remarkPriority, "main");
 	log->logMessage(test2start);
-    
+	
+	log->logMessage(endTestMsg);
+	
+	/* 
+	TEST 3 : Spherical surface
+	*/
+	OutputMessage test3start("TEST 3: Spherical surface particles and fields", OutputMessage::remarkPriority, "main");
+	log->logMessage(test3start);
+	
+	const ST PI = GlobalConstants::Instance()->Pi();
+	const ST deg2rad = GlobalConstants::Instance()->Deg2Rad();
+	const int nLat = 91;
+	const int nLon = 180;
+	const ST dLam = 360.0/nLon * deg2rad;
+	
+	LpmParticles<ST> sphereParticles( LpmParticles<ST>::SphericalSurface, nLon * nLat );
+	for ( int j = 0; j < nLon; ++j ) {
+		const ST lon = j * dLam;
+		for ( int i = 0; i < nLat; ++i ) {
+			const ST lat = -0.5 * PI + i * dLam;
+			const XyzVector<ST> sphX( std::cos(lon) * std::cos(lat), std::sin(lon) * std::cos(lat), std::sin(lat));
+			
+			sphereParticles.insert( sphX, sphX );
+		}
+	}
+	sphereParticles.PrintStats("main, after sphere insertion");
+	sphereParticles.writePhysCoordsToMatlab( file );
+	
+	LpmScalarField<ST> rhWave( sphereParticles, "rhWave", "n_a");
+	for ( int i = 0; i < sphereParticles.size(); ++i ) {
+		rhWave.insert( sphHarm54( sphereParticles.Latitude(i), sphereParticles.Longitude(i) ) );
+	}
+	rhWave.writeFieldToMatlab(file);
+    log->logMessage(endTestMsg);
 return 0;
 };

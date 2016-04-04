@@ -8,6 +8,8 @@
 #include "Logger.h"
 #include "LpmXyzVector.hpp"
 #include "LpmCoords.hpp"
+#include "LpmEuclideanCoords.hpp"
+#include "LpmSphereCoords.hpp"
 
 using LpmXyzVector::XyzVector;
 
@@ -124,6 +126,14 @@ template <typename scalarType> class LpmParticles {
 		
 		scalarType getArea( const size_t i ) const { return area[i]; }
 		scalarType getVolume( const size_t i ) const { return volume[i]; }
+		
+		scalarType Latitude( const size_t i ) const { 
+			return dynamic_cast<LpmSphereCoords<scalarType>*>(physCoords)->Latitude(i);
+		}
+		
+		scalarType Longitude( const size_t i ) const {
+			return dynamic_cast<LpmSphereCoords<scalarType>*>(physCoords)->Longitude(i);
+		}
 			
 		size_t size() const { return physCoords->size(); }	
 		int nDim() const { return physCoords->nDim(); }
@@ -173,30 +183,45 @@ template <typename scalarType> class LpmParticles {
 		};
 		
 		void writePhysCoordsToMatlab( std::ostream& fs ) const {
-			XyzVector<scalarType> physX;
-			fs << "x = [";
-			for ( size_t i = 0; i < size() - 1; ++i ) {
-				physX = physCoordVec(i);
-				fs << physX.x << ", ";
-			}
-			physX = physCoordVec( size() - 1);
-			fs << physX.x << "];" << std::endl << std::endl;
-			
-			fs << "y = [";
-			for ( size_t i = 0; i < size() - 1; ++i ) {
-				physX = physCoordVec(i);
-				fs << physX.y << ", ";
-			}
-			physX = physCoordVec(size() - 1);
-			fs << physX.y << "];" << std::endl << std::endl;
-			if ( geometry != PlanarCartesian ) {
-				fs << "z = ["; 
+			if ( geometry != SphericalSurface ) {
+				XyzVector<scalarType> physX;
+				fs << "x = [";
 				for ( size_t i = 0; i < size() - 1; ++i ) {
 					physX = physCoordVec(i);
-					fs << physX.z << ", ";
+					fs << physX.x << ", ";
+				}
+				physX = physCoordVec( size() - 1);
+				fs << physX.x << "];" << std::endl << std::endl;
+			
+				fs << "y = [";
+				for ( size_t i = 0; i < size() - 1; ++i ) {
+					physX = physCoordVec(i);
+					fs << physX.y << ", ";
 				}
 				physX = physCoordVec(size() - 1);
-				fs << physX.z << "];" << std::endl << std::endl;	
+				fs << physX.y << "];" << std::endl << std::endl;
+				if ( geometry != PlanarCartesian ) {
+					fs << "z = ["; 
+					for ( size_t i = 0; i < size() - 1; ++i ) {
+						physX = physCoordVec(i);
+						fs << physX.z << ", ";
+					}
+					physX = physCoordVec(size() - 1);
+					fs << physX.z << "];" << std::endl << std::endl;	
+				}
+			}
+			else {
+				fs << "lat = [";
+				for ( size_t i = 0; i < size() - 1; ++i ) {
+					fs << dynamic_cast<LpmSphereCoords<scalarType>*>(physCoords)->Latitude(i) << ", ";
+				}
+				fs << dynamic_cast<LpmSphereCoords<scalarType>*>(physCoords)->Latitude(size() - 1) << "];" << std::endl << std::endl;
+				
+				fs << "lon = [";
+				for ( size_t i = 0; i < size() - 1; ++i ) {
+					fs << dynamic_cast<LpmSphereCoords<scalarType>*>(physCoords)->Longitude(i) << ", ";
+				}
+				fs << dynamic_cast<LpmSphereCoords<scalarType>*>(physCoords)->Longitude(size()-1) << "];" << std::endl << std::endl;
 			}
 		};
 		
