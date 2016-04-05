@@ -53,6 +53,8 @@ template <typename scalarType> class LpmParticles {
 			delete lagCoords;
 		};
 		
+		geomType geometryKind() const { return geometry; }
+		
 		void insert( const XyzVector<scalarType>& physX, const XyzVector<scalarType>& lagX, 
 					 const scalarType& areaOrVolume = 0.0 ) {
 			physCoords->insert(physX);
@@ -138,6 +140,10 @@ template <typename scalarType> class LpmParticles {
 		size_t size() const { return physCoords->size(); }	
 		int nDim() const { return physCoords->nDim(); }
 		size_t nMax() const { return physCoords->nMax(); }
+		
+		scalarType distance( const size_t indexA, const size_t indexB ) const {	
+			return physCoords->distance(indexA, indexB); 
+		};
 		
 		scalarType totalVolume() const {
 			scalarType result = 0.0;
