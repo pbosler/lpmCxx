@@ -126,8 +126,8 @@ template <typename scalarType> class LpmParticles {
 		void setArea( const size_t i, const scalarType newArea ) { area[i] = newArea; }
 		void setVolume( const size_t i, const scalarType newVol ) { volume[i] = newVol; }
 		
-		scalarType getArea( const size_t i ) const { return area[i]; }
-		scalarType getVolume( const size_t i ) const { return volume[i]; }
+		scalarType area( const size_t i ) const { return area[i]; }
+		scalarType volume( const size_t i ) const { return volume[i]; }
 		
 		scalarType Latitude( const size_t i ) const { 
 			return dynamic_cast<LpmSphereCoords<scalarType>*>(physCoords)->Latitude(i);
@@ -144,6 +144,17 @@ template <typename scalarType> class LpmParticles {
 		scalarType distance( const size_t indexA, const size_t indexB ) const {	
 			return physCoords->distance(indexA, indexB); 
 		};
+		
+		XyzVector<scalarType> midpoint( const size_t indexA, const size_t indexB ) const {
+			return physCoords->midpoint(indexA, indexB);}
+		};
+		
+		scalarType triArea( const size_t indexA, const size_t indexB, const size_t indexC ) const {
+			return physCoords->triArea(indexA, indexB, indexC);
+		};
+		
+		XyzVector<scalarType> lagMidpoint( const size_t indexA, const size_t indexB ) const {
+			return lagCoords->midpoint(indexA, indexB); }
 		
 		scalarType totalVolume() const {
 			scalarType result = 0.0;

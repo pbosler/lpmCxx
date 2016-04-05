@@ -16,6 +16,17 @@ using LpmXyzVector::XyzVector;
 
 template <typename scalarType> class LpmEdges {
 	public :
+		LpmEdges( const size_t nMax, const int nPts = 2, const int pRank = 0, const int nProcs = 1 ) :
+			_nMax(nMax), _nPtsPerEdge(nPts), _nActive(0) {
+			log = Logger::Instance( OutputMessage::debugPriority, pRank, nProcs);
+			_orig.reserve(nMax);
+			_dest.reserve(nMax);
+			_leftFace.reserve(nMax);
+			_rightFace.reserve(nMax);
+			_parent.reserve(nMax);
+			_child1.reserve(nMax);
+			_child2.reserve(nMax);
+		};
 		virtual ~LpmEdges() {};
 		
 		size_t size() const { return _orig.size(); }
@@ -28,12 +39,26 @@ template <typename scalarType> class LpmEdges {
 		int leftFace( const size_t index ) const { return _leftFace[index]; }
 		int rightFace(const size_t index ) const { return _rightFace[index]; }
 		
+		scalarType length( const size_t index, const LpmParticles<scalarType>& particles ) const { 
+			return particles.distance( _orig[index], _dest[index]); }
+		
+		XyzVector<scalarType> midpoint( const size_t index, const LpmParticles<scalarType>& particles ) const {
+			return particles.midpoint( _orig[index], _dest[index] ); }
+			
+		XyzVector<scalarType> lagMidpoint( const size_t index, const LpmParticles<scalarType>& particles ) const {
+			return particles.lagMidpoint( _orig[index], _dest[index] ); }
+			
+		XyzVector<scalarType> edgeVector( const size_t index, const LpmParticles<scalarType>& particles ) const {
+			return particles.physCoordVec( _dest[index] ) - particles.physCoordVec( _orig[index] );
+		};
+		
 		void setLeftFace( const size_t index, const size_t lFaceIndex ) {
 			_leftFace[index] = lFaceIndex;
 		};
 		void setRightFace( const size_t index, const size_t rFaceIndex ) {
 			_rightFace[index] = rFaceIndex;
 		};
+		void setNActive( const nA ) { _nActive = nA; }
 		
 		bool isDivided(const size_t index) const { return ( _child1[index] >= 0 ); }
 		bool isActive(const size_t index) const { return !isDivided(index); }
@@ -50,24 +75,37 @@ template <typename scalarType> class LpmEdges {
 			_dest.push_back(destIndex);
 			_leftFace.push_back(leftIndex);
 			_rightFace.push_back(rightIndex);
+			_parent.push_back(-1);
+			_child1.push_back(-1);
+			_child2.push_back(-1);
 		};
-		virtual void divide() {};
 		
-		virtual scalarType edgeLenght( const size_t index ) const = 0;
+		virtual void divide( const int index, LpmParticles<scalarType>& particles ) {
+			XyzVector<scalarType> physMidpt = midpoint(index, particles);
+			XyzVector<scalarType> lagMidpt = lagMidpoint(index, particles);
+			
+			const int particleInsertPoint = particles.size();
+			const int edgeInsertPoint = size();
+			
+			particles.insert(physMidpt, lagMidpt);
+			
+			_child1[index] = edgeInsertPoint;
+			_child2[index] = edgeInsertPoint + 1;
+			
+			// child edge 1
+			insert( _orig[index], particleInsertPoint, _left[index], _right[index] );
+			_parent[edgeInsertPoint] = index;
+			
+			// child edge 2
+			insert( particleInsertPoint, _dest[index], _left[index], _right[index] );
+			_parent[edgeInsertPoint+1] = index;
+			
+			_nActive += 1;
+		};
+		
+
 	
 	protected :
-		LpmEdges( const size_t nMax, const int pRank = 0, const int nProcs = 1 ) :
-			_nMax(nMax), _nPtsPerEdge(2), _nActive(0) {
-			log = Logger::Instance( OutputMessage::debugPriority, pRank, nProcs);
-			_orig.reserve(nMax);
-			_dest.reserve(nMax);
-			_leftFace.reserve(nMax);
-			_rightFace.reserve(nMax);
-			_parent.reserve(nMax);
-			_child1.reserve(nMax);
-			_child2.reserve(nMax);
-		};
-	
 		std::vector<int> _orig;
 		std::vector<int> _dest;
 		std::vector<int> _leftFace;
