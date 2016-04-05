@@ -61,6 +61,11 @@ int main ( int argc, const char* argv[] ) {
     }   
     planeParticles.PrintStats( "main, after particle insertion.");
     
+    ss.str(s);
+    ss << "distance between particle 0 and particle " << planeParticles.size() - 1 << " should be " << 10.0 * std::sqrt(2.0) << "; computed distance is " << planeParticles.distance(0, nn * nn - 1 );
+    OutputMessage statusMsg(ss.str(), OutputMessage::remarkPriority, "main, plane particles Test 1");
+    log->logMessage(statusMsg);
+    
     std::string matlabFile = "planarParticlesUnitTest.m";
     std::ofstream file( matlabFile.c_str() );
     if ( !file ) {
@@ -130,6 +135,11 @@ int main ( int argc, const char* argv[] ) {
 	}
 	sphereParticles.PrintStats("main, after sphere insertion");
 	sphereParticles.writePhysCoordsToMatlab( file );
+	
+	ss.str(s);
+	ss << "distance between particle 0 and particle " << sphereParticles.size() - 1 << " should be " << PI << "; computed distance is " << sphereParticles.distance(0, nLon * nLat - 1);
+	statusMsg = OutputMessage( ss.str(), OutputMessage::remarkPriority, "main, sphere particles test.");
+	log->logMessage(statusMsg);
 	
 	LpmScalarField<ST> rhWave( sphereParticles, "rhWave", "n_a");
 	for ( int i = 0; i < sphereParticles.size(); ++i ) {
