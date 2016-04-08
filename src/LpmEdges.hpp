@@ -39,6 +39,19 @@ template <typename scalarType> class LpmEdges {
 		int leftFace( const size_t index ) const { return _leftFace[index]; }
 		int rightFace(const size_t index ) const { return _rightFace[index]; }
 		
+		std::vector<int> getLeafEdgesFromParent( const size_t index ) const { 
+			return replaceEdgeIndicesWithChildren( std::vector<int>(1, index) );
+		};
+		
+		std::vector<int> getAllVerticesAlongEdge( const size_t index ) const {
+			std::vector<int> leafEdges = getLeafeEdgesFromParent( index );
+			std::vector<int> result;
+			for ( int i = 0; i < leafEdges.size(); ++i )
+				result.push_back( _orig[ leafEdges[i] ] );
+			result.push_back( _dest[leafEdges.back()] );
+			return result;
+		}
+		
 		scalarType length( const size_t index, const LpmParticles<scalarType>& particles ) const { 
 			return particles.distance( _orig[index], _dest[index]); }
 		
@@ -81,8 +94,8 @@ template <typename scalarType> class LpmEdges {
 		};
 		
 		virtual void divide( const int index, LpmParticles<scalarType>& particles ) {
-			XyzVector<scalarType> physMidpt = midpoint(index, particles);
-			XyzVector<scalarType> lagMidpt = lagMidpoint(index, particles);
+			const XyzVector<scalarType> physMidpt = midpoint(index, particles);
+			const XyzVector<scalarType> lagMidpt = lagMidpoint(index, particles);
 			
 			const int particleInsertPoint = particles.size();
 			const int edgeInsertPoint = size();
@@ -113,6 +126,26 @@ template <typename scalarType> class LpmEdges {
 		std::vector<int> _parent;
 		std::vector<int> _child1;
 		std::vector<int> _child2;
+		
+		std::vector<int> replaceEdgeIndicesWithChildren( std::vector<int> edgeList ) const {
+			std::vector<int> result;
+			bool keepGoing = false;
+			for ( int i = 0; i < edgeList.size(); ++i ) {
+				if ( hasChildren( edgeList[i] ) ) {
+					result.push_back( _child1[edgeList[i]] );
+					result.push_back( _child2[edgeList[i]] );
+					if (hasChildren( _child1[edgeList[i]] ) || hasChildren( _child2[edgeList[i]] ) )
+						keepGoing = true;
+				}
+				else {
+					result.push_back( edgeList[i] );
+				}
+			}
+			if ( !keepGoing ) 
+				return result;
+			else
+				return replaceEdgeIndicesWithChildren( result );
+		}
 		
 		int _nPtsPerEdge;
 		int _nActive;
