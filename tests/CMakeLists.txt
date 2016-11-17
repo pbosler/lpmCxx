@@ -1,13 +1,13 @@
 include(CTest)
 
-add_executable ( lpmBaseObsTest.exe baseTest.cpp )
-target_link_libraries( lpmBaseObsTest.exe lpmLib )
-
-add_executable ( lpmCoordsUnitTest.exe lpmCoordsUnitTest.cpp )
-target_link_libraries( lpmCoordsUnitTest.exe lpmLib )
-
-add_executable ( lpmParticlesAndFieldsUnitTest.exe lpmParticlesAndFieldTest.cpp )
-target_link_libraries( lpmParticlesAndFieldsUnitTest.exe lpmLib )
+#add_executable ( lpmBaseObsTest.exe baseTest.cpp )
+#target_link_libraries( lpmBaseObsTest.exe lpmLib )
+#
+#add_executable ( lpmCoordsUnitTest.exe lpmCoordsUnitTest.cpp )
+#target_link_libraries( lpmCoordsUnitTest.exe lpmLib )
+#
+#add_executable ( lpmParticlesAndFieldsUnitTest.exe lpmParticlesAndFieldTest.cpp )
+#target_link_libraries( lpmParticlesAndFieldsUnitTest.exe lpmLib )
 
 #add_executable ( lpmParticlesAndFieldTest.exe ParticlesAndFieldTest.cpp )
 #target_link_libraries( lpmParticlesAndFieldTest.exe lpmLib )
@@ -15,8 +15,8 @@ target_link_libraries( lpmParticlesAndFieldsUnitTest.exe lpmLib )
 #add_executable( lpmPlanarMeshTest.exe PlanarMeshTest.cpp )
 #target_link_libraries( lpmPlanarMeshTest.exe lpmLib )
 
-#add_executable( lpmSphereMeshTest.exe sphereVTKMeshTest.cpp)
-#target_link_libraries( lpmSphereMeshTest.exe lpmLib )
+add_executable( lpmSphereMeshTest.exe sphereVTKMeshTest.cpp)
+target_link_libraries( lpmSphereMeshTest.exe oldLpmLib )
 
 #install ( TARGETS lpmBaseObsTest.exe lpmParticlesAndFieldTest.exe lpmPlanarMeshTest.exe lpmSphereMeshTest.exe
 #		  DESTINATION bin )

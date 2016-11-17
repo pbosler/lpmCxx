@@ -2,7 +2,6 @@
 #include "PolyMesh2d.h"
 #include "OutputMessage.h"
 #include "Logger.h"
-#include "Field.h"
 #include <iostream>
 #include <cmath>
 #include <fstream>
@@ -27,34 +26,41 @@ int main ( int argc, char* argv[] )
 	
 	GlobalConstants* constants = GlobalConstants::Instance();
 	
-	//
-	// construct 2 sphere mesh objects
-	//
-	const int initNest = 3;
-	const double sphereRadius = 1.0;
-	constants->SetEarthRadius( sphereRadius );
+// 	for (int i = 1; i < 9; ++i) 
+	{
+		//
+		// construct 2 sphere mesh objects
+		//
+		const int i = 9;
+		const int initNest = i;
+		const double sphereRadius = 1.0;
+	// 	constants->SetEarthRadius( sphereRadius );
 	
-	std::cout << "building icos tri sphere mesh ... " << std::endl;
-	PolyMesh2d triMesh( initNest, PolyMesh2d::icosTriSphereSeed, sphereRadius, procRank, numProcs );
+		std::cout << "building icos tri sphere mesh ... " << std::endl;
+		PolyMesh2d triMesh( initNest, PolyMesh2d::icosTriSphereSeed, sphereRadius, procRank, numProcs );
 	
-	std::cout << "icos. tri. mesh built. surf area = " << triMesh.surfaceArea() << std::endl;
-	Particles* triParticles = triMesh.getParticles();
+		std::cout << "icos. tri. mesh built. surf area = " << triMesh.surfaceArea() << std::endl;
+		Particles* triParticles = triMesh.getParticles();
 	
-	//triParticles->printIncidentEdges();
+		//triParticles->printIncidentEdges();
 	
-	std::cout << "building cubed sphere mesh ... " << std::endl;
-	PolyMesh2d quadMesh( initNest, PolyMesh2d::cubedSphereSeed,  sphereRadius, procRank, numProcs );
-	std::cout << "cubed sphere built. surf area = " << quadMesh.surfaceArea() << std::endl;
+		std::cout << "building cubed sphere mesh ... " << std::endl;
+		PolyMesh2d quadMesh( initNest, PolyMesh2d::cubedSphereSeed,  sphereRadius, procRank, numProcs );
+		std::cout << "cubed sphere built. surf area = " << quadMesh.surfaceArea() << std::endl;
 	
-	Particles* quadParticles = quadMesh.getParticles();
-	//quadParticles->printIncidentEdges();
+		Particles* quadParticles = quadMesh.getParticles();
+		//quadParticles->printIncidentEdges();
 	
-	//
-	// output meshes to paraview data files
-	//
-	triMesh.outputToVTK( "icosTri_3.vtk" );
-	quadMesh.outputToVTK("cubedSphere_3.vtk");
-	
+		//
+		// output meshes to paraview data files
+		//
+		ss.str("");
+		ss << "icosTri_" << i << ".vtk";
+		triMesh.outputToVTK( ss.str() );
+		ss.str("");
+		ss << "cubedSphere_" << i << ".vtk";
+		quadMesh.outputToVTK(ss.str());
+	}
 	
 	return 0;
 };
