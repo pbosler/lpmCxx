@@ -10,30 +10,13 @@
 	@author Peter Bosler <pabosle@sandia.gov>
  */
 
-#include "Logger.h"
+#include "LpmLogger.h"
 
 using std::cout;
 using std::cerr;
 using std::endl;
 
-Logger* Logger::_instance = 0;
-
-/**
- @brief Returns a pointer to the single Logger object on each process.  Sets base priority level.
- @param level
- @param procRank
- @param numProcs
- */
-Logger* Logger::Instance( const OutputMessage::priority level, const int procRank, const int numProcs)
-{
-    if ( _instance == NULL)
-        _instance = new Logger( level, procRank, numProcs);
-    else {
-        if ( _instance->_baseLevel > level)
-            _instance->_baseLevel = level;
-    }
-    return _instance;
-};
+namespace Lpm {
 
 /** @brief Private constructor
  @param logLevel
@@ -80,4 +63,6 @@ void Logger::logMessage( const LongMessage longMsg ) const
 	else {
 		cout << "proc " << _procRank << " : " << longMsg << endl;
 	}
+}
+
 }

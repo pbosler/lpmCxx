@@ -29,6 +29,10 @@ ADD_EXECUTABLE(lpmOutputMessageUnitTest.exe LpmOutputMessageUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmOutputMessageUnitTest.exe lpm)
 add_test( outputMessageTest lpmOutputMessageUnitTest.exe)
 
+ADD_EXECUTABLE(lpmLoggerUnitTest.exe LpmLoggerUnitTests.cpp)
+TARGET_LINK_LIBRARIES(lpmLoggerUnitTest.exe lpm)
+add_test( loggerTest lpmLoggerUnitTest.exe)
+
 #add_test( baselibTest lpmBaseObsTest.exe )
 #add_test( coordsTest lpmCoordsUnitTest.exe )
 #add_test( particlesAndFieldTest lpmParticlesAndFieldsUnitTest.exe )
