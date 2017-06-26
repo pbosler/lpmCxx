@@ -5,6 +5,8 @@
 #include "LpmTypeDefs.h"
 #include "LpmXyzVector.h"
 #include "LpmLogger.h"
+#include "LpmAnalyticFunctions.h"
+#include "LpmCoords.h"
 #include <vector>
 #include <string>
 #include <memory>
@@ -32,6 +34,8 @@ class Field {
         void replace(const index_type ind, const XyzVector& vec);
         
         void initializeToConstant(const scalar_type val = 0.0);
+        void initializeToScalarFunction(const Coords* crds, const AnalyticFunction* fn);
+        void initializeToVectorFunction(const Coords* crds, const AnalyticFunction* fn);
     
     protected:
         std::vector<scalar_type> comp0;
@@ -44,7 +48,7 @@ class Field {
         index_type _nMax;
         int _nDim;
         
-        static std::unique_ptr<Logger> log;
+        std::unique_ptr<Logger> log;
 };
 
 }

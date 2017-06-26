@@ -2,7 +2,8 @@
 
 namespace Lpm {
 
-Field::Field(const index_type nMax, const int nDim) : _nMax(nMax), _nDim(nDim) {
+Field::Field(const index_type nMax, const int nDim, const std::string name, const std::string units) : 
+    _nMax(nMax), _nDim(nDim), _name(name), _units(units) {
     if (!log) {
         log = std::unique_ptr<Logger>(new Logger(OutputMessage::debugPriority));
     }
@@ -91,5 +92,26 @@ void Field::initializeToConstant(const scalar_type val) {
         }
     }
 }   
+
+void Field::initializeToScalarFunction(const Coords* crds, const AnalyticFunction* fn) {
+    comp0.clear();
+    for (index_type i = 0; i < crds->n(); ++i) {
+        comp0.push_back(fn->evaluateScalar(crds->getVec(i)));
+    }
+}
+
+void Field::initializeToVectorFunction(const Coords* crds, const AnalyticFunction* fn) {
+    comp0.clear();
+    comp1.clear();
+    if (_nDim == 3)
+        comp2.clear();
+    for (index_type i = 0; i < crds->n(); ++i) {
+        const XyzVector vecVal = fn->evaluateVector(crds->getVec(i));
+        comp0.push_back(vecVal.x);
+        comp1.push_back(vecVal.y);
+        if (_nDim == 3)
+            comp2.push_back(vecVal.z);
+    }
+}
 
 }

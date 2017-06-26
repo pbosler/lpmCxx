@@ -37,6 +37,10 @@ ADD_EXECUTABLE(lpmCoordsUnitTest.exe LpmCoordsUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmCoordsUnitTest.exe lpm)
 add_test( coordsTest lpmCoordsUnitTest.exe)
 
+ADD_EXECUTABLE(lpmFieldUnitTest.exe LpmFieldUnitTests.cpp)
+TARGET_LINK_LIBRARIES(lpmFieldUnitTest.exe lpm)
+add_test( fieldTest lpmFieldUnitTest.exe)
+
 #add_test( baselibTest lpmBaseObsTest.exe )
 #add_test( coordsTest lpmCoordsUnitTest.exe )
 #add_test( particlesAndFieldTest lpmParticlesAndFieldsUnitTest.exe )

@@ -26,7 +26,7 @@ include_directories( "${PROJECT_SRC_DIR}/src" )
 #		  DESTINATION include )
 
 install (FILES LpmXyzVector.h LpmOutputMessage.h LpmLogger.h LpmCoords.h LpmEuclideanCoords.h LpmSphericalCoords.h
-               LpmField.h
+               LpmField.h LpmAnalyticFunctions.h
          DESTINATION include)
 		  
 install ( TARGETS lpm DESTINATION lib )  
