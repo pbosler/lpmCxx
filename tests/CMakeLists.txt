@@ -15,15 +15,19 @@ include(CTest)
 #add_executable( lpmPlanarMeshTest.exe PlanarMeshTest.cpp )
 #target_link_libraries( lpmPlanarMeshTest.exe lpmLib )
 
-add_executable( lpmSphereMeshTest.exe sphereVTKMeshTest.cpp)
-target_link_libraries( lpmSphereMeshTest.exe oldLpmLib )
+#add_executable( lpmSphereMeshTest.exe sphereVTKMeshTest.cpp)
+#target_link_libraries( lpmSphereMeshTest.exe oldLpmLib )
 
 #install ( TARGETS lpmBaseObsTest.exe lpmParticlesAndFieldTest.exe lpmPlanarMeshTest.exe lpmSphereMeshTest.exe
 #		  DESTINATION bin )
 
-add_test( baselibTest lpmBaseObsTest.exe )
-add_test( coordsTest lpmCoordsUnitTest.exe )
-add_test( particlesAndFieldTest lpmParticlesAndFieldsUnitTest.exe )
+ADD_EXECUTABLE(lpmXyzVectorUnitTest.exe LpmXyzVectorUnitTests.cpp)
+TARGET_LINK_LIBRARIES(lpmXyzVectorUnitTest.exe lpm)
+add_test( xyzVecTest lpmXyzVectorUnitTest.exe)
+
+#add_test( baselibTest lpmBaseObsTest.exe )
+#add_test( coordsTest lpmCoordsUnitTest.exe )
+#add_test( particlesAndFieldTest lpmParticlesAndFieldsUnitTest.exe )
 #add_test( particlesAndFieldTest lpmParticlesAndFieldTest.exe )
 #add_test( planarMeshTest lpmPlanarMeshTest.exe )
 #add_test( sphereMeshTest lpmSphereMeshTest.exe )
