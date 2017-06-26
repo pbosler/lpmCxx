@@ -11,10 +11,10 @@ XyzVector operator - ( const XyzVector& vecA, const XyzVector& vecB ) {
 XyzVector operator * ( const XyzVector& vecA, const XyzVector& vecB ) {
 	return XyzVector( vecA.x * vecB.x, vecA.y * vecB.y, vecA.z * vecB.z); }
 
- std::ostream& operator << ( std::ostream& os, const XyzVector& vec ) {
+std::ostream& operator << ( std::ostream& os, const XyzVector& vec ) {
 	os << "(" << vec.x << ", " << vec.y << ", " << vec.z << ")" ; return os; }
 	
- scalar_type atan4( const scalar_type y, const scalar_type x ) {
+scalar_type atan4( const scalar_type y, const scalar_type x ) {
 	scalar_type result = 0.0;
 	if ( x == 0.0 )
 	{
@@ -47,15 +47,15 @@ XyzVector operator * ( const XyzVector& vecA, const XyzVector& vecB ) {
 	return result;
 }
 
- bool operator == ( const XyzVector& vecA, const XyzVector& vecB ){
+bool operator == ( const XyzVector& vecA, const XyzVector& vecB ){
 	return ( ( std::abs( vecA.x - vecB.x ) < ZERO_TOL ) && ( std::abs(vecA.y - vecB.y) < ZERO_TOL)) && ( std::abs(vecA.z - vecB.z) < ZERO_TOL ) ;
 }
 
- XyzVector midpoint( const XyzVector& vecA, const XyzVector& vecB ) {
+XyzVector midpoint( const XyzVector& vecA, const XyzVector& vecB ) {
 	return XyzVector( 0.5 * (vecA.x + vecB.x), 0.5 * (vecA.y + vecB.y), 0.5 * (vecA.z + vecB.z) );
 }
 
- XyzVector centroid( const std::vector<XyzVector > vecs ) {
+XyzVector centroid( const std::vector<XyzVector > vecs ) {
 	XyzVector cntd(0.0, 0.0, 0.0);
 	for ( int i = 0; i < vecs.size(); ++i)
 		cntd += vecs[i];
@@ -63,25 +63,23 @@ XyzVector operator * ( const XyzVector& vecA, const XyzVector& vecB ) {
 	return cntd;
 }
 
- scalar_type distance( const XyzVector& vecA, const XyzVector& vecB){
+scalar_type distance( const XyzVector& vecA, const XyzVector& vecB){
 	return std::sqrt( (vecB.x - vecA.x) * (vecB.x - vecA.x) + (vecB.y - vecA.y) * ( vecB.y - vecA.y) + (vecB.z - vecA.z) * (vecB.z - vecA.z));
 }
 
- scalar_type triArea( const XyzVector& vecA, const XyzVector& vecB, const XyzVector& vecC){
+scalar_type triArea( const XyzVector& vecA, const XyzVector& vecB, const XyzVector& vecC){
 	XyzVector diff1 = vecB - vecA;
 	XyzVector diff2 = vecC - vecA;
 	return 0.5 * diff1.crossProduct(diff2).magnitude();
 }
 
- scalar_type sphereDistance( const XyzVector& vecA, const XyzVector& vecB, 
-	const scalar_type radius = 1.0 ){
+scalar_type sphereDistance( const XyzVector& vecA, const XyzVector& vecB, const scalar_type radius ){
 	const XyzVector cProd = vecA.crossProduct(vecB);
 	const scalar_type dotProd = vecA.dotProduct(vecB);
 	return std::atan2( cProd.magnitude(), dotProd ) * radius;
 }
 
- scalar_type sphereTriArea( const XyzVector& vecA, 
-	const XyzVector& vecB, const XyzVector& vecC, const scalar_type radius = 1.0){
+scalar_type sphereTriArea( const XyzVector& vecA, const XyzVector& vecB, const XyzVector& vecC, const scalar_type radius){
 	const scalar_type side1 = sphereDistance(vecA, vecB);
 	const scalar_type side2 = sphereDistance(vecB, vecC);
 	const scalar_type side3 = sphereDistance(vecC, vecA);
@@ -91,8 +89,7 @@ XyzVector operator * ( const XyzVector& vecA, const XyzVector& vecB ) {
 	return 4.0 * std::atan2( std::sqrt(zz), 1.0 ) * radius * radius;
 }
 
- XyzVector sphereCentroid( const std::vector<XyzVector > vecs, 
-	const scalar_type radius = 1.0 ) {
+XyzVector sphereCentroid( const std::vector<XyzVector > vecs, const scalar_type radius) {
 	XyzVector cntd(0.0, 0.0, 0.0);
 	for ( int i = 0; i < vecs.size(); ++i)
 		cntd += vecs[i];
@@ -102,8 +99,7 @@ XyzVector operator * ( const XyzVector& vecA, const XyzVector& vecB ) {
 	return cntd;
 }
 
- XyzVector sphereMidpoint( const XyzVector& vecA, 
-	const XyzVector& vecB, const scalar_type radius = 1.0 ) {
+XyzVector sphereMidpoint( const XyzVector& vecA, const XyzVector& vecB, const scalar_type radius) {
 	XyzVector midpt( 0.5 * (vecA.x + vecB.x), 0.5 * (vecA.y + vecB.y), 0.5 * (vecA.z + vecB.z ) );
 	midpt.normalize();
 	midpt.scale(radius);

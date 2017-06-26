@@ -25,6 +25,10 @@ ADD_EXECUTABLE(lpmXyzVectorUnitTest.exe LpmXyzVectorUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmXyzVectorUnitTest.exe lpm)
 add_test( xyzVecTest lpmXyzVectorUnitTest.exe)
 
+ADD_EXECUTABLE(lpmOutputMessageUnitTest.exe LpmOutputMessageUnitTests.cpp)
+TARGET_LINK_LIBRARIES(lpmOutputMessageUnitTest.exe lpm)
+add_test( outputMessageTest lpmOutputMessageUnitTest.exe)
+
 #add_test( baselibTest lpmBaseObsTest.exe )
 #add_test( coordsTest lpmCoordsUnitTest.exe )
 #add_test( particlesAndFieldTest lpmParticlesAndFieldsUnitTest.exe )

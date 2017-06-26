@@ -12,9 +12,13 @@
 	@brief OutputMessage header file. Defines OutputMessage and LongMessage classes.
 	@author Peter Bosler <pabosle@sandia.gov>
  */
+#include "LpmTypeDefs.h"
+#include "LpmConfig.h"
 #include <string>
 #include <iostream>
 #include <vector>
+
+namespace Lpm {
 
 /**
   @class OutputMessage 
@@ -103,4 +107,5 @@ inline std::ostream& operator << ( std::ostream& os, const LongMessage& msg)
     return os;
 };
 
+} //namespace
 #endif /* defined(__LPM__OutputMessage__) */

@@ -9,7 +9,9 @@
 	@file
 	@author Peter Bosler <pabosle@sandia.gov>
  */
-#include "OutputMessage.h"
+#include "LpmOutputMessage.h"
+
+namespace Lpm {
 
 /** @brief Main constructor.
     @param msg
@@ -82,3 +84,5 @@ void LongMessage::printMsg( std::ostream& os ) const
 		os << _msgStrings[i] << std::endl;
 	}
 };
+
+}

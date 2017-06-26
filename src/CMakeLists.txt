@@ -1,4 +1,4 @@
-SET(CMAKE_CXX_STANDARD 11)
+
 
 #add_library( lpmLib GlobalConstants.cpp OutputMessage.cpp Logger.cpp
 #					LpmXyzVector.hpp LpmCoords.hpp
@@ -7,7 +7,7 @@ SET(CMAKE_CXX_STANDARD 11)
 #				    #RefinementType.cpp 
 #				    )
 				    
-add_library( lpm LpmXyzVector.cpp )				    
+add_library( lpm LpmXyzVector.cpp LpmOutputMessage.cpp )				    
 				    
 #add_library( oldLpmLib GlobalConstants.cpp OutputMessage.cpp Logger.cpp xyzVector.cpp
 #					   Particles.cpp Edges.cpp Faces.cpp PolyMesh2d.cpp Field.cpp )				    

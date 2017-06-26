@@ -1,6 +1,6 @@
 #include "LpmConfig.h"
 #include "LpmTypeDefs.h"
-#include "LpmXyzVector.hpp"
+#include "LpmXyzVector.h"
 #include <iostream>
 #include <vector>
 

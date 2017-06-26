@@ -4,8 +4,6 @@ project ( LPM )
 set (LPM_VERSION_MAJOR 2)
 set (LPM_VERSION_MINOR 0)
 
-set (CMAKE_BUILD_TYPE DEBUG)
-
 if ("{$CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
 set( CMAKE_CXX_FLAGS_DEBUG, "-g -fopenmp")
 set( CMAKE_CXX_FLAGS_RELEASE, "-O2 -fopenmp -Wl,-stack_size -Wl,1000000")
@@ -17,14 +15,11 @@ set( CMAKE_CXX_FLAGS_DEBUG, "-g -openmp")
 set( CMAKE_CXX_FLAGS_RELEASE, "-O2 -openmp")
 endif() 
 
+SET(CMAKE_CXX_STANDARD 11)
+
 find_package(MPI REQUIRED)
 set(CMAKE_CXX_COMPILE_FLAGS ${CMAKE_CXX_COMPILE_FLAGS} ${MPI_COMPILE_FLAGS})
 set(CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS} ${MPI_LINK_FLAGS})
-
-#
-# configure a header file to pass cmake variables to source code
-#
-configure_file ( "${PROJECT_SOURCE_DIR}/config.h.in" "${PROJECT_BINARY_DIR}/lpmConfig.h")
 
 include_directories("${PROJECT_SOURCE_DIR}" "${PROJECT_SRC_DIR}/src" "${MPI_INCLUDE_PATH}" "${PROJECT_BINARY_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src" "${MPI_INCLUDE_PATH}" "${PROJECT_BINARY_DIR}")
@@ -35,5 +30,9 @@ include_directories("${PROJECT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src" "${MPI_I
 add_subdirectory( src )
 add_subdirectory( tests )
 
+#
+# configure a header file to pass cmake variables to source code
+#
+configure_file ( "${PROJECT_SOURCE_DIR}/LpmConfig.h.in" "${PROJECT_BINARY_DIR}/LpmConfig.h" @ONLY)
 
 ENABLE_TESTING()
