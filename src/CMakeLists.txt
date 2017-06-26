@@ -8,7 +8,7 @@
 #				    )
 				    
 add_library( lpm LpmXyzVector.cpp LpmOutputMessage.cpp LpmLogger.cpp LpmCoords.cpp 
-             LpmEuclideanCoords.cpp LpmSphericalCoords.cpp
+             LpmEuclideanCoords.cpp LpmSphericalCoords.cpp LpmField.cpp
 )				    
 				    
 #add_library( oldLpmLib GlobalConstants.cpp OutputMessage.cpp Logger.cpp xyzVector.cpp
@@ -25,7 +25,8 @@ include_directories( "${PROJECT_SRC_DIR}/src" )
 #				#RefinementType.h
 #		  DESTINATION include )
 
-install (FILES LpmXyzVector.h 
+install (FILES LpmXyzVector.h LpmOutputMessage.h LpmLogger.h LpmCoords.h LpmEuclideanCoords.h LpmSphericalCoords.h
+               LpmField.h
          DESTINATION include)
 		  
 install ( TARGETS lpm DESTINATION lib )  
