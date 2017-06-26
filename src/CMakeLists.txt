@@ -7,7 +7,9 @@
 #				    #RefinementType.cpp 
 #				    )
 				    
-add_library( lpm LpmXyzVector.cpp LpmOutputMessage.cpp LpmLogger.cpp)				    
+add_library( lpm LpmXyzVector.cpp LpmOutputMessage.cpp LpmLogger.cpp LpmCoords.cpp 
+             LpmEuclideanCoords.cpp LpmSphericalCoords.cpp
+)				    
 				    
 #add_library( oldLpmLib GlobalConstants.cpp OutputMessage.cpp Logger.cpp xyzVector.cpp
 #					   Particles.cpp Edges.cpp Faces.cpp PolyMesh2d.cpp Field.cpp )				    

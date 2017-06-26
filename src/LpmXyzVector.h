@@ -69,7 +69,7 @@ bool operator == ( const XyzVector& vecA, const XyzVector& vecB );
 
 XyzVector midpoint( const XyzVector& vecA, const XyzVector& vecB );
 
-XyzVector centroid( const std::vector<XyzVector> vecs );
+XyzVector centroid( const std::vector<XyzVector>& vecs );
 
 scalar_type distance( const XyzVector& vecA, const XyzVector& vecB);
 
@@ -79,7 +79,7 @@ scalar_type sphereDistance( const XyzVector& vecA, const XyzVector& vecB, const 
 
 scalar_type sphereTriArea( const XyzVector& vecA, const XyzVector& vecB, const XyzVector& vecC, const scalar_type radius = 1.0);
 
-XyzVector sphereCentroid( const std::vector<XyzVector > vecs, const scalar_type radius = 1.0 );
+XyzVector sphereCentroid( const std::vector<XyzVector>& vecs, const scalar_type radius = 1.0 );
 
 XyzVector sphereMidpoint( const XyzVector& vecA, const XyzVector& vecB, const scalar_type radius = 1.0 );
 

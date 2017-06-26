@@ -55,7 +55,7 @@ XyzVector midpoint( const XyzVector& vecA, const XyzVector& vecB ) {
 	return XyzVector( 0.5 * (vecA.x + vecB.x), 0.5 * (vecA.y + vecB.y), 0.5 * (vecA.z + vecB.z) );
 }
 
-XyzVector centroid( const std::vector<XyzVector > vecs ) {
+XyzVector centroid( const std::vector<XyzVector>& vecs ) {
 	XyzVector cntd(0.0, 0.0, 0.0);
 	for ( int i = 0; i < vecs.size(); ++i)
 		cntd += vecs[i];
@@ -89,7 +89,7 @@ scalar_type sphereTriArea( const XyzVector& vecA, const XyzVector& vecB, const X
 	return 4.0 * std::atan2( std::sqrt(zz), 1.0 ) * radius * radius;
 }
 
-XyzVector sphereCentroid( const std::vector<XyzVector > vecs, const scalar_type radius) {
+XyzVector sphereCentroid( const std::vector<XyzVector>& vecs, const scalar_type radius) {
 	XyzVector cntd(0.0, 0.0, 0.0);
 	for ( int i = 0; i < vecs.size(); ++i)
 		cntd += vecs[i];
