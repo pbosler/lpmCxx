@@ -24,6 +24,8 @@ set(CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS} ${MPI_LINK_FLAGS})
 include_directories("${PROJECT_SOURCE_DIR}" "${PROJECT_SRC_DIR}/src" "${MPI_INCLUDE_PATH}" "${PROJECT_BINARY_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src" "${MPI_INCLUDE_PATH}" "${PROJECT_BINARY_DIR}")
 
+OPTION(DEBUG_ALL "Include all debug code" OFF)
+
 #
 # Add subdirectories
 #

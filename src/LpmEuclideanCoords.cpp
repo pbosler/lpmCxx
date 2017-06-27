@@ -30,4 +30,10 @@ scalar_type EuclideanCoords::triArea(const index_type indA, const index_type ind
     return Lpm::triArea(vecA, vecB, vecC);
 }
 
+scalar_type EuclideanCoords::triArea(const XyzVector& v0, const index_type indA, const index_type indB) const {
+    const XyzVector v1(x[indA], y[indA], z[indA]);
+    const XyzVector v2(x[indB], y[indB], z[indB]);
+    return Lpm::triArea(v0, v1, v2);
+}
+
 }

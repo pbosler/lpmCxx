@@ -2,15 +2,27 @@
 
 namespace Lpm {
 
-std::unique_ptr<Logger> Faces::log(new Logger(OutputMessage::debugPriority));
+// std::unique_ptr<Logger> Faces::log(new Logger(OutputMessage::debugPriority));
 
-TriFaces::TriFaces(const index_type nMax, const std::shared_ptr<Edges> edge_ptr, const std::shared_ptr<Coords> crd_ptr, 
-    const bool sim3d) : Faces(nMax, 3, edge_ptr, crd_ptr, sim3d) {};
+TriFaces::TriFaces(const index_type nMax, const std::shared_ptr<Edges> edge_ptr, 
+    const std::shared_ptr<Coords> crd_ptr, const std::shared_ptr<Coords> lag_crd_ptr,
+    const bool sim3d) : Faces(nMax, 3, edge_ptr, crd_ptr, lag_crd_ptr, sim3d) {};
+
+// void TriFaces::insert(const index_type indA, const index_type indB, const index_type indC) {
+//     if ( n() + 1 >= _nMax) {
+//         OutputMessage errMsg("not enough memory", OutputMessage::errorPriority, "TriFaces::insert");
+//         log->logMessage(errMsg);
+//         return;
+//     }
+//     std::vector<index_type> edgeList = {indA, indB, indC};
+//     _edgeInds.push_back(edgeList);
+// }
 
 void TriFaces::divide(const index_type i) {
     if ( _nMax < n() + 4 ) {
         OutputMessage errMsg("not enough memory", OutputMessage::errorPriority, "TriFaces::divide");
         log->logMessage(errMsg);
+        return;
     }
     std::vector<std::vector<index_type>> newFaceEdgeInds(4, std::vector<index_type>(3, -1));
     std::vector<std::vector<index_type>> newFaceVertInds(4, std::vector<index_type>(3, -1));
@@ -51,17 +63,21 @@ void TriFaces::divide(const index_type i) {
             edges->setRightFace(edgeChildren.first, newFaceInds[(j+1)%3]);
         }
         
+        const index_type vertInd = edges->dest(edgeChildren.first);
         if (j == 0) {
-            newFaceVertInds[0][1] = edges->dest(edgeChildren.first);
-            newFaceVertInds[1][0] = edges->dest(edgeChildren.first);
+            newFaceVertInds[0][1] = vertInd;
+            newFaceVertInds[1][0] = vertInd;
+            newFaceVertInds[3][2] = vertInd;
         }
         else if (j == 1) {
-            newFaceVertInds[1][2] = edges->dest(edgeChildren.first);
-            newFaceVertInds[2][1] = edges->dest(edgeChildren.first);
+            newFaceVertInds[1][2] = vertInd;
+            newFaceVertInds[2][1] = vertInd;
+            newFaceVertInds[3][0] = vertInd;
         }
         else if ( j == 2) {
-            newFaceVertInds[2][0] = edges->dest(edgeChildren.first);
-            newFaceVertInds[0][2] = edges->dest(edgeChildren.first);
+            newFaceVertInds[2][0] = vertInd;
+            newFaceVertInds[0][2] = vertInd;
+            newFaceVertInds[3][1] = vertInd;
         }
     }
  
@@ -69,8 +85,50 @@ void TriFaces::divide(const index_type i) {
     //  new interior edges
     //
     const index_type edgeInsertPoint = edges->n();
+    newFaceEdgeInds[3] = {edgeInsertPoint, edgeInsertPoint + 1, edgeInsertPoint + 2};
+    newFaceEdgeInds[0][1] = edgeInsertPoint + 1;
+    newFaceEdgeInds[1][2] = edgeInsertPoint + 2;
+    newFaceEdgeInds[2][0] = edgeInsertPoint;
+    edges->insert(newFaceVertInds[2][1], newFaceVertInds[2][0], newFaceInds[3], newFaceInds[2]);
+    edges->insert(newFaceVertInds[0][2], newFaceVertInds[0][1], newFaceInds[3], newFaceInds[0]);
+    edges->insert(newFaceVertInds[1][0], newFaceVertInds[1][2], newFaceInds[3], newFaceInds[1]);
+    //
+    //  new child faces
+    //
+    for (int j = 0; j < 4; ++j) {
+        insert(newFaceEdgeInds[j]);
+    }
+    _hasChildren[i] = true;
+    _children[i] = quad_index_type(newFaceInds[0], newFaceInds[1], newFaceInds[2], newFaceInds[3]);
+    _area[i] = 0.0;
+    for (int j = 0; j < 4; ++j)
+        computeArea(newFaceInds[j]);
     
     
+#ifdef DEBUG_ALL
+    std::cout << "dividing face " << i << ":\n";
+    std::cout << "\tnewFaceEdges : \n";
+    for (int j = 0; j < 4; ++j) {
+        std::cout << "\t" << j << ": ";
+        std::cout << newFaceEdgeInds[j][0] << ", " << newFaceEdgeInds[j][1] << ", " <<
+            newFaceEdgeInds[j][2] << std::endl;
+    }
+    std::cout << "\tnewFaceVerts: \n";
+    for (int j = 0; j < 4; ++j) {
+        std::cout << "\t" << j << ": ";
+        std::cout << newFaceVertInds[j][0] << ", " << newFaceVertInds[j][1] << ", " <<
+            newFaceVertInds[j][2] << std::endl;
+    }
+    std::cout << "\tverifyingConnectivity: ";
+    bool parentConn = verifyConnectivity(i);
+    std::cout << (parentConn ? " parent ok " : " connectivity error in parent ");
+    std::vector<bool> childConn(4, false);
+    for (int j = 0; j < 4; ++j) {
+        childConn[j] = verifyConnectivity(newFaceInds[j]);
+        std::cout << (childConn[j] ? " child ok " : "connectivity error in child");
+    }    
+    std::cout << std::endl;
+#endif
 }
 
 

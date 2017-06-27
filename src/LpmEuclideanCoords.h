@@ -24,6 +24,8 @@ class EuclideanCoords : public Coords
 		XyzVector centroid( const std::vector<index_type>& indices ) const;
 		
 		scalar_type triArea( const index_type indexA, const index_type indexB, const index_type indexC ) const;
+		
+		scalar_type triArea( const XyzVector& v0, const index_type indexA, const index_type indexB ) const;
 };
 
 

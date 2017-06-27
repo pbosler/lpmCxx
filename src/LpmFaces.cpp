@@ -8,12 +8,13 @@ namespace Lpm {
 std::unique_ptr<Logger> Faces::log(new Logger(OutputMessage::debugPriority));
 
 Faces::Faces(const index_type nMax, const index_type nMaxEdgesPerFace, const std::shared_ptr<Edges> edge_ptr, 
-    const std::shared_ptr<Coords> crd_ptr,  const bool sim3d) : 
-    _nMax(nMax), _nLeaves(0), _nMaxEdges(nMaxEdgesPerFace), edges(edge_ptr), crds(crd_ptr) {
+    const std::shared_ptr<Coords> crd_ptr,  const std::shared_ptr<Coords> lag_crd_ptr, const bool sim3d) : 
+    _nMax(nMax), _nLeaves(0), _nMaxEdges(nMaxEdgesPerFace), edges(edge_ptr), crds(crd_ptr),
+    lagCrds(lag_crd_ptr) {
     _edgeInds.reserve(nMax);
-    for (index_type i = 0; i < nMax; ++i) {
-        _edgeInds[i].reserve(nMaxEdgesPerFace);
-    }        
+//     for (index_type i = 0; i < nMax; ++i) {
+//         _edgeInds[i].reserve(nMaxEdgesPerFace);
+//     }        
     _area.reserve(nMax);
     _hasChildren.reserve(nMax);
     _parent.reserve(nMax);
@@ -24,9 +25,48 @@ Faces::Faces(const index_type nMax, const index_type nMaxEdgesPerFace, const std
     }
 }
 
-XyzVector Faces::centroid(const index_type i) const {
+void Faces::insert(const std::vector<index_type>& eInds) {
+    _edgeInds.push_back(eInds);
+}
+
+XyzVector Faces::centroid(const index_type i, const bool lagrangian) const {
     const std::vector<index_type> verts = vertexIndices(i);
-    return crds->centroid(verts);    
+    if (lagrangian)
+        return lagCrds->centroid(verts);
+    else
+        return crds->centroid(verts);    
+}
+
+scalar_type Faces::computeArea(const index_type i) {
+    const XyzVector cntd = centroid(i);
+    const std::vector<index_type> verts = vertexIndices(i);
+    scalar_type area = 0.0;
+// #ifdef DEBUG_ALL
+//     std::cout << "face " << i << " centroid = " << cntd << std::endl;
+//     std::cout << "\tvertInds.size = " << verts.size() << std::endl;
+//     std::cout << "\tvertInds = " << verts[0] << ", " << verts[1] << ", " << verts[2] << std::endl;
+// #endif
+    for (index_type j = 0; j < verts.size(); ++j) {
+        area += crds->triArea(cntd, verts[j], verts[(j+1)%verts.size()]);
+    }
+    _area[i] = area;
+    return area;
+}
+
+void Faces::resetAreas() {
+    scalar_type surfArea = 0.0;
+    for (index_type i = 0; i < n(); ++i) {
+        if (_hasChildren[i]) {
+            _area[i] = 0.0;
+        }
+        else {
+            surfArea += computeArea(i);
+        }
+    }
+    std::stringstream ss;
+    ss << "surface area reset, surfArea = " << surfArea;
+    OutputMessage statusMsg(ss.str(), OutputMessage::remarkPriority, "Faces::resetAreas");
+    log->logMessage(statusMsg);
 }
 
 bool Faces::verifyConnectivity(const index_type i) const {
@@ -74,12 +114,13 @@ std::vector<index_type> Faces::vertexIndices(const index_type i) const {
     }
 #endif
     std::vector<index_type> verts;
-    for (index_type j = 0; j < _edgeInds[i].size(); ++j) {
-        if (edgeIsPositive(i, j) ) {
-            verts.push_back(edges->orig(_edgeInds[i][j]));
+    const std::vector<index_type> edgeList(_edgeInds[i]);
+    for (index_type j = 0; j < edgeList.size(); ++j) {
+        if (edgeIsPositive(i, edgeList[j]) ) {
+            verts.push_back(edges->orig(edgeList[j]));
         }
         else {
-            verts.push_back(edges->dest(_edgeInds[i][j]));
+            verts.push_back(edges->dest(edgeList[j]));
         }
     }
     return verts;

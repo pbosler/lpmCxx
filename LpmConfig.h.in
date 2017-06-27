@@ -3,5 +3,6 @@
 #define LPM_VERSION_MINOR @LPM_VERSION_MINOR@
 
 #cmakedefine USE_NANOFLANN
+#cmakedefine DEBUG_ALL
 
-#define LpmSeedDir "@CMAKE_CURRENT_SOURCE_DIR@/meshSeeds"
+#define LPM_MESH_SEED_DIR "@CMAKE_CURRENT_SOURCE_DIR@/meshSeeds"

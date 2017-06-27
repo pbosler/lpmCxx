@@ -26,6 +26,8 @@ class SphericalCoords : public Coords {
 		
 		scalar_type triArea( const index_type indexA, const index_type indexB, const index_type indexC ) const;
 		
+		scalar_type triArea( const XyzVector& v0, const index_type indexA, const index_type indexB ) const;
+		
 		scalar_type Latitude( const index_type index ) const;
 		
 		scalar_type Longitude( const index_type index ) const;

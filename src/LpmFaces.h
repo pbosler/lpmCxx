@@ -20,7 +20,7 @@ class Faces {
         typedef std::tuple<index_type, index_type, index_type, index_type> quad_index_type;
         virtual ~Faces() {};
         
-        XyzVector centroid(const index_type i) const;
+        XyzVector centroid(const index_type i, const bool lagrangian = false) const;
         
         inline bool isDivded(const index_type i) const {return _hasChildren[i];}
         inline bool hasChildren(const index_type i) const {return _hasChildren[i];}
@@ -38,11 +38,13 @@ class Faces {
         
         inline quad_index_type children(const index_type i) const {return _children[i];}
         
-        virtual void insert(const std::vector<index_type>& edgeInds);
+        void insert(const std::vector<index_type>& edgeInds);
         
         virtual void divide(const index_type i) = 0;
     
-        void computeArea(const index_type i);
+        scalar_type computeArea(const index_type i);
+        
+        void resetAreas();
         
         inline bool edgeIsPositive(const index_type faceInd, const index_type edgeInd) const {
             return (edges->leftFace(edgeInd) == faceInd); }
@@ -51,7 +53,8 @@ class Faces {
             
     protected:
         Faces(const index_type nMax, const index_type nMaxEdgesPerFace, 
-            const std::shared_ptr<Edges> edge_ptr, const std::shared_ptr<Coords> crd_ptr, 
+            const std::shared_ptr<Edges> edge_ptr, const std::shared_ptr<Coords> crd_ptr,
+            const std::shared_ptr<Coords> lag_crd_ptr = 0,  
             const bool sim3d = false);
         
         std::map<std::string, std::unique_ptr<Field>> fieldMap;
@@ -66,6 +69,7 @@ class Faces {
         
         std::shared_ptr<Edges> edges;
         std::shared_ptr<Coords> crds;
+        std::shared_ptr<Coords> lagCrds;
         
         index_type _nMax;
         index_type _nLeaves;
