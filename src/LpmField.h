@@ -48,7 +48,7 @@ class Field {
         index_type _nMax;
         int _nDim;
         
-        std::unique_ptr<Logger> log;
+        static std::unique_ptr<Logger> log;
 };
 
 }
