@@ -4,7 +4,7 @@
 #include "LpmEdges.h"
 #include "LpmEuclideanCoords.h"
 #include "LpmTriFaces.h"
-#include "LpmQuadFaces.h"
+//#include "LpmQuadFaces.h"
 #include <memory>
 #include <iostream>
 

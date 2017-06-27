@@ -26,6 +26,10 @@ class Faces {
         inline bool hasChildren(const index_type i) const {return _hasChildren[i];}
         inline bool isLeaf(const index_type i) const {return !_hasChildren[i];}
         
+        inline index_type n() const {return _edgeInds.size();}
+        inline index_type nLeaves() const {return _nLeaves;}
+        inline index_type nDivided() const {return n() - _nLeaves;}
+        
         inline std::vector<index_type> edgeIndices(const index_type i) const {return _edgeInds[i];}
         std::vector<index_type> vertexIndices(const index_type i) const ;
         
