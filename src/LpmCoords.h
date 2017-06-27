@@ -10,6 +10,7 @@ namespace Lpm {
 
 class Coords {
     public:
+        friend class Edges;
         virtual ~Coords() {};
         virtual scalar_type distance(const index_type indA, const index_type indB) const = 0;
         virtual XyzVector midpoint(const index_type indA, const index_type indB) const = 0;

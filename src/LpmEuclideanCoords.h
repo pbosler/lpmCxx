@@ -14,6 +14,7 @@ namespace Lpm {
 class EuclideanCoords : public Coords
 {
 	public :
+	    friend class Edges;
 		EuclideanCoords(const index_type nMax = 0) : Coords(nMax) {};			
 		
 		scalar_type distance( const index_type indexA, const index_type indexB ) const;

@@ -4,7 +4,8 @@ namespace Lpm {
 
 std::unique_ptr<Logger> Edges::log(new Logger(OutputMessage::debugPriority));
 
-Edges::Edges(const index_type nMax) : _nMax(nMax), _nLeaves(0){
+Edges::Edges(const index_type nMax, const std::shared_ptr<Coords> crd_ptr, const std::shared_ptr<Coords> lag_crd_ptr) : 
+    _nMax(nMax), _nLeaves(0), crds(crd_ptr), lagCrds(lag_crd_ptr) {
     _orig.reserve(nMax);
     _dest.reserve(nMax);
     _rightFace.reserve(nMax);
@@ -27,30 +28,38 @@ void Edges::insert(const index_type origInd, const index_type destInd, const ind
     _nLeaves += 1;
 }
 
-XyzVector Edges::midpoint(const index_type i, const Coords* crds) const {
-    return crds->midpoint(_orig[i], _dest[i]);
+XyzVector Edges::midpoint(const index_type i, const bool lagrangian) const {
+    return (lagrangian ? lagCrds->midpoint(_orig[i], _dest[i]) : crds->midpoint(_orig[i], _dest[i]));
 }
 
-scalar_type Edges::length(const index_type i, const Coords* crds) const {
-    return crds->distance(_orig[i], _dest[i]);
+scalar_type Edges::length(const index_type i, const bool lagrangian) const {
+    return (lagrangian ? lagCrds->distance(_orig[i], _dest[i]) : crds->distance(_orig[i], _dest[i]));
 }
 
-XyzVector Edges::origCoord(const index_type i, const Coords* crds) const {
-    return crds->getVec(_orig[i]);
+XyzVector Edges::origCoord(const index_type i, const bool lagrangian) const {
+    return (lagrangian ? lagCrds->getVec(_orig[i]) : crds->getVec(_orig[i]));
 }
 
-XyzVector Edges::destCoord(const index_type i, const Coords* crds) const {
-    return crds->getVec(_dest[i]);
+XyzVector Edges::destCoord(const index_type i, const bool lagrangian) const {
+    return (lagrangian ? lagCrds->getVec(_dest[i]) : crds->getVec(_dest[i]));
 }
 
-XyzVector Edges::edgeVector(const index_type i, const Coords* crds) const {
-    const XyzVector origVec = crds->getVec(_orig[i]);
-    const XyzVector destVec = crds->getVec(_dest[i]);
+XyzVector Edges::edgeVector(const index_type i, const bool lagrangian) const {
+    XyzVector origVec;
+    XyzVector destVec;
+    if (lagrangian) {
+        origVec = lagCrds->getVec(_orig[i]);
+        destVec = lagCrds->getVec(_dest[i]);
+    }
+    else {
+        origVec = crds->getVec(_orig[i]);
+        destVec = crds->getVec(_dest[i]);
+    }
     return destVec - origVec;
 }
 
-void Edges::divide(const index_type i, Coords* crds, Coords* lagCrds) {
-    const XyzVector midpt = this->midpoint(i, crds);
+void Edges::divide(const index_type i) {
+    const XyzVector midpt = this->midpoint(i);
     const index_type crdInsertPoint = crds->n();
     const index_type edgeInsertPoint = _orig.size();
     
@@ -67,7 +76,7 @@ void Edges::divide(const index_type i, Coords* crds, Coords* lagCrds) {
     _parent[edgeInsertPoint+1] = i;
     
     if (lagCrds) {
-        const XyzVector lagMidpt = this->midpoint(i, lagCrds);
+        const XyzVector lagMidpt = this->midpoint(i, true);
         lagCrds->insert(lagMidpt);
     }
     

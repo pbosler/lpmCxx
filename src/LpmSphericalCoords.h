@@ -13,6 +13,8 @@ namespace Lpm {
 
 class SphericalCoords : public Coords {
 	public :
+	    friend class Edges;
+	
 		SphericalCoords( const index_type nMax = 0,	const scalar_type radius = 1.0) : 
 			Coords(nMax), _radius(radius) {};
 		

@@ -6,9 +6,6 @@ std::unique_ptr<Logger> Field::log(new Logger(OutputMessage::debugPriority));
 
 Field::Field(const index_type nMax, const int nDim, const std::string name, const std::string units) : 
     _nMax(nMax), _nDim(nDim), _name(name), _units(units) {
-    if (!log) {
-        
-    }
     switch (nDim) {
         case (1) : {
             comp0.reserve(nMax);

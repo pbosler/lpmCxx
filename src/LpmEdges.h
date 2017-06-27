@@ -7,17 +7,20 @@
 #include "LpmXyzVector.h"
 #include "LpmLogger.h"
 #include "LpmOutputMessage.h"
+#include "LpmField.h"
 #include <vector>
 #include <tuple>
 #include <memory>
+#include <map>
 
 namespace Lpm {
 
 class Edges {
     public:
         typedef std::pair<index_type, index_type> index_pair_type;
+        friend class Faces;
         
-        Edges(const index_type nMax);
+        Edges(const index_type nMax, const std::shared_ptr<Coords> crd_ptr, const std::shared_ptr<Coords> lag_crd_ptr = 0);
         virtual ~Edges() {};
     
         inline index_type nMax() const {return _nMax;}
@@ -41,18 +44,20 @@ class Edges {
 //         std::vector<index_type> getLeafEdgesFromParent(const index_type i) const;
 //         std::vector<index_type> getAllVertices(const index_type i) const;
         
-        scalar_type length(const index_type i, const Coords* crds) const;
-        XyzVector midpoint(const index_type i, const Coords* crds) const;
-        XyzVector origCoord(const index_type i, const Coords* crds) const;
-        XyzVector destCoord(const index_type i, const Coords* crds) const;
-        XyzVector edgeVector(const index_type i, const Coords* crds) const;
+        scalar_type length(const index_type i, const bool lagrangian = false) const;
+        XyzVector midpoint(const index_type i, const bool lagrangian = false) const;
+        XyzVector origCoord(const index_type i, const bool lagrangian = false) const;
+        XyzVector destCoord(const index_type i, const bool lagrangian = false) const;
+        XyzVector edgeVector(const index_type i, const bool lagrangian = false) const;
         
         inline void setLeftFace(const index_type i, const index_type faceInd) {_leftFace[i] = faceInd;}
         inline void setRightFace(const index_type i, const index_type faceInd) {_rightFace[i] = faceInd;}
         
-        virtual void divide(const index_type i, Coords* crds, Coords* lagCrds = 0);
+        virtual void divide(const index_type i);
         virtual void insert(const index_type origInd, const index_type destInd, 
             const index_type leftInd, const index_type rightInd);
+            
+        std::map<std::string, std::unique_ptr<Field>> fieldMap;
     protected:
         std::vector<index_type> _orig;
         std::vector<index_type> _dest;
@@ -65,6 +70,9 @@ class Edges {
         
         index_type _nMax;
         index_type _nLeaves;
+        
+        std::shared_ptr<Coords> crds;
+        std::shared_ptr<Coords> lagCrds;
         
         static std::unique_ptr<Logger> log;
 };
