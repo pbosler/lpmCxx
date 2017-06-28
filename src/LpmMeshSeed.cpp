@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <exception>
 
 namespace Lpm {
 
@@ -14,6 +15,51 @@ std::unique_ptr<Logger> MeshSeed::log(new Logger(OutputMessage::debugPriority));
 
 void MeshSeed::initMeshFromSeed(std::shared_ptr<Coords> crds, std::shared_ptr<Edges> edges, std::shared_ptr<Faces> faces) {
     readSeedFile();
+    bool errorState = false;
+    if (crds->n() > 0) {
+        OutputMessage errMsg("coordinates have already been initialized", OutputMessage::errorPriority, "MeshSeed::initMeshFromSeed");
+        log->logMessage(errMsg);
+        errorState = true;
+    }
+    if (edges->n() > 0) {
+        OutputMessage errMsg("edges have already been initialized", OutputMessage::errorPriority, "MeshSeed::initMeshFromSeed");
+        log->logMessage(errMsg);
+        errorState = true;
+    }
+    if (faces->n() > 0) {
+        OutputMessage errMsg("faces have already been initialized", OutputMessage::errorPriority, "MeshSeed::initMeshFromSeed");
+        log->logMessage(errMsg);
+        errorState = true;
+    }
+    if (errorState) {
+        throw std::logic_error("initMeshFromSeed expects empty mesh objects");
+    }
+    if (crds->nMax() < _nCoords) {
+        OutputMessage errMsg("not enough memory in coordinates", OutputMessage::errorPriority, "MeshSeed::initMeshFromSeed");
+        log->logMessage(errMsg);
+        errorState = true;
+    }
+    if (edges->nMax() < _nEdges) {
+        OutputMessage errMsg("not enough memory in edges", OutputMessage::errorPriority, "MeshSeed::initMeshFromSeed");
+        log->logMessage(errMsg);
+        errorState = true;
+    }
+    if (faces->nMax() < _nFaces) {
+        OutputMessage errMsg("not enough memory in faces", OutputMessage::errorPriority, "MeshSeed::initMeshFromSeed");
+        log->logMessage(errMsg);
+        errorState = true;
+    }
+    if (errorState) {
+        throw std::out_of_range("mesh objects insufficient to contain MeshSeed");
+    }
+    
+    for (index_type i = 0; i < vertCrds.size(); ++i)
+        crds->insert(vertCrds[i]);
+    for (index_type i = 0; i < edgeOrigs.size(); ++i)
+        edges->insert(edgeOrigs[i], edgeDests[i], edgeLefts[i], edgeRights[i]);
+    for (index_type i = 0; i < faceEdges.size(); ++i)
+        faces->insert(faceEdges[i]);	
+    faces->resetAreas();	
 }
 
 std::string MeshSeed::infoString() const {
@@ -52,7 +98,7 @@ void MeshSeed::readSeedFile(){
         ss << "cannot open seed file: " << fullFilename;
         OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "MeshSeed:readSeedFile");
         log->logMessage(errMsg);
-        return;
+        throw std::ios_base::failure("file not found");
     }
     index_type lineNumber = 0;
     index_type edgeSectionHeaderLine = -1;

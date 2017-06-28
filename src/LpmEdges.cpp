@@ -17,7 +17,7 @@ Edges::Edges(const index_type nMax, const std::shared_ptr<Coords> crd_ptr, const
 }
 
 void Edges::insert(const index_type origInd, const index_type destInd, const index_type leftInd, const index_type rightInd) {
-    if (n() + 1 >= _nMax) {
+    if (n() + 1 > _nMax) {
         OutputMessage errMessage("not enough memory", OutputMessage::errorPriority, "Edges::insert");
         log->logMessage(errMessage);
     }
