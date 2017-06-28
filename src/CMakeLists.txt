@@ -9,7 +9,7 @@
 				    
 add_library( lpm LpmXyzVector.cpp LpmOutputMessage.cpp LpmLogger.cpp LpmCoords.cpp 
              LpmEuclideanCoords.cpp LpmSphericalCoords.cpp LpmField.cpp LpmEdges.cpp
-             LpmFaces.cpp LpmTriFaces.cpp LpmQuadFaces.cpp
+             LpmFaces.cpp LpmTriFaces.cpp LpmQuadFaces.cpp LpmMeshSeed.cpp
 )				    
 				    
 #add_library( oldLpmLib GlobalConstants.cpp OutputMessage.cpp Logger.cpp xyzVector.cpp
@@ -27,7 +27,7 @@ include_directories( "${PROJECT_SRC_DIR}/src" )
 #		  DESTINATION include )
 
 install (FILES LpmXyzVector.h LpmOutputMessage.h LpmLogger.h LpmCoords.h LpmEuclideanCoords.h LpmSphericalCoords.h
-               LpmField.h LpmAnalyticFunctions.h LpmEdges.h LpmFaces.h LpmTriFaces.h LpmQuadFaces.h
+               LpmField.h LpmAnalyticFunctions.h LpmEdges.h LpmFaces.h LpmTriFaces.h LpmQuadFaces.h LpmMeshSeed.h
          DESTINATION include)
 		  
 install ( TARGETS lpm DESTINATION lib )  

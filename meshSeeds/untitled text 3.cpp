@@ -1,4 +1,0 @@
-#ifndef __LPM_SPHERE_PARTICLES_HPP__
-#define __LPM_SPHERE_PARTICLES_HPP__
-
-#endif
