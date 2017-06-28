@@ -19,9 +19,19 @@ TriFaces::TriFaces(const index_type nMax, const std::shared_ptr<Edges> edge_ptr,
 // }
 
 void TriFaces::divide(const index_type i) {
+    bool errStat = false;
     if ( _nMax < n() + 4 ) {
         OutputMessage errMsg("not enough memory", OutputMessage::errorPriority, "TriFaces::divide");
         log->logMessage(errMsg);
+        errStat = true;
+    }
+    if (_hasChildren[i]) {
+        OutputMessage errMsg("Faces::divide() called on face that already has children", OutputMessage::errorPriority,
+            "TriFaces::divide");
+        log->logMessage(errMsg);
+        errStat = true;
+    }
+    if (errStat) {
         return;
     }
     std::vector<std::vector<index_type>> newFaceEdgeInds(4, std::vector<index_type>(3, -1));

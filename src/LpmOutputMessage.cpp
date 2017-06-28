@@ -34,19 +34,19 @@ std::string OutputMessage::priorityString() const
     switch (OutputMessage::_pri)
     {
         case OutputMessage::debugPriority:
-            priString = "debugMessage :";
+            priString = "Debug Message :";
             break;
         case OutputMessage::tracePriority:
-            priString = "traceMessage :";
+            priString = "Trace Message :";
             break;
         case OutputMessage::remarkPriority:
-            priString = "Remark :";
+            priString = "Remark Message :";
             break;
         case OutputMessage::warningPriority:
-            priString = "WARNING : ";
+            priString = "WARNING Message : ";
             break;
         case OutputMessage::errorPriority:
-            priString = "ERROR : ";
+            priString = "ERROR Message : ";
             break;
         default:
             priString = "undefined priority :";
@@ -60,8 +60,8 @@ std::string OutputMessage::priorityString() const
  */
 void OutputMessage::printMsg(std::ostream& os) const
 {
-    os << "          msg : " << _msgString << std::endl;
-    os << " code Location: " << _codeOrigin << std::endl;
+    os << "\tmsg : " << _msgString << std::endl;
+    os << "\tcode Location: " << _codeOrigin << std::endl;
 };
 
 /** @brief adds a string to the content of a LongMessage
@@ -77,8 +77,8 @@ void LongMessage::addStringToMessage( const std::string s)
 */
 void LongMessage::printMsg( std::ostream& os ) const
 {
-	os << "      msg title : " << _msgString << std::endl;
-	os << "  code location : " << _codeOrigin << std::endl;
+	os << "\tmsg title : " << _msgString << std::endl;
+	os << "\tcode location : " << _codeOrigin << std::endl;
 	for ( int i = 0; i < _msgStrings.size(); ++i)
 	{
 		os << _msgStrings[i] << std::endl;

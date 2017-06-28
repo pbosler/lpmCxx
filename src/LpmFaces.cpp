@@ -11,10 +11,7 @@ Faces::Faces(const index_type nMax, const index_type nMaxEdgesPerFace, const std
     const std::shared_ptr<Coords> crd_ptr,  const std::shared_ptr<Coords> lag_crd_ptr, const bool sim3d) : 
     _nMax(nMax), _nLeaves(0), _nMaxEdges(nMaxEdgesPerFace), edges(edge_ptr), crds(crd_ptr),
     lagCrds(lag_crd_ptr) {
-    _edgeInds.reserve(nMax);
-//     for (index_type i = 0; i < nMax; ++i) {
-//         _edgeInds[i].reserve(nMaxEdgesPerFace);
-//     }        
+    _edgeInds.reserve(nMax);     
     _area.reserve(nMax);
     _hasChildren.reserve(nMax);
     _parent.reserve(nMax);
@@ -41,11 +38,6 @@ scalar_type Faces::computeArea(const index_type i) {
     const XyzVector cntd = centroid(i);
     const std::vector<index_type> verts = vertexIndices(i);
     scalar_type area = 0.0;
-// #ifdef DEBUG_ALL
-//     std::cout << "face " << i << " centroid = " << cntd << std::endl;
-//     std::cout << "\tvertInds.size = " << verts.size() << std::endl;
-//     std::cout << "\tvertInds = " << verts[0] << ", " << verts[1] << ", " << verts[2] << std::endl;
-// #endif
     for (index_type j = 0; j < verts.size(); ++j) {
         area += crds->triArea(cntd, verts[j], verts[(j+1)%verts.size()]);
     }

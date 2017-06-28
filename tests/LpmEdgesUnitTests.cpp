@@ -10,7 +10,6 @@ int main(int argc, char* argv[]) {
 
     std::shared_ptr<EuclideanCoords> ec(new EuclideanCoords(20));
     
-    
     ec->insert( -1.0, 1.0 ); //0
     ec->insert( -1.0, 0.0 ); //1
     ec->insert( -1.0,-1.0 ); //2
