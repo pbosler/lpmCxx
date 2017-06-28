@@ -17,6 +17,9 @@ class Field {
     public:
         Field(const index_type nMax, const int nDim = 1, const std::string name = "null", const std::string units = "n/a");
         
+        inline std::string name() const {return _name;}
+        inline std::string units() const {return _units;}
+        
         inline index_type nMax() const {return _nMax;}
         inline index_type n() const {return comp0.size();}
         inline int nDim() const {return _nDim;}

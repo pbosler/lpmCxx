@@ -26,10 +26,18 @@ class Faces {
         inline bool hasChildren(const index_type i) const {return _hasChildren[i];}
         inline bool isLeaf(const index_type i) const {return !_hasChildren[i];}
         
+        inline index_type positiveCell(const index_type i) const {return _positiveCell[i];}
+        inline index_type negativeCell(const index_type i) const {return _negativeCell[i];}
+        inline void setPositiveCell(const index_type i, const index_type cellInd) {_positiveCell[i] = cellInd;}
+        inline void setNegativeCell(const index_type i, const index_type cellInd) {_negativeCell[i] = cellInd;}
+        
+        inline bool is3d() const {return _is3d;}
+        
         inline index_type n() const {return _edgeInds.size();}
-        inline index_type nLeaves() const {return _nLeaves;}
-        inline index_type nDivided() const {return n() - _nLeaves;}
         inline index_type nMax() const {return _nMax;}
+        
+        index_type nDivided() const;
+        inline index_type nLeaves() const {return n() - nDivided();}
         
         inline std::vector<index_type> edgeIndices(const index_type i) const {return _edgeInds[i];}
         std::vector<index_type> vertexIndices(const index_type i) const ;
@@ -44,6 +52,8 @@ class Faces {
         virtual void divide(const index_type i) = 0;
     
         scalar_type computeArea(const index_type i);
+        
+        scalar_type surfaceArea() const;
         
         void resetAreas();
         
@@ -73,8 +83,8 @@ class Faces {
         std::shared_ptr<Coords> lagCrds;
         
         index_type _nMax;
-        index_type _nLeaves;
         index_type _nMaxEdges;
+        bool _is3d;
         
         static std::unique_ptr<Logger> log;
 };

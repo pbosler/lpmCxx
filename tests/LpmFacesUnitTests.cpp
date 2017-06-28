@@ -16,14 +16,14 @@ int main(int argc, char* argv[]) {
         std::cout << "************** Test 1: Triangular Faces:\n";
         
         std::shared_ptr<EuclideanCoords> ec(new EuclideanCoords(20));
-        ec->insert(0.0, 0.0);
-        ec->insert(0.5, 0.866025403784438597);
-        ec->insert(-0.5, 0.866025403784438597);
-        ec->insert(-1.0, 0.0);
-        ec->insert(-0.5, -0.866025403784438597);
-        ec->insert(0.5, -0.866025403784438597);
-        ec->insert(1.0, 0.0);
-        ec->insert(0.0, 0.577350269189625731);
+        ec->insert(0.0, 0.0); //0
+        ec->insert(0.5, 0.866025403784438597); //1
+        ec->insert(-0.5, 0.866025403784438597); //2
+        ec->insert(-1.0, 0.0); //3
+        ec->insert(-0.5, -0.866025403784438597);//4
+        ec->insert(0.5, -0.866025403784438597);//5
+        ec->insert(1.0, 0.0);//6
+        ec->insert(0.0, 0.577350269189625731);//7
         ec->insert(-0.5, 0.288675134594812810);
         ec->insert(-0.5, -0.288675134594812810);
         ec->insert(0.0, -0.577350269189625731);

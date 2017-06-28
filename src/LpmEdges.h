@@ -18,7 +18,6 @@ namespace Lpm {
 class Edges {
     public:
         typedef std::pair<index_type, index_type> index_pair_type;
-        friend class Faces;
         
         Edges(const index_type nMax, const std::shared_ptr<Coords> crd_ptr, const std::shared_ptr<Coords> lag_crd_ptr = 0);
         virtual ~Edges() {};
@@ -36,8 +35,9 @@ class Edges {
         inline bool isDivided(const index_type i) const {return _hasChildren[i];}
         inline bool hasChildren(const index_type i) const {return _hasChildren[i];}
         inline bool isLeaf(const index_type i) const {return !_hasChildren[i];}
-        inline index_type nDivided() const {return _orig.size() - _nLeaves;}
-        inline index_type nLeaves() const {return _nLeaves;}
+        
+        index_type nDivided() const; 
+        index_type nLeaves() const; 
         
         inline bool onBoundary(const index_type i) const {return (_leftFace[i] < 0 || _rightFace[i] < 0);}
         
@@ -61,15 +61,14 @@ class Edges {
     protected:
         std::vector<index_type> _orig;
         std::vector<index_type> _dest;
-        std::vector<index_type> _rightFace;
         std::vector<index_type> _leftFace;
+        std::vector<index_type> _rightFace;
         std::vector<index_type> _child0;
         std::vector<index_type> _child1;
         std::vector<bool> _hasChildren;
         std::vector<index_type> _parent;
         
         index_type _nMax;
-        index_type _nLeaves;
         
         std::shared_ptr<Coords> crds;
         std::shared_ptr<Coords> lagCrds;

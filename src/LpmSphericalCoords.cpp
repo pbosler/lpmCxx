@@ -1,5 +1,6 @@
 #include "LpmSphericalCoords.h"
 #include "LpmXyzVector.h"
+#include <cmath>
 
 namespace Lpm {
 
@@ -33,6 +34,14 @@ scalar_type SphericalCoords::triArea(const XyzVector& v0, const index_type indA,
     const XyzVector v1(x[indA], y[indA], z[indA]);
     const XyzVector v2(x[indB], y[indB], z[indB]);
     return Lpm::sphereTriArea(v0, v1, v2, _radius);
+}
+
+scalar_type SphericalCoords::latitude(const index_type ind) const {
+    return std::atan2(z[ind], std::sqrt(x[ind]*x[ind] + y[ind]*y[ind]));    
+}
+
+scalar_type SphericalCoords::longitude(const index_type ind) const {
+    return atan4(y[ind], x[ind]);
 }
 
 }

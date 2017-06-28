@@ -108,6 +108,14 @@ void QuadFaces::divide(const index_type i) {
     _area[i] = 0.0;
     for (int j = 0; j < 4; ++j)
         computeArea(newFaceInds[j]);
+    if (_is3d) {
+        const index_type posCellInd = _positiveCell[i];
+        const index_type negCellInd = _negativeCell[i];
+        for (int j = 0; j < 4; ++j ) {
+            setPositiveCell(newFaceInds[j], posCellInd);
+            setNegativeCell(newFaceInds[j], negCellInd);
+        }
+    }
     
 #ifdef DEBUG_ALL
     std::cout << "dividing face " << i << ":\n";

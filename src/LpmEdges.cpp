@@ -1,11 +1,12 @@
 #include "LpmEdges.h"
+#include <algorithm>
 
 namespace Lpm {
 
 std::unique_ptr<Logger> Edges::log(new Logger(OutputMessage::debugPriority));
 
 Edges::Edges(const index_type nMax, const std::shared_ptr<Coords> crd_ptr, const std::shared_ptr<Coords> lag_crd_ptr) : 
-    _nMax(nMax), _nLeaves(0), crds(crd_ptr), lagCrds(lag_crd_ptr) {
+    _nMax(nMax), crds(crd_ptr), lagCrds(lag_crd_ptr) {
     _orig.reserve(nMax);
     _dest.reserve(nMax);
     _rightFace.reserve(nMax);
@@ -16,28 +17,20 @@ Edges::Edges(const index_type nMax, const std::shared_ptr<Coords> crd_ptr, const
     _parent.reserve(nMax);
 }
 
-void Edges::insert(const index_type origInd, const index_type destInd, const index_type leftInd, const index_type rightInd) {
-    if (n() + 1 > _nMax) {
-        OutputMessage errMessage("not enough memory", OutputMessage::errorPriority, "Edges::insert");
-        log->logMessage(errMessage);
-    }
-    _orig.push_back(origInd);
-    _dest.push_back(destInd);
-    _leftFace.push_back(leftInd);
-    _rightFace.push_back(rightInd);
-    _child0.push_back(-1);
-    _child1.push_back(-1);
-    _hasChildren.push_back(false);
-    _parent.push_back(-1);
-    _nLeaves += 1;
-}
+index_type Edges::nDivided() const {
+    return std::count(_hasChildren.begin(), _hasChildren.end(), true);
+} 
 
-XyzVector Edges::midpoint(const index_type i, const bool lagrangian) const {
-    return (lagrangian ? lagCrds->midpoint(_orig[i], _dest[i]) : crds->midpoint(_orig[i], _dest[i]));
+index_type Edges::nLeaves() const {
+    return n() - nDivided();
 }
 
 scalar_type Edges::length(const index_type i, const bool lagrangian) const {
     return (lagrangian ? lagCrds->distance(_orig[i], _dest[i]) : crds->distance(_orig[i], _dest[i]));
+}
+
+XyzVector Edges::midpoint(const index_type i, const bool lagrangian) const {
+    return (lagrangian ? lagCrds->midpoint(_orig[i], _dest[i]) : crds->midpoint(_orig[i], _dest[i]));
 }
 
 XyzVector Edges::origCoord(const index_type i, const bool lagrangian) const {
@@ -63,7 +56,7 @@ XyzVector Edges::edgeVector(const index_type i, const bool lagrangian) const {
 }
 
 void Edges::divide(const index_type i) {
-    const XyzVector midpt = this->midpoint(i);
+    const XyzVector midpt = midpoint(i);
     const index_type crdInsertPoint = crds->n();
     const index_type edgeInsertPoint = _orig.size();
     
@@ -83,10 +76,21 @@ void Edges::divide(const index_type i) {
         const XyzVector lagMidpt = this->midpoint(i, true);
         lagCrds->insert(lagMidpt);
     }
-    
-    _nLeaves -= 1;
 }
 
-
+void Edges::insert(const index_type origInd, const index_type destInd, const index_type leftInd, const index_type rightInd) {
+    if (n() + 1 > _nMax) {
+        OutputMessage errMessage("not enough memory", OutputMessage::errorPriority, "Edges::insert");
+        log->logMessage(errMessage);
+    }
+    _orig.push_back(origInd);
+    _dest.push_back(destInd);
+    _leftFace.push_back(leftInd);
+    _rightFace.push_back(rightInd);
+    _child0.push_back(-1);
+    _child1.push_back(-1);
+    _hasChildren.push_back(false);
+    _parent.push_back(-1);
+}
 
 }

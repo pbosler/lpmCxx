@@ -2,6 +2,8 @@
 #include "LpmOutputMessage.h"
 #include <iostream>
 #include <sstream>
+#include <numeric>
+#include <algorithm>
 
 namespace Lpm {
 
@@ -9,8 +11,7 @@ std::unique_ptr<Logger> Faces::log(new Logger(OutputMessage::debugPriority));
 
 Faces::Faces(const index_type nMax, const index_type nMaxEdgesPerFace, const std::shared_ptr<Edges> edge_ptr, 
     const std::shared_ptr<Coords> crd_ptr,  const std::shared_ptr<Coords> lag_crd_ptr, const bool sim3d) : 
-    _nMax(nMax), _nLeaves(0), _nMaxEdges(nMaxEdgesPerFace), edges(edge_ptr), crds(crd_ptr),
-    lagCrds(lag_crd_ptr) {
+    _nMax(nMax), _nMaxEdges(nMaxEdgesPerFace), edges(edge_ptr), crds(crd_ptr), lagCrds(lag_crd_ptr), _is3d(sim3d) {
     _edgeInds.reserve(nMax);     
     _area.reserve(nMax);
     _hasChildren.reserve(nMax);
@@ -22,8 +23,24 @@ Faces::Faces(const index_type nMax, const index_type nMaxEdgesPerFace, const std
     }
 }
 
+index_type Faces::nDivided() const {
+    return std::count(_hasChildren.begin(), _hasChildren.end(), true);
+}
+
 void Faces::insert(const std::vector<index_type>& eInds) {
     _edgeInds.push_back(eInds);
+    _area.push_back(0.0);
+    _hasChildren.push_back(false);
+    _parent.push_back(-1);
+    _children.push_back(quad_index_type(-1,-1,-1,-1));
+    if (_is3d) {
+        _positiveCell.push_back(-1);
+        _negativeCell.push_back(-1);
+    }
+}
+
+scalar_type Faces::surfaceArea() const {
+    return std::accumulate(_area.begin(), _area.end(), scalar_type(0.0));
 }
 
 XyzVector Faces::centroid(const index_type i, const bool lagrangian) const {

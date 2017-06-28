@@ -52,7 +52,10 @@ int main(int argc, char* argv[]) {
 	
 	for (int i = 0; i < edges.n(); ++i)
 	    std::cout << "edge " << i << " is on boundary : "  << (edges.onBoundary(i) ? "true" : "false") << std::endl;
-
+    std::cout << "edge 0 record: " << edges.orig(0) << ", " << edges.dest(0) << ", " << 
+        edges.leftFace(0) << ", " << edges.rightFace(0) << std::endl;
+    std::cout << "\tedge 0 coords: origin " << edges.origCoord(0) << " destination " << edges.destCoord(0) << 
+        " edgeVector " << edges.edgeVector(0) << std::endl;
     std::cout << "edge 0 midpoint should be (-1, 0.5). Computed midpoint is " << edges.midpoint(0) << std::endl;
     
     edges.divide(11);

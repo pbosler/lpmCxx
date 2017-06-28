@@ -12,6 +12,7 @@ using namespace Lpm;
 
 int main(int argc, char* argv[]) {
     {
+    std::cout << "**** TriHexSeed ****" << std::endl;
     std::shared_ptr<EuclideanCoords> ec(new EuclideanCoords(20));
     std::shared_ptr<Edges> edges(new Edges(50, ec));
     std::shared_ptr<TriFaces> faces(new TriFaces(12, edges, ec));
@@ -21,6 +22,7 @@ int main(int argc, char* argv[]) {
     std::cout << mSeed.MeshSeed::infoString() << std::endl;
     }
     {
+    std::cout << "**** IcosTriSphereSeed ****" << std::endl;
     std::shared_ptr<SphericalCoords> ec(new SphericalCoords(12));
     std::shared_ptr<Edges> edges(new Edges(30, ec));
     std::shared_ptr<TriFaces> faces(new TriFaces(20, edges, ec));
@@ -30,6 +32,7 @@ int main(int argc, char* argv[]) {
     std::cout << mSeed.MeshSeed::infoString() << std::endl;
     }
     {
+    std::cout << "**** QuadRectSeed ****" << std::endl;
     std::shared_ptr<EuclideanCoords> ec(new EuclideanCoords(20));
     std::shared_ptr<Edges> edges(new Edges(50, ec));
     std::shared_ptr<TriFaces> faces(new TriFaces(12, edges, ec));
@@ -39,6 +42,7 @@ int main(int argc, char* argv[]) {
     std::cout << mSeed.MeshSeed::infoString() << std::endl;
     }
     {
+    std::cout << "**** CubedSphereSeed ****" << std::endl;
     std::shared_ptr<SphericalCoords> ec(new SphericalCoords(20));
     std::shared_ptr<Edges> edges(new Edges(50, ec));
     std::shared_ptr<TriFaces> faces(new TriFaces(12, edges, ec));
