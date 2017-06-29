@@ -16,9 +16,6 @@ class TriFaces : public Faces {
             
         void divide(const index_type i);
         
-//         void insert(const index_type indA, const index_type indB, const index_type indC);
-    
-    protected:
 };
 
 }

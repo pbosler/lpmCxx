@@ -1,5 +1,6 @@
 #include "LpmEdges.h"
 #include <algorithm>
+#include <limits>
 
 namespace Lpm {
 
@@ -27,6 +28,30 @@ index_type Edges::nLeaves() const {
 
 scalar_type Edges::length(const index_type i, const bool lagrangian) const {
     return (lagrangian ? lagCrds->distance(_orig[i], _dest[i]) : crds->distance(_orig[i], _dest[i]));
+}
+
+scalar_type Edges::minLength(const bool lagrangian) const {
+    scalar_type result = std::numeric_limits<scalar_type>::max();
+    for (index_type i = 0; i < n(); ++i) {
+        if (!_hasChildren[i]) {
+            const scalar_type ll = length(i, lagrangian);
+            if (ll < result) 
+                result = ll;
+        }
+    }
+    return result;
+}
+
+scalar_type Edges::maxLength(const bool lagrangian) const {
+    scalar_type result = 0.0;
+    for (index_type i = 0; i < n(); ++i) {
+        if (!_hasChildren[i]) {
+            const scalar_type ll = length(i, lagrangian);
+            if (ll > result)
+                result = ll;
+        }
+    }
+    return result;
 }
 
 XyzVector Edges::midpoint(const index_type i, const bool lagrangian) const {

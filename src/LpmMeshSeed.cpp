@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream>
 #include <exception>
+#include <cmath>
 
 namespace Lpm {
 
@@ -212,8 +213,64 @@ void MeshSeed::readSeedFile(){
 #endif
 }
 
+index_type TriHexSeed::nFaces(const int recursionLevel) const {
+    return 6 * std::pow(4, recursionLevel);
+}
 
+index_type QuadRectSeed::nFaces(const int recursionLevel) const {
+    return 4 * std::pow(4, recursionLevel);
+}
 
+index_type IcosTriSphereSeed::nFaces(const int recursionLevel) const {
+    return 20 * std::pow(4, recursionLevel);
+}
 
+index_type CubedSphereSeed::nFaces(const int recursionLevel) const {
+    return 6 * std::pow(4, recursionLevel);
+}
+
+index_type TriHexSeed::nVertices(const int recursionLevel) const {
+    index_type result = 0;
+    for (int i = std::pow(2, recursionLevel) + 1; i <= std::pow(2, recursionLevel +1); ++i)
+    {
+        result += i;
+    }
+    result *= 2;
+    result += std::pow(2, recursionLevel+1) + 1;
+    return result;
+}
+
+index_type QuadRectSeed::nVertices(const int recursionLevel) const {
+    index_type result = 3;
+    for (int i = 1; i <= recursionLevel; ++i) {
+        result += std::pow(2, i);
+    }
+    result *= result;
+    return result;
+}
+
+index_type IcosTriSphereSeed::nVertices(const int recursionLevel) const {
+    return 2 + 10 * std::pow(4, recursionLevel);
+}
+
+index_type CubedSphereSeed::nVertices(const int recursionLevel) const {
+    return 2 + 6 * std::pow(4, recursionLevel);
+}
+
+index_type TriHexSeed::nEdges(const index_type nverts, const index_type nfaces) const {
+    return nfaces + nverts - 1;
+}
+
+index_type QuadRectSeed::nEdges(const index_type nverts, const index_type nfaces) const {
+    return nfaces + nverts - 1;
+}
+
+index_type IcosTriSphereSeed::nEdges(const index_type nverts, const index_type nfaces) const {
+    return nfaces + nverts - 2;
+}
+
+index_type CubedSphereSeed::nEdges(const index_type nverts, const index_type nfaces) const {
+    return nfaces + nverts - 2;
+}
 
 }

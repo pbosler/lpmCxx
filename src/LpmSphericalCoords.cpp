@@ -10,6 +10,14 @@ scalar_type SphericalCoords::distance(const index_type indA, const index_type in
     return Lpm::sphereDistance(vecA, vecB, _radius);
 }
 
+scalar_type SphericalCoords::distance(const XyzVector& vec, const index_type ind) const {
+    return Lpm::sphereDistance(vec, XyzVector(x[ind], y[ind], z[ind]), _radius);
+}
+
+scalar_type SphericalCoords::distance(const XyzVector& v0, const XyzVector& v1) const {
+    return Lpm::sphereDistance(v0, v1);
+}
+
 XyzVector SphericalCoords::midpoint(const index_type indA, const index_type indB) const {
     const XyzVector vecA(x[indA], y[indA], z[indA]);
     const XyzVector vecB(x[indB], y[indB], z[indB]);

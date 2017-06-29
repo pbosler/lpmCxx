@@ -27,7 +27,7 @@ void QuadFaces::divide(const index_type i) {
     }
     std::vector<std::vector<index_type>> newFaceEdgeInds(4, std::vector<index_type>(4,-1));
     std::vector<std::vector<index_type>> newFaceVertInds(4, std::vector<index_type>(4,-1));
-    std::vector<index_type> newFaceInds = {n(), n() + 1, n() + 2, n() + 3};
+    const std::vector<index_type> newFaceInds = {n(), n() + 1, n() + 2, n() + 3};
     
     const std::vector<index_type> parentVerts = vertexIndices(i);
     for (int j = 0; j < 4; ++j) 
@@ -104,7 +104,7 @@ void QuadFaces::divide(const index_type i) {
         insert(newFaceEdgeInds[j]);
     }
     _hasChildren[i] = true;
-    _children[i] = quad_index_type(newFaceInds[0], newFaceInds[1], newFaceInds[2], newFaceInds[3]);
+    _children[i] = newFaceInds;
     _area[i] = 0.0;
     for (int j = 0; j < 4; ++j)
         computeArea(newFaceInds[j]);

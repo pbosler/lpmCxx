@@ -19,6 +19,8 @@ class SphericalCoords : public Coords {
 			Coords(nMax), _radius(radius) {};
 		
 		scalar_type distance( const index_type indexA, const index_type indexB ) const;
+		scalar_type distance(const XyzVector& v0, const index_type ind) const;
+		scalar_type distance(const XyzVector& v0, const XyzVector& v1) const;
 		
 		XyzVector midpoint( const index_type indexA, const index_type indexB ) const; 
 		
@@ -28,9 +30,9 @@ class SphericalCoords : public Coords {
 		
 		scalar_type triArea( const XyzVector& v0, const index_type indexA, const index_type indexB ) const;
 		
-		scalar_type latitude( const index_type index ) const;
+		scalar_type latitude( const index_type ind ) const;
 		
-		scalar_type longitude( const index_type index ) const;
+		scalar_type longitude( const index_type ind ) const;
 		
 		inline scalar_type radius() const {return _radius;}
 		

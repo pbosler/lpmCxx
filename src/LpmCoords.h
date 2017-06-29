@@ -10,9 +10,10 @@ namespace Lpm {
 
 class Coords {
     public:
-        friend class Edges;
         virtual ~Coords() {};
         virtual scalar_type distance(const index_type indA, const index_type indB) const = 0;
+        virtual scalar_type distance(const XyzVector& v0, const index_type ind) const = 0;
+        virtual scalar_type distance(const XyzVector& v0, const XyzVector& v1) const = 0;
         virtual XyzVector midpoint(const index_type indA, const index_type indB) const = 0;
         virtual XyzVector centroid(const std::vector<index_type>& inds) const = 0;
         virtual scalar_type triArea(const index_type indA, const index_type indB, const index_type indC) const = 0;

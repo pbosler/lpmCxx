@@ -19,9 +19,7 @@ class QuadFaces : public Faces {
             const std::shared_ptr<Coords> lag_crd_ptr = 0, const bool sim3d = false);
             
         void divide(const index_type i);
-        
-    protected:
-    
+         
 };
 
 }

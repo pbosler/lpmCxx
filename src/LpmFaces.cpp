@@ -32,11 +32,26 @@ void Faces::insert(const std::vector<index_type>& eInds) {
     _area.push_back(0.0);
     _hasChildren.push_back(false);
     _parent.push_back(-1);
-    _children.push_back(quad_index_type(-1,-1,-1,-1));
+    std::vector<index_type> kids = {-1, -1, -1, -1};
+    _children.push_back(kids);
     if (_is3d) {
         _positiveCell.push_back(-1);
         _negativeCell.push_back(-1);
     }
+}
+
+std::vector<index_type> Faces::ccwAdjacentFaces(const index_type ind) const {
+    std::vector<index_type> result;
+    std::vector<index_type> edgeList = _edgeInds[ind];
+    for (index_type i = 0; i < edgeList.size(); ++i) {
+        if (edgeIsPositive(ind, edgeList[i])) {
+            result.push_back(edges->rightFace(edgeList[i]));
+        }
+        else {
+            result.push_back(edges->leftFace(edgeList[i]));
+        }
+    }
+    return result;
 }
 
 scalar_type Faces::surfaceArea() const {

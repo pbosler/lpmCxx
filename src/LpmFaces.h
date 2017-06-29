@@ -17,7 +17,6 @@ namespace Lpm {
 
 class Faces {
     public:
-        typedef std::tuple<index_type, index_type, index_type, index_type> quad_index_type;
         virtual ~Faces() {};
         
         XyzVector centroid(const index_type i, const bool lagrangian = false) const;
@@ -25,6 +24,8 @@ class Faces {
         inline bool isDivded(const index_type i) const {return _hasChildren[i];}
         inline bool hasChildren(const index_type i) const {return _hasChildren[i];}
         inline bool isLeaf(const index_type i) const {return !_hasChildren[i];}
+        
+        inline void makeLagrangian(const std::shared_ptr<Coords> lag_crd_ptr) {lagCrds = lag_crd_ptr;}
         
         inline index_type positiveCell(const index_type i) const {return _positiveCell[i];}
         inline index_type negativeCell(const index_type i) const {return _negativeCell[i];}
@@ -36,6 +37,8 @@ class Faces {
         inline index_type n() const {return _edgeInds.size();}
         inline index_type nMax() const {return _nMax;}
         
+        inline index_type nVerticesAtFace(const index_type ind) const {return _edgeInds[ind].size();}
+        
         index_type nDivided() const;
         inline index_type nLeaves() const {return n() - nDivided();}
         
@@ -45,11 +48,12 @@ class Faces {
         inline scalar_type area(const index_type i) const {return _area[i];}
         void setArea(const index_type i, const scalar_type nA);
         
-        inline quad_index_type children(const index_type i) const {return _children[i];}
+        inline std::vector<index_type> children(const index_type i) const {return _children[i];}
         
         void insert(const std::vector<index_type>& edgeInds);
         
         virtual void divide(const index_type i) = 0;
+        std::vector<index_type> ccwAdjacentFaces(const index_type ind) const;
     
         scalar_type computeArea(const index_type i);
         
@@ -74,7 +78,7 @@ class Faces {
         std::vector<scalar_type> _area;
         std::vector<bool> _hasChildren;
         std::vector<index_type> _parent;
-        std::vector<quad_index_type> _children;
+        std::vector<std::vector<index_type>> _children;
         std::vector<index_type> _positiveCell;
         std::vector<index_type> _negativeCell;
         

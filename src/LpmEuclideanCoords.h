@@ -14,10 +14,11 @@ namespace Lpm {
 class EuclideanCoords : public Coords
 {
 	public :
-	    friend class Edges;
 		EuclideanCoords(const index_type nMax = 0) : Coords(nMax) {};			
 		
 		scalar_type distance( const index_type indexA, const index_type indexB ) const;
+		scalar_type distance(const XyzVector& vec, const index_type ind) const;
+		scalar_type distance(const XyzVector& v0, const XyzVector& v1) const;
 		
 		XyzVector midpoint( const index_type indexA, const index_type indexB ) const ;
 		

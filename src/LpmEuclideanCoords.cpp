@@ -10,6 +10,14 @@ scalar_type EuclideanCoords::distance(const index_type indA, const index_type in
     return Lpm::distance(vecA, vecB);
 }
 
+scalar_type EuclideanCoords::distance(const XyzVector& vec, const index_type ind) const {
+    return Lpm::distance(vec, XyzVector(x[ind], y[ind], z[ind]));
+}
+
+scalar_type EuclideanCoords::distance(const XyzVector& v0, const XyzVector& v1) const {
+    return Lpm::distance(v0, v1);
+}
+
 XyzVector EuclideanCoords::midpoint(const index_type indA, const index_type indB) const {
     const XyzVector vecA(x[indA], y[indA], z[indA]);
     const XyzVector vecB(x[indB], y[indB], z[indB]);

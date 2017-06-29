@@ -18,6 +18,11 @@ class MeshSeed {
         void initMeshFromSeed(std::shared_ptr<Coords> crds, std::shared_ptr<Edges> edges, std::shared_ptr<Faces> faces);
         
         std::string infoString() const;
+        
+        virtual index_type nFaces(const int recursionLevel) const = 0;
+        virtual index_type nVertices(const int recursionLevel) const = 0;
+        virtual index_type nEdges(const index_type nVerts, const index_type nFaces) const = 0;
+        virtual index_type nRootFaces() const = 0;
 
     protected:
         MeshSeed(const std::string fname, const int nDim, const index_type nCrds, const index_type nEdges, const index_type nFaces, 
@@ -45,43 +50,38 @@ class MeshSeed {
 
 class TriHexSeed : public MeshSeed {
     public:
-        TriHexSeed(const scalar_type rFac = 1.0) : MeshSeed("triHexSeed.dat", 2, 7, 12, 6, 3), radialFactor(rFac) {};
-        
-    protected:
-        scalar_type radialFactor;
-//         void readSeedFile();
+        TriHexSeed() : MeshSeed("triHexSeed.dat", 2, 7, 12, 6, 3) {};
+        index_type nFaces(const int recursionLevel) const;
+        index_type nVertices(const int recursionLevel) const;
+        index_type nEdges(const index_type nverts, const index_type nfaces) const;
+        inline index_type nRootFaces() const {return 6;}
 };
 
 class QuadRectSeed : public MeshSeed {
     public:
-        QuadRectSeed(const scalar_type xFac = 1.0, const scalar_type yFac = 1.0) : 
-            MeshSeed("quadRectSeed.dat", 2, 9, 12, 4, 4), 
-            xFactor(xFac), yFactor(yFac) {};
-    protected:
-//         void readSeedFile();
-        scalar_type xFactor;
-        scalar_type yFactor;
+        QuadRectSeed() : MeshSeed("quadRectSeed.dat", 2, 9, 12, 4, 4) {};
+        index_type nFaces(const int recursionLevel) const;
+        index_type nVertices(const int recursionLevel) const;
+        index_type nEdges(const index_type nverts, const index_type nfaces) const;
+        inline index_type nRootFaces() const {return 4;}
 };
 
 class IcosTriSphereSeed : public MeshSeed {
     public:
-        IcosTriSphereSeed(const scalar_type sphereRadius = 1.0) : MeshSeed("icosTriSphereSeed.dat", 3, 12, 30, 20, 3), 
-            radialFactor(sphereRadius) {};
-    
-        void initFromSeed(std::shared_ptr<Coords> crds, std::shared_ptr<Edges> edges, std::shared_ptr<Faces> faces);
-        
-    protected:
-//         void readSeedFile();
-        scalar_type radialFactor;
+        IcosTriSphereSeed() : MeshSeed("icosTriSphereSeed.dat", 3, 12, 30, 20, 3) {};
+        index_type nFaces(const int recursionLevel) const;
+        index_type nVertices(const int recursionLevel) const;
+        index_type nEdges(const index_type nverts, const index_type nfaces) const;
+        inline index_type nRootFaces() const {return 20;}
 };
 
 class CubedSphereSeed : public MeshSeed {
     public:
-        CubedSphereSeed(const scalar_type sphereRadius = 1.0) : MeshSeed("cubedSphereSeed.dat", 3, 8, 12, 6, 4), radialFactor(sphereRadius) {};
-    
-    protected:
-//         void readSeedFile();
-        scalar_type radialFactor;
+        CubedSphereSeed() : MeshSeed("cubedSphereSeed.dat", 3, 8, 12, 6, 4) {};
+        index_type nFaces(const int recursionLevel) const;
+        index_type nVertices(const int recursionLevel) const;
+        index_type nEdges(const index_type nverts, const index_type nfaces) const;
+        inline index_type nRootFaces() const {return 6;}
 };
 
 }

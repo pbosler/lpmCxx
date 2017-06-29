@@ -21,6 +21,8 @@ class Edges {
         
         Edges(const index_type nMax, const std::shared_ptr<Coords> crd_ptr, const std::shared_ptr<Coords> lag_crd_ptr = 0);
         virtual ~Edges() {};
+        
+        inline void makeLagrangian(const std::shared_ptr<Coords> lag_crd_ptr) {lagCrds = lag_crd_ptr;}
     
         inline index_type nMax() const {return _nMax;}
         inline index_type n() const {return _orig.size();}
@@ -45,6 +47,8 @@ class Edges {
 //         std::vector<index_type> getAllVertices(const index_type i) const;
         
         scalar_type length(const index_type i, const bool lagrangian = false) const;
+        scalar_type minLength(const bool lagrangian = false) const;
+        scalar_type maxLength(const bool lagrangian = false) const;
         XyzVector midpoint(const index_type i, const bool lagrangian = false) const;
         XyzVector origCoord(const index_type i, const bool lagrangian = false) const;
         XyzVector destCoord(const index_type i, const bool lagrangian = false) const;
