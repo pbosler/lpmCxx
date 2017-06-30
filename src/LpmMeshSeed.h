@@ -23,6 +23,7 @@ class MeshSeed {
         virtual index_type nVertices(const int recursionLevel) const = 0;
         virtual index_type nEdges(const index_type nVerts, const index_type nFaces) const = 0;
         virtual index_type nRootFaces() const = 0;
+        virtual std::string idString() const = 0;
 
     protected:
         MeshSeed(const std::string fname, const int nDim, const index_type nCrds, const index_type nEdges, const index_type nFaces, 
@@ -55,6 +56,7 @@ class TriHexSeed : public MeshSeed {
         index_type nVertices(const int recursionLevel) const;
         index_type nEdges(const index_type nverts, const index_type nfaces) const;
         inline index_type nRootFaces() const {return 6;}
+        inline std::string idString() const {return "triHexPlane";}
 };
 
 class QuadRectSeed : public MeshSeed {
@@ -64,6 +66,7 @@ class QuadRectSeed : public MeshSeed {
         index_type nVertices(const int recursionLevel) const;
         index_type nEdges(const index_type nverts, const index_type nfaces) const;
         inline index_type nRootFaces() const {return 4;}
+        inline std::string idString() const {return "quadRectPlane";}
 };
 
 class IcosTriSphereSeed : public MeshSeed {
@@ -73,6 +76,7 @@ class IcosTriSphereSeed : public MeshSeed {
         index_type nVertices(const int recursionLevel) const;
         index_type nEdges(const index_type nverts, const index_type nfaces) const;
         inline index_type nRootFaces() const {return 20;}
+        inline std::string idString() const {return "icosTriSphere";}
 };
 
 class CubedSphereSeed : public MeshSeed {
@@ -82,6 +86,7 @@ class CubedSphereSeed : public MeshSeed {
         index_type nVertices(const int recursionLevel) const;
         index_type nEdges(const index_type nverts, const index_type nfaces) const;
         inline index_type nRootFaces() const {return 6;}
+        inline std::string idString() const {return "cubedSphere";}
 };
 
 }

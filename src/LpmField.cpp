@@ -1,8 +1,10 @@
 #include "LpmField.h"
+#include <sstream>
+#include <exception>
 
 namespace Lpm {
 
-std::unique_ptr<Logger> Field::log(new Logger(OutputMessage::debugPriority));
+std::unique_ptr<Logger> Field::log(new Logger(OutputMessage::debugPriority, "Field_log"));
 
 Field::Field(const index_type nMax, const int nDim, const std::string name, const std::string units) : 
     _nMax(nMax), _nDim(nDim), _name(name), _units(units) {
@@ -25,16 +27,30 @@ Field::Field(const index_type nMax, const int nDim, const std::string name, cons
         default : {
             OutputMessage errMsg("ERROR invalid dimensions (nDim)", OutputMessage::errorPriority, "Field::Field");
             log->logMessage(errMsg);
-            break;
+            throw std::runtime_error("invalid input");
         }
     }
 }
 
 void Field::insert(const scalar_type fx) {
+    if (n() + 1 > _nMax) {
+        std::stringstream ss;
+        ss << "not enough memory to insert scalar " << fx;
+        OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Field::insert");
+        log->logMessage(errMsg);
+        throw std::bad_alloc();
+    }
     comp0.push_back(fx);
 }
 
 void Field::insert(const scalar_type fx, const scalar_type fy, const scalar_type fz) {
+    if (n() + 1 > _nMax) {
+        std::stringstream ss;
+        ss << "not enough memory to insert vector " << XyzVector(fx, fy, fz);
+        OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Field::insert");
+        log->logMessage(errMsg);
+        throw std::bad_alloc();
+    }
     comp0.push_back(fx);
     comp1.push_back(fy);
     if (_nDim == 3)
@@ -42,6 +58,13 @@ void Field::insert(const scalar_type fx, const scalar_type fy, const scalar_type
 }
 
 void Field::insert(const XyzVector& vec) {
+    if (n() + 1 > _nMax) {
+        std::stringstream ss;
+        ss << "not enough memory to insert vector " << vec;
+        OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Field::insert");
+        log->logMessage(errMsg);
+        throw std::bad_alloc();
+    }
     comp0.push_back(vec.x);
     comp1.push_back(vec.y);
     if (_nDim == 3)

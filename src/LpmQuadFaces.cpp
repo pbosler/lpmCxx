@@ -2,6 +2,8 @@
 #include "LpmOutputMessage.h"
 #include "LpmXyzVector.h"
 #include <vector>
+#include <sstream>
+#include <exception>
 
 namespace Lpm {
 
@@ -10,20 +12,19 @@ QuadFaces::QuadFaces(const index_type nMax, const std::shared_ptr<Edges> edge_pt
         const bool sim3d) : Faces(nMax, 4, edge_ptr, crd_ptr, lag_crd_ptr, sim3d) {};
 
 void QuadFaces::divide(const index_type i) {
-    bool errorState = false;
     if (_nMax < n() + 4) {
-        OutputMessage errMsg("not enough memory", OutputMessage::errorPriority, "QuadFaces::divide");
+        std::stringstream ss;
+        ss << "not enough memory to divide face " << i;
+        OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "QuadFaces::divide");
         log->logMessage(errMsg);
-        errorState = true;
+        throw std::bad_alloc();
     }
     if (_hasChildren[i]) {
-        OutputMessage errMsg("Faces::divide() called on face that already has children", OutputMessage::errorPriority,
-            "QuadFaces::divide");
+        std::stringstream ss;
+        ss << "Faces::divide() called on face " << i << ", which already has children";
+        OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "QuadFaces::divide");
         log->logMessage(errMsg);
-        errorState = true;
-    }
-    if (errorState) {
-        return;
+        throw std::runtime_error("mesh logic error");
     }
     std::vector<std::vector<index_type>> newFaceEdgeInds(4, std::vector<index_type>(4,-1));
     std::vector<std::vector<index_type>> newFaceVertInds(4, std::vector<index_type>(4,-1));

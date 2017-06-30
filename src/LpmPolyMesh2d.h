@@ -33,6 +33,12 @@ class PolyMesh2d {
         
         inline scalar_type maxMeshSize() const {return edges->maxLength();}
         inline scalar_type minMeshSize() const {return edges->minLength();}
+        
+        inline std::vector<index_type> faceVertices(const index_type faceInd) const 
+            {return faces->vertexIndices(faceInd);}
+        
+        inline std::vector<XyzVector> getCoordVecs(const std::vector<index_type> crdInds) const 
+            {return coords->getVectors(crdInds);}
     
         index_type locateFaceContainingPoint(const XyzVector& queryPt) const;
         

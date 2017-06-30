@@ -1,10 +1,12 @@
 #include "LpmEdges.h"
 #include <algorithm>
 #include <limits>
+#include <exception>
+#include <sstream>
 
 namespace Lpm {
 
-std::unique_ptr<Logger> Edges::log(new Logger(OutputMessage::debugPriority));
+std::unique_ptr<Logger> Edges::log(new Logger(OutputMessage::debugPriority, "Edges_log"));
 
 Edges::Edges(const index_type nMax, const std::shared_ptr<Coords> crd_ptr, const std::shared_ptr<Coords> lag_crd_ptr) : 
     _nMax(nMax), crds(crd_ptr), lagCrds(lag_crd_ptr) {
@@ -105,8 +107,11 @@ void Edges::divide(const index_type i) {
 
 void Edges::insert(const index_type origInd, const index_type destInd, const index_type leftInd, const index_type rightInd) {
     if (n() + 1 > _nMax) {
-        OutputMessage errMessage("not enough memory", OutputMessage::errorPriority, "Edges::insert");
+        std::stringstream ss;
+        ss << "not enough memory to insert edge: nMax = " << _nMax << ", n = " << n();
+        OutputMessage errMessage(ss.str(), OutputMessage::errorPriority, "Edges::insert");
         log->logMessage(errMessage);
+        throw std::bad_alloc();
     }
     _orig.push_back(origInd);
     _dest.push_back(destInd);

@@ -5,9 +5,12 @@
 #include "LpmTypeDefs.h"
 #include "LpmCoords.h"
 #include "LpmField.h"
+#include "LpmFaces.h"
+#include "LpmLogger.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <memory>
 
 namespace Lpm {
 
@@ -24,6 +27,8 @@ class VtkWriter {
         
         void writeVTKCellDataHeader(std::ofstream& os, const index_type nCells) const;
         void writeFaceAreaToVTKCellData(std::ofstream& os, const std::shared_ptr<Faces>& faces) const;
+    protected:
+        static std::unique_ptr<Logger> log;
 };
 
 }

@@ -12,7 +12,7 @@
 
 namespace Lpm {
 
-std::unique_ptr<Logger> MeshSeed::log(new Logger(OutputMessage::debugPriority));
+std::unique_ptr<Logger> MeshSeed::log(new Logger(OutputMessage::debugPriority, "MeshSeed_log"));
 
 void MeshSeed::initMeshFromSeed(std::shared_ptr<Coords> crds, std::shared_ptr<Edges> edges, std::shared_ptr<Faces> faces) {
     readSeedFile();
@@ -236,7 +236,8 @@ index_type TriHexSeed::nVertices(const int recursionLevel) const {
         result += i;
     }
     result *= 2;
-    result += std::pow(2, recursionLevel+1) + 1;
+    result += std::pow(2, recursionLevel+1);
+    result += 1;
     return result;
 }
 

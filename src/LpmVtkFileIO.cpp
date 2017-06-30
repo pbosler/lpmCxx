@@ -2,9 +2,12 @@
 #include "LpmXyzVector.h"
 #include "LpmTriFaces.h"
 #include "LpmQuadFaces.h"
+#include "LpmOutputMessage.h"
 #include <limits>
 
 namespace Lpm {
+
+std::unique_ptr<Logger> log(new Logger(OutputMessage::debugPriority, "VtkFileIO_log"));
 
 void VtkWriter::writeVTKHeader(std::ofstream& os, const std::string& title) const {
     os << "# vtk DataFile Version 2.0" << std::endl;
@@ -23,7 +26,7 @@ void VtkWriter::writeCoordsToVTKPoints(std::ofstream& os, const std::shared_ptr<
 }
 
 void VtkWriter::writeFacesToVTKPolygons(std::ofstream& os, const std::shared_ptr<Faces>& faces) const {
-    const index_type cellListSize = 0;
+    index_type cellListSize = 0;
     TriFaces* tri_ptr = dynamic_cast<TriFaces*>(faces.get());
     QuadFaces* quad_ptr = dynamic_cast<QuadFaces*>(faces.get());
     if (tri_ptr) {
@@ -45,7 +48,7 @@ void VtkWriter::writeFacesToVTKPolygons(std::ofstream& os, const std::shared_ptr
             const std::vector<index_type> vertInds = faces->vertexIndices(i);
             os << vertInds.size() << " ";
             for (int j = 0; j < vertInds.size(); ++j)
-                os << vertInds[j] << " "
+                os << vertInds[j] << " ";
             os << std::endl;
         }
     }
@@ -66,9 +69,9 @@ void VtkWriter::writeCoordsToVTKPointData(std::ofstream& os, const std::shared_p
     }
 }
 
-void VtkWriter::writeFieldToVTKPointData(std::ofstream& os, const std::shared_ptr<Field>& field) const {
+void VtkWriter::writeFieldToVTKData(std::ofstream& os, const std::shared_ptr<Field>& field) const {
     std::string fieldstring(field->name());
-    fieldstring += "_"
+    fieldstring += "_";
     fieldstring += field->units();
     os << "SCALARS " << fieldstring << " double " << field->nDim() << std::endl;
     os << "LOOKUP_TABLE default" << std::endl;

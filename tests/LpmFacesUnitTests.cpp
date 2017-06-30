@@ -103,7 +103,7 @@ int main(int argc, char* argv[]) {
     {// Quadrilateral faces
         std::cout << "************** Test 2: Quadrilateral Faces:\n";
     
-        std::shared_ptr<EuclideanCoords> ec(new EuclideanCoords(20));
+        std::shared_ptr<EuclideanCoords> ec(new EuclideanCoords(30));
         
         ec->insert(-1.0, 1.0 );
         ec->insert(-1.0, 0.0 );

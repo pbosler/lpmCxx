@@ -4,6 +4,8 @@
 #include "LpmConfig.h"
 #include "LpmTypeDefs.h"
 #include "LpmXyzVector.h"
+#include "LpmLogger.h"
+#include <memory>
 #include <vector>
 
 namespace Lpm {
@@ -21,6 +23,8 @@ class Coords {
         
         XyzVector crossProduct(const index_type indA, const index_type indB) const;
         scalar_type dotProduct(const index_type indA, const index_type indB) const;
+        
+        std::vector<XyzVector> getVectors(const std::vector<index_type> inds) const;
         
         inline index_type nMax() const {return _nMax;}
         inline index_type n() const {return x.size();}
@@ -46,6 +50,8 @@ class Coords {
         std::vector<scalar_type> y;
         std::vector<scalar_type> z;
         int _nMax;
+        
+        static std::unique_ptr<Logger> log;
 };
 
 }

@@ -11,7 +11,7 @@
 using namespace Lpm;
 
 int main (int argc, char* argv[] ) {
-    std::unique_ptr<Logger> log = std::unique_ptr<Logger>(new Logger(OutputMessage::debugPriority));
+    std::unique_ptr<Logger> log = std::unique_ptr<Logger>(new Logger(OutputMessage::debugPriority,"Logger_unitTest_log"));
     
     {
     std::stringstream ss;

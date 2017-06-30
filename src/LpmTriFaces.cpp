@@ -1,4 +1,6 @@
 #include "LpmTriFaces.h"
+#include <exception>
+#include <sstream>
 
 namespace Lpm {
 
@@ -8,31 +10,21 @@ TriFaces::TriFaces(const index_type nMax, const std::shared_ptr<Edges> edge_ptr,
     const std::shared_ptr<Coords> crd_ptr, const std::shared_ptr<Coords> lag_crd_ptr,
     const bool sim3d) : Faces(nMax, 3, edge_ptr, crd_ptr, lag_crd_ptr, sim3d) {};
 
-// void TriFaces::insert(const index_type indA, const index_type indB, const index_type indC) {
-//     if ( n() + 1 >= _nMax) {
-//         OutputMessage errMsg("not enough memory", OutputMessage::errorPriority, "TriFaces::insert");
-//         log->logMessage(errMsg);
-//         return;
-//     }
-//     std::vector<index_type> edgeList = {indA, indB, indC};
-//     _edgeInds.push_back(edgeList);
-// }
-
 void TriFaces::divide(const index_type i) {
-    bool errStat = false;
     if ( _nMax < n() + 4 ) {
-        OutputMessage errMsg("not enough memory", OutputMessage::errorPriority, "TriFaces::divide");
+        std::stringstream ss;
+        ss << "not enough memory to divide face " << i;
+        OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "TriFaces::divide");
         log->logMessage(errMsg);
-        errStat = true;
+        throw std::bad_alloc();
     }
     if (_hasChildren[i]) {
-        OutputMessage errMsg("Faces::divide() called on face that already has children", OutputMessage::errorPriority,
+        std::stringstream ss;
+        ss << "Faces::divide() called on face " << i << ", which already has children";
+        OutputMessage errMsg(ss.str(), OutputMessage::errorPriority,
             "TriFaces::divide");
         log->logMessage(errMsg);
-        errStat = true;
-    }
-    if (errStat) {
-        return;
+        throw std::runtime_error("mesh logic error");
     }
     std::vector<std::vector<index_type>> newFaceEdgeInds(4, std::vector<index_type>(3, -1));
     std::vector<std::vector<index_type>> newFaceVertInds(4, std::vector<index_type>(3, -1));

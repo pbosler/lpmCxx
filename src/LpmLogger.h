@@ -34,12 +34,13 @@ public:
     
     void logMessage( const LongMessage longMsg ) const;
     
-    Logger( const OutputMessage::priority logLevel = OutputMessage::debugPriority,
-           const int procRank = 0, const int numProcs = 1);
+    Logger( const OutputMessage::priority logLevel = OutputMessage::debugPriority, const std::string logid = "",
+           const int procRank = 0, const int numProcs = 1 );
     
 private:
     OutputMessage::priority _baseLevel;
     OutputMessage::priority _allOutputLevel;
+    std::string _key;
     int _procRank;
     int _numProcs;
 };

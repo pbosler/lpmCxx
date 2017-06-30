@@ -34,22 +34,22 @@ std::string OutputMessage::priorityString() const
     switch (OutputMessage::_pri)
     {
         case OutputMessage::debugPriority:
-            priString = "Debug Message :";
+            priString = "Debug";
             break;
         case OutputMessage::tracePriority:
-            priString = "Trace Message :";
+            priString = "Trace";
             break;
         case OutputMessage::remarkPriority:
-            priString = "Remark Message :";
+            priString = "Remark";
             break;
         case OutputMessage::warningPriority:
-            priString = "WARNING Message : ";
+            priString = "WARNING";
             break;
         case OutputMessage::errorPriority:
-            priString = "ERROR Message : ";
+            priString = "ERROR";
             break;
         default:
-            priString = "undefined priority :";
+            priString = "undefined priority";
             break;
     }
     return priString;

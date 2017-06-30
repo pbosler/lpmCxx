@@ -51,7 +51,11 @@ add_test( faceTest lpmFacesUnitTest.exe)
 
 ADD_EXECUTABLE(lpmMeshSeedUnitTest.exe LpmMeshSeedUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmMeshSeedUnitTest.exe lpm)
-add_test( lpmMeshSeedUnitTest lpmMeshSeedUnitTest.exe)
+add_test( meshSeedUnitTest lpmMeshSeedUnitTest.exe)
+
+ADD_EXECUTABLE(lpmPolyMeshUnitTest.exe LpmPolyMesh2dUnitTests.cpp)
+TARGET_LINK_LIBRARIES(lpmPolyMeshUnitTest.exe lpm)
+ADD_TEST(polymesh2dUnitTest lpmPolyMeshUnitTest.exe)
 
 #add_test( baselibTest lpmBaseObsTest.exe )
 #add_test( coordsTest lpmCoordsUnitTest.exe )

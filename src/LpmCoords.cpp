@@ -1,12 +1,14 @@
 #include "LpmCoords.h"
 #include "LpmXyzVector.h"
 #include <cmath>
-#include <vector>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <exception>
 
 namespace Lpm {
+
+std::unique_ptr<Logger> Coords::log(new Logger(OutputMessage::debugPriority, "Coords_base_log"));
 
 Coords::Coords(const index_type nMax) : _nMax(nMax) {
     x.reserve(nMax);
@@ -33,6 +35,15 @@ void Coords::scaleAll(const scalar_type multiplier) {
         z[i] *= multiplier;
     }
 }
+
+std::vector<XyzVector> Coords::getVectors(const std::vector<index_type> inds) const {
+    std::vector<XyzVector> result;
+    for (index_type i = 0; i < inds.size(); ++i) {
+        result.push_back(XyzVector(x[inds[i]], y[inds[i]], z[inds[i]]));
+    }
+    return result;
+}
+
 
 void Coords::normalizeAll() {
     for (index_type i = 0; i < x.size(); ++i) {
@@ -61,12 +72,26 @@ void Coords::replace(const index_type ind, const XyzVector& vec) {
 }
 
 void Coords::insert(const scalar_type nx, const scalar_type ny, const scalar_type nz) {
+    if (n() + 1 > _nMax) {
+        std::stringstream ss;
+        ss << "not enough memory to insert coordinate " << XyzVector(nx, ny, nz);
+        OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Coords::insert");
+        log->logMessage(errMsg);
+        throw std::bad_alloc();
+    }  
     x.push_back(nx);
     y.push_back(ny);
     z.push_back(nz);
 }
 
 void Coords::insert(const XyzVector& vec) {
+    if (n() + 1 > _nMax) {
+        std::stringstream ss;
+        ss << "not enough memory to insert coordinate " << vec;
+        OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Coords::insert");
+        log->logMessage(errMsg);
+        throw std::bad_alloc();
+    }
     x.push_back(vec.x);
     y.push_back(vec.y);
     z.push_back(vec.z);

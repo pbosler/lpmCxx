@@ -7,7 +7,7 @@
 
 namespace Lpm {
 
-std::unique_ptr<Logger> Faces::log(new Logger(OutputMessage::debugPriority));
+std::unique_ptr<Logger> Faces::log(new Logger(OutputMessage::debugPriority, "Faces_base_log"));
 
 Faces::Faces(const index_type nMax, const index_type nMaxEdgesPerFace, const std::shared_ptr<Edges> edge_ptr, 
     const std::shared_ptr<Coords> crd_ptr,  const std::shared_ptr<Coords> lag_crd_ptr, const bool sim3d) : 

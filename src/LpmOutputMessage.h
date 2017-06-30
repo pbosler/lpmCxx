@@ -52,6 +52,7 @@ public:
 	virtual ~OutputMessage(){};
     
     std::string priorityString() const;
+    inline std::string getMessage() const {return _msgString;}
     
     inline priority getPriority() const { return _pri; };
     

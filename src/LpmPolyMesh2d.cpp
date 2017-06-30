@@ -9,17 +9,22 @@
 #include <iostream>
 #include <fstream>
 #include <exception>
+#include <sstream>
 
 namespace Lpm {
 
-std::unique_ptr<Logger> PolyMesh2d::log(new Logger(OutputMessage::debugPriority));
+std::unique_ptr<Logger> PolyMesh2d::log(new Logger(OutputMessage::debugPriority, "PolyMesh2d_log"));
 
 PolyMesh2d::PolyMesh2d(MeshSeed& seed, const int maxRecursionLevel, const bool isLagrangian, 
     const scalar_type domainRadius) : lagrangian(isLagrangian), nRootFaces(seed.nRootFaces()) {
 
     const index_type nMaxVerts = seed.nVertices(maxRecursionLevel);
-    const index_type nMaxFaces = seed.nFaces(maxRecursionLevel);
-    const index_type nMaxEdges = seed.nEdges(nMaxVerts, nMaxFaces);
+    index_type nMaxFaces = 0;
+    index_type nMaxEdges = 0;
+    for (int k = 0; k <= maxRecursionLevel; ++k) {
+        nMaxFaces += seed.nFaces(k);
+        nMaxEdges += seed.nEdges(seed.nVertices(k), seed.nFaces(k));
+    }
     
     if (typeid(seed) == typeid(IcosTriSphereSeed) || typeid(seed) == typeid(CubedSphereSeed)) {
         geometry = SPHERICAL_SURFACE_GEOMETRY;
@@ -41,6 +46,20 @@ PolyMesh2d::PolyMesh2d(MeshSeed& seed, const int maxRecursionLevel, const bool i
     }
     
     seed.initMeshFromSeed(coords, edges, faces);
+    
+    for (int k = 0; k < maxRecursionLevel; ++k) {
+        const index_type nfaces = faces->n();
+#ifdef DEBUG_ALL
+        std::cout << "------ mesh recursion " << k + 1 << ": " << std::endl;
+        std::cout << "\tfaces->nMax() = " << faces->nMax() << ", faces->n() = " << faces->n() << ", faces->nLeaves() = " << faces->nLeaves() << std::endl;
+        std::cout << "\tedges->nMax() = " << edges->nMax() << ", edges->n() = " << edges->n() << ", edges->nLeaves() = " << edges->nLeaves() << std::endl;    
+#endif
+        for (index_type i = 0; i < nfaces; ++i) {
+            if (!faces->hasChildren(i)) {
+                faces->divide(i);
+            }
+        }
+    }
     
     if (lagrangian) {
         if (typeid(seed) == typeid(IcosTriSphereSeed) || typeid(seed) == typeid(CubedSphereSeed)) {
