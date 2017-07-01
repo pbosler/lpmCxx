@@ -16,7 +16,7 @@ class SphericalCoords : public Coords {
 	    friend class Edges;
 	
 		SphericalCoords( const index_type nMax = 0,	const scalar_type radius = 1.0) : 
-			Coords(nMax), _radius(radius) {};
+			Coords(nMax, true), _radius(radius) {};
 		
 		scalar_type distance( const index_type indexA, const index_type indexB ) const;
 		scalar_type distance(const XyzVector& v0, const index_type ind) const;

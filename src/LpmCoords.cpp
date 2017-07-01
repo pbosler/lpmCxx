@@ -10,65 +10,100 @@ namespace Lpm {
 
 std::unique_ptr<Logger> Coords::log(new Logger(OutputMessage::debugPriority, "Coords_base_log"));
 
-Coords::Coords(const index_type nMax) : _nMax(nMax) {
+Coords::Coords(const index_type nMax, const bool sim3d) : _nMax(nMax) {
     x.reserve(nMax);
     y.reserve(nMax);
-    z.reserve(nMax);
+    if (sim3d)
+        z.reserve(nMax);
 }
 
 XyzVector Coords::crossProduct(const index_type indA, const index_type indB) const {
-    const XyzVector vecA(x[indA], y[indA], z[indA]);
-    const XyzVector vecB(x[indB], y[indB], z[indB]);
+    XyzVector vecA;
+    XyzVector vecB;
+    if (geometry == PLANAR_GEOMETRY) {
+        vecA = XyzVector(x[indA], y[indA]);
+        vecB = XyzVector(x[indB], y[indB]);
+    }
+    else {
+        vecA = XyzVector(x[indA], y[indA], z[indA]);
+        vecB = XyzVector(x[indB], y[indB], z[indB]);
+    }
     return vecA.crossProduct(vecB);
 }
 
 scalar_type Coords::dotProduct(const index_type indA, const index_type indB) const {
-    const XyzVector vecA(x[indA], y[indA], z[indA]);
-    const XyzVector vecB(x[indB], y[indB], z[indB]);
-    return vecA.dotProduct(vecB);
+    XyzVector vecA;
+    XyzVector vecB;
+    if (geometry == PLANAR_GEOMETRY) {
+        vecA = XyzVector(x[indA], y[indA]);
+        vecB = XyzVector(x[indB], y[indB]);
+    }
+    else {
+        vecA = XyzVector(x[indA], y[indA], z[indA]);
+        vecB = XyzVector(x[indB], y[indB], z[indB]);
+    }    return vecA.dotProduct(vecB);
 }
 
 void Coords::scaleAll(const scalar_type multiplier) {
-    for (index_type i = 0; i < x.size(); ++i) {
-        x[i] *= multiplier;
-        y[i] *= multiplier;
-        z[i] *= multiplier;
+    if (geometry == PLANAR_GEOMETRY) {
+        for (index_type i = 0; i < x.size(); ++i) {
+            x[i] *= multiplier;
+            y[i] *= multiplier;
+        }
+    }
+    else{
+        for (index_type i = 0; i < x.size(); ++i) {
+            x[i] *= multiplier;
+            y[i] *= multiplier;
+            z[i] *= multiplier;
+        }
     }
 }
 
 std::vector<XyzVector> Coords::getVectors(const std::vector<index_type> inds) const {
     std::vector<XyzVector> result;
     for (index_type i = 0; i < inds.size(); ++i) {
-        result.push_back(XyzVector(x[inds[i]], y[inds[i]], z[inds[i]]));
+        result.push_back(XyzVector(x[inds[i]], y[inds[i]], (geometry == PLANAR_GEOMETRY ? 0.0 : z[inds[i]])));
     }
     return result;
 }
 
 
 void Coords::normalizeAll() {
-    for (index_type i = 0; i < x.size(); ++i) {
-        const scalar_type norm = std::sqrt(x[i] * x[i] + y[i] * y[i] + z[i] * z[i]);
-        x[i] /= norm;
-        y[i] /= norm;
-        z[i] /= norm;
+    if (geometry == PLANAR_GEOMETRY) {
+            for (index_type i = 0; i < x.size(); ++i) {
+                const scalar_type norm = std::sqrt(x[i] * x[i] + y[i] * y[i]);
+                x[i] /= norm;
+                y[i] /= norm;
+            }
+    }
+    else {
+        for (index_type i = 0; i < x.size(); ++i) {
+            const scalar_type norm = std::sqrt(x[i] * x[i] + y[i] * y[i] + z[i] * z[i]);
+            x[i] /= norm;
+            y[i] /= norm;
+            z[i] /= norm;
+        }
     }
 }
 
 scalar_type Coords::magnitude(const index_type ind) const {
-    const XyzVector vec(x[ind], y[ind], z[ind]);
+    const XyzVector vec(x[ind], y[ind], (geometry == PLANAR_GEOMETRY ? 0.0 : z[ind]));
     return vec.magnitude();
 }
 
 void Coords::replace(const index_type ind, const scalar_type nx, const scalar_type ny, const scalar_type nz) {
     x[ind] = nx;
     y[ind] = ny;
-    z[ind] = nz;
+    if (geometry != PLANAR_GEOMETRY)
+        z[ind] = nz;
 }
 
 void Coords::replace(const index_type ind, const XyzVector& vec) {
     x[ind] = vec.x;
     y[ind] = vec.y;
-    z[ind] = vec.z;
+    if (geometry != PLANAR_GEOMETRY)
+        z[ind] = vec.z;
 }
 
 void Coords::insert(const scalar_type nx, const scalar_type ny, const scalar_type nz) {
@@ -81,7 +116,8 @@ void Coords::insert(const scalar_type nx, const scalar_type ny, const scalar_typ
     }  
     x.push_back(nx);
     y.push_back(ny);
-    z.push_back(nz);
+    if (geometry != PLANAR_GEOMETRY) 
+        z.push_back(nz);    
 }
 
 void Coords::insert(const XyzVector& vec) {
@@ -94,13 +130,14 @@ void Coords::insert(const XyzVector& vec) {
     }
     x.push_back(vec.x);
     y.push_back(vec.y);
-    z.push_back(vec.z);
+    if (geometry != PLANAR_GEOMETRY)
+        z.push_back(vec.z);
 }
 
 std::string Coords::listAllCoords() const {
     std::ostringstream ss;
     for (index_type i = 0; i < x.size(); ++i)
-        ss << i << ": " << XyzVector(x[i], y[i], z[i]) << std::endl;
+        ss << i << ": " << XyzVector(x[i], y[i], (geometry == PLANAR_GEOMETRY ? 0.0 : z[i]) ) << std::endl;
     return ss.str();
 }
 

@@ -62,7 +62,7 @@ int main (int argc, char* argv[] ) {
     const SineWave3D sw3(2, 5, 7);
     const Gaussian3D gs3(1.0);
     
-    EuclideanCoords ec(13);
+    EuclideanCoords ec(13, CARTESIAN_3D_GEOMETRY);
     
     ec.insert( -1.0, 1.0 ); //0
     ec.insert( -1.0, 0.0 ); //1

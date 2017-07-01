@@ -39,17 +39,18 @@ class Coords {
         void insert(const scalar_type nx, const scalar_type ny, const scalar_type nz = 0.0);
         void insert(const XyzVector& vec);
         
-        inline XyzVector getVec(const index_type ind) const {return XyzVector(x[ind], y[ind], z[ind]);}
+        inline XyzVector getVec(const index_type ind) const {return XyzVector(x[ind], y[ind], (geometry == PLANAR_GEOMETRY ? 0.0 : z[ind]));}
         
         std::string listAllCoords() const;
         
     protected:
-        Coords(const index_type nMax);
+        Coords(const index_type nMax, const bool coords3d = true);
         
         std::vector<scalar_type> x;
         std::vector<scalar_type> y;
         std::vector<scalar_type> z;
         int _nMax;
+        GeometryType geometry;
         
         static std::unique_ptr<Logger> log;
 };

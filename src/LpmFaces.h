@@ -72,8 +72,6 @@ class Faces {
             const std::shared_ptr<Coords> lag_crd_ptr = 0,  
             const bool sim3d = false);
         
-        std::map<std::string, std::unique_ptr<Field>> fieldMap;
-        
         std::vector<std::vector<index_type>> _edgeInds;
         std::vector<scalar_type> _area;
         std::vector<bool> _hasChildren;

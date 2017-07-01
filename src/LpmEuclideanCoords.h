@@ -14,7 +14,8 @@ namespace Lpm {
 class EuclideanCoords : public Coords
 {
 	public :
-		EuclideanCoords(const index_type nMax = 0) : Coords(nMax) {};			
+		EuclideanCoords(const index_type nMax = 0, const GeometryType gkind = PLANAR_GEOMETRY) : 
+		    Coords(nMax, (gkind == PLANAR_GEOMETRY ? false : true)) {};
 		
 		scalar_type distance( const index_type indexA, const index_type indexB ) const;
 		scalar_type distance(const XyzVector& vec, const index_type ind) const;
