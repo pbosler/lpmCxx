@@ -11,7 +11,7 @@ scalar_type EuclideanCoords::distance(const index_type indA, const index_type in
 }
 
 scalar_type EuclideanCoords::distance(const XyzVector& vec, const index_type ind) const {
-    return Lpm::distance(vec, XyzVector(x[ind], y[ind], (geometry == PLANAR_GEOMETRY ? 0.0 : z[ind])));
+    return Lpm::distance(vec, XyzVector(x[ind], y[ind], (geometry != PLANAR_GEOMETRY ? z[ind] : 0.0)));
 }
 
 scalar_type EuclideanCoords::distance(const XyzVector& v0, const XyzVector& v1) const {
