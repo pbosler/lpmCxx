@@ -15,7 +15,8 @@ namespace Lpm {
 
 class MeshSeed {
     public:
-        void initMeshFromSeed(std::shared_ptr<Coords> crds, std::shared_ptr<Edges> edges, std::shared_ptr<Faces> faces);
+        void initMeshFromSeed(std::shared_ptr<Coords> crds, std::shared_ptr<Edges> edges, std::shared_ptr<Faces> faces, 
+            const scalar_type domainRadius = 1.0);
         
         std::string infoString() const;
         

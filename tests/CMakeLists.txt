@@ -57,6 +57,10 @@ ADD_EXECUTABLE(lpmPolyMeshUnitTest.exe LpmPolyMesh2dUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmPolyMeshUnitTest.exe lpm)
 ADD_TEST(polymesh2dUnitTest lpmPolyMeshUnitTest.exe)
 
+ADD_EXECUTABLE(lpmPoissonSolver.exe LpmPoissonSolverTests.cpp)
+TARGET_LINK_LIBRARIES(lpmPoissonSolver.exe lpm)
+ADD_TEST(poissonSolver lpmPoissonSolver.exe)
+
 #add_test( baselibTest lpmBaseObsTest.exe )
 #add_test( coordsTest lpmCoordsUnitTest.exe )
 #add_test( particlesAndFieldTest lpmParticlesAndFieldsUnitTest.exe )

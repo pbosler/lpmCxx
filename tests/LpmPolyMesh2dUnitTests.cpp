@@ -27,8 +27,8 @@ int main (int argc, char* argv[]) {
         OutputMessage introMsg(ss.str(), OutputMessage::tracePriority, "main");
         log->logMessage(introMsg);
     }
-    const int maxRecursion = 2;
-    const scalar_type dradius = 1.0;
+    const int maxRecursion = 1;
+    const scalar_type dradius = 3.0;
     
     {
         std::cout << "**** Planar triangle mesh ****" << std::endl;
@@ -59,6 +59,17 @@ int main (int argc, char* argv[]) {
         ss << mSeed.idString() << maxRecursion << ".vtk";
         mesh.writeToVTKFile(ss.str(), "unitTest");
         
+        const scalar_type lam0 = 0.2;
+        const scalar_type the0 = 0.05;
+        scalar_type xx, yy, zz;
+        llToXyz(xx, yy, zz, lam0, the0);
+        const XyzVector queryPt(xx, yy, zz);
+        const index_type face_index = mesh.locateFaceContainingPoint(queryPt);
+        const std::vector<XyzVector> enclosingVertices = mesh.getCoordVecs(mesh.faceVertices(face_index));
+        std::cout << "found query point " << queryPt << " in face " << face_index << std::endl;
+        std::cout << "\tface " << face_index << " has vertex coordinates:" << std::endl;
+        for (index_type i = 0; i < enclosingVertices.size(); ++i)
+            std::cout << "\t" << enclosingVertices[i] << std::endl;
     }
     {
         std::cout << "**** Planar quadrilateral mesh ****" << std::endl;
@@ -89,6 +100,18 @@ int main (int argc, char* argv[]) {
         std::stringstream ss;
         ss << mSeed.idString() << maxRecursion << ".vtk";
         mesh.writeToVTKFile(ss.str(), "unitTest");
+        
+        const scalar_type lam0 = 0.2;
+        const scalar_type the0 = 0.05;
+        scalar_type xx, yy, zz;
+        llToXyz(xx, yy, zz, lam0, the0);
+        const XyzVector queryPt(xx, yy, zz);
+        const index_type face_index = mesh.locateFaceContainingPoint(queryPt);
+        const std::vector<XyzVector> enclosingVertices = mesh.getCoordVecs(mesh.faceVertices(face_index));
+        std::cout << "found query point " << queryPt << " in face " << face_index << std::endl;
+        std::cout << "\tface " << face_index << " has vertex coordinates:" << std::endl;
+        for (index_type i = 0; i < enclosingVertices.size(); ++i)
+            std::cout << "\t" << enclosingVertices[i] << std::endl;
     }  
 
 return 0;

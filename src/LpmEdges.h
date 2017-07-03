@@ -61,7 +61,7 @@ class Edges {
         virtual void insert(const index_type origInd, const index_type destInd, 
             const index_type leftInd, const index_type rightInd);
             
-        
+        std::string edgeRecord(const index_type i) const;
     protected:
         std::vector<index_type> _orig;
         std::vector<index_type> _dest;

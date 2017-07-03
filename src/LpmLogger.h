@@ -12,6 +12,8 @@
 	@file
 	@author Peter Bosler <pabosle@sandia.gov>
  */
+#include "LpmTypeDefs.h"
+#include "LpmConfig.h"
 #include <iostream>
 #include "LpmOutputMessage.h"
 #include <vector>
@@ -37,12 +39,15 @@ public:
     Logger( const OutputMessage::priority logLevel = OutputMessage::debugPriority, const std::string logid = "",
            const int procRank = 0, const int numProcs = 1 );
     
+    inline void startSection() {_tablevel += 1;}
+    void endSection() {_tablevel = std::max(_tablevel - 1, 0);}
 private:
     OutputMessage::priority _baseLevel;
     OutputMessage::priority _allOutputLevel;
     std::string _key;
     int _procRank;
     int _numProcs;
+    int _tablevel;
 };
 
 }

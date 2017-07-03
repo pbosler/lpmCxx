@@ -53,6 +53,7 @@ public:
     
     std::string priorityString() const;
     inline std::string getMessage() const {return _msgString;}
+    inline void resetMsgString(const std::string& newstr) { _msgString = newstr;}
     
     inline priority getPriority() const { return _pri; };
     

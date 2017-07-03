@@ -61,6 +61,8 @@ class Faces {
         
         void resetAreas();
         
+        std::string faceRecord(const index_type ind) const;
+        
         inline bool edgeIsPositive(const index_type faceInd, const index_type edgeInd) const {
             return (edges->leftFace(edgeInd) == faceInd); }
             

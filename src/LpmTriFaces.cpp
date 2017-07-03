@@ -113,31 +113,28 @@ void TriFaces::divide(const index_type i) {
             setNegativeCell(newFaceInds[j], negCellInd);
         }
     }
-    
-#ifdef DEBUG_ALL
-    std::cout << "dividing face " << i << ":\n";
-    std::cout << "\tnewFaceEdges : \n";
-    for (int j = 0; j < 4; ++j) {
-        std::cout << "\t" << j << ": ";
-        std::cout << newFaceEdgeInds[j][0] << ", " << newFaceEdgeInds[j][1] << ", " <<
-            newFaceEdgeInds[j][2] << std::endl;
+    {
+        std::stringstream ss;
+        const bool parentConn = verifyConnectivity(i);
+        bool errState = false;
+        if (!parentConn) {
+            ss << "Connectivity error in parent, faceindex " << i << std::endl;
+            errState = true;
+        }
+        std::vector<bool> childConn(4, false);
+        for (int j = 0; j < 4; ++j) {
+            childConn[j] = verifyConnectivity(newFaceInds[j]);
+            if (!childConn[j]) {
+                ss << "connectivity error in child " << j << " of faceindex " << i << std::endl;
+                errState = true;
+            }
+        }  
+        if (errState){
+            OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "TriFaces::divide");
+            log->logMessage(errMsg);
+            throw std::runtime_error("mesh connectivity error");
+        }
     }
-    std::cout << "\tnewFaceVerts: \n";
-    for (int j = 0; j < 4; ++j) {
-        std::cout << "\t" << j << ": ";
-        std::cout << newFaceVertInds[j][0] << ", " << newFaceVertInds[j][1] << ", " <<
-            newFaceVertInds[j][2] << std::endl;
-    }
-    std::cout << "\tverifyingConnectivity: ";
-    bool parentConn = verifyConnectivity(i);
-    std::cout << (parentConn ? " parent ok " : " connectivity error in parent ");
-    std::vector<bool> childConn(4, false);
-    for (int j = 0; j < 4; ++j) {
-        childConn[j] = verifyConnectivity(newFaceInds[j]);
-        std::cout << (childConn[j] ? " child ok " : "connectivity error in child");
-    }    
-    std::cout << std::endl;
-#endif
 }
 
 

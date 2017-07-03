@@ -23,6 +23,9 @@ class PolyMesh2d {
         friend class MeshedParticles;
     
         PolyMesh2d(MeshSeed& seed, const int maxRecursionLevel, const bool isLagrangian = false, const scalar_type domainRadius = 1.0);
+
+        inline std::shared_ptr<Coords> getPhysCoords() const {return coords;}
+        inline std::shared_ptr<Coords> getLagCoords() const {return lagCoords;}
     
         inline index_type nVertices() const {return coords->n();}
         inline index_type nEdges() const {return edges->n();}
@@ -42,7 +45,8 @@ class PolyMesh2d {
     
         index_type locateFaceContainingPoint(const XyzVector& queryPt) const;
         
-        std::vector<index_type> nNearbyCoordinates(const XyzVector& queryPt, const index_type n) const;
+        inline std::vector<index_type> adjacentFaceIndices(const index_type faceInd) const 
+            {return faces->ccwAdjacentFaces(faceInd);}
         
         void writeToVTKFile(const std::string& fname, const std::string& desc = "") const;
     protected:

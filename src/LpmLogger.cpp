@@ -11,6 +11,7 @@
  */
 
 #include "LpmLogger.h"
+#include <sstream>
 
 using std::cout;
 using std::cerr;
@@ -25,7 +26,7 @@ namespace Lpm {
 */
 Logger::Logger( const OutputMessage::priority logLevel, const std::string logid, const int procRank, const int numProcs) :
 _baseLevel(logLevel), _procRank(procRank), _numProcs(numProcs), _allOutputLevel(OutputMessage::warningPriority), 
-_key(logid) {};
+_key(logid), _tablevel(0) {};
 
 
 /**
@@ -35,12 +36,29 @@ _key(logid) {};
  */
 void Logger::logMessage( const OutputMessage msg) const
 {
+    std::stringstream ss;
+    for (int i = 0; i < _tablevel; ++i) 
+        ss << "\t";
+    const std::string tabstr = ss.str();
+    std::string formattedMessage(tabstr);
+    std::string::size_type found_pos;
+    std::string::size_type start_pos = 0;
+    const std::string msgstr = msg.getMessage();
+    for (index_type i = 0; i < msgstr.size(); ++i) {
+        if (msgstr[i] == '\n') {
+            formattedMessage += msgstr[i];
+            formattedMessage += tabstr;
+        }
+        else
+            formattedMessage += msgstr[i];
+    }
+    
     if ( msg.getPriority() < _allOutputLevel) {
         if ( _procRank == 0 && msg.getPriority() >= _baseLevel)
-            cout << "------- start message --------" << std::endl;
-            cout << _key << " proc0 (" << msg.priorityString() << ")" << std::endl;
-            cout << msg.getMessage() << std::endl;
-            cout << "------- end message ----------" << std::endl;
+            cout << tabstr << "------- start message --------" << std::endl;
+            cout << tabstr << _key << " proc0 (" << msg.priorityString() << ")" << std::endl;
+            cout << tabstr << formattedMessage << std::endl;
+            cout << tabstr << "------- end message ----------" << std::endl;
     }
     else {
         cout << "proc " << _procRank << " " << _key << ":" << msg << endl;

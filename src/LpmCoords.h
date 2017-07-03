@@ -29,6 +29,8 @@ class Coords {
         inline index_type nMax() const {return _nMax;}
         inline index_type n() const {return x.size();}
         
+        inline GeometryType geometry() const {return _geometry;}
+        
         void scaleAll(const scalar_type multiplier);
         void normalizeAll();
         scalar_type magnitude(const index_type ind) const;
@@ -39,7 +41,7 @@ class Coords {
         void insert(const scalar_type nx, const scalar_type ny, const scalar_type nz = 0.0);
         void insert(const XyzVector& vec);
         
-        inline XyzVector getVec(const index_type ind) const {return XyzVector(x[ind], y[ind], (geometry == PLANAR_GEOMETRY ? 0.0 : z[ind]));}
+        inline XyzVector getVec(const index_type ind) const {return XyzVector(x[ind], y[ind], (_geometry == PLANAR_GEOMETRY ? 0.0 : z[ind]));}
         
         std::string listAllCoords() const;
         
@@ -50,7 +52,7 @@ class Coords {
         std::vector<scalar_type> y;
         std::vector<scalar_type> z;
         int _nMax;
-        GeometryType geometry;
+        GeometryType _geometry;
         
         static std::unique_ptr<Logger> log;
 };

@@ -20,6 +20,20 @@ Edges::Edges(const index_type nMax, const std::shared_ptr<Coords> crd_ptr, const
     _parent.reserve(nMax);
 }
 
+std::string Edges::edgeRecord(const index_type i) const {
+    std::stringstream ss;
+    ss << "edge record " << i << ": orig = " << _orig[i] << ", dest = " << _dest[i] << ", leftFace = " << _leftFace[i]
+        << ", rightFace = " << _rightFace[i] << ", parent = " << _parent[i];
+    if (_hasChildren[i]) {
+        ss << ", children = (" << _child0[i] << ", " << _child1[i] << ")";
+    }
+    else {
+        ss << ", undivided." << std::endl;
+    }
+    ss << "\t\torigCoord = " << crds->getVec(_orig[i]) << ", destCoord = " << crds->getVec(_dest[i]) << std::endl;
+    return ss.str();
+}
+
 index_type Edges::nDivided() const {
     return std::count(_hasChildren.begin(), _hasChildren.end(), true);
 } 

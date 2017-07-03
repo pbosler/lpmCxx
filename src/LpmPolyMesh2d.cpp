@@ -17,7 +17,12 @@ std::unique_ptr<Logger> PolyMesh2d::log(new Logger(OutputMessage::debugPriority,
 
 PolyMesh2d::PolyMesh2d(MeshSeed& seed, const int maxRecursionLevel, const bool isLagrangian, 
     const scalar_type domainRadius) : lagrangian(isLagrangian), nRootFaces(seed.nRootFaces()) {
-
+    std::stringstream ss;
+    ss << "building" << (lagrangian ? " Lagrangian " : " ") << "PolyMesh2d with seed: " << seed.idString() << 
+        ", recursion level " << maxRecursionLevel << ", and radius " << domainRadius;
+    OutputMessage statusMsg(ss.str(), OutputMessage::tracePriority, "PolyMesh2d::PolyMesh2d");
+    log->logMessage(statusMsg);
+    log->startSection();
     const index_type nMaxVerts = seed.nVertices(maxRecursionLevel);
     index_type nMaxFaces = 0;
     index_type nMaxEdges = 0;
@@ -45,15 +50,14 @@ PolyMesh2d::PolyMesh2d(MeshSeed& seed, const int maxRecursionLevel, const bool i
         faces = std::shared_ptr<Faces>(new QuadFaces(nMaxFaces, edges, coords));
     }
     
-    seed.initMeshFromSeed(coords, edges, faces);
+    seed.initMeshFromSeed(coords, edges, faces, domainRadius);
+//     ss.str(std::string());
+// //    ss << "seed.infoString() = " << seed.infoString();
+//     statusMsg.resetMsgString(ss.str());
+//     log->logMessage(statusMsg);
     
     for (int k = 0; k < maxRecursionLevel; ++k) {
         const index_type nfaces = faces->n();
-#ifdef DEBUG_ALL
-        std::cout << "------ mesh recursion " << k + 1 << ": " << std::endl;
-        std::cout << "\tfaces->nMax() = " << faces->nMax() << ", faces->n() = " << faces->n() << ", faces->nLeaves() = " << faces->nLeaves() << std::endl;
-        std::cout << "\tedges->nMax() = " << edges->nMax() << ", edges->n() = " << edges->n() << ", edges->nLeaves() = " << edges->nLeaves() << std::endl;    
-#endif
         for (index_type i = 0; i < nfaces; ++i) {
             if (!faces->hasChildren(i)) {
                 faces->divide(i);
@@ -73,12 +77,14 @@ PolyMesh2d::PolyMesh2d(MeshSeed& seed, const int maxRecursionLevel, const bool i
         faces->makeLagrangian(lagCoords);
     }
     
-    
-}
-
-std::vector<index_type> PolyMesh2d::nNearbyCoordinates(const XyzVector& queryPt, const index_type n) const {
-    std::vector<index_type> result;
-    return result;
+    ss.str(std::string());
+    ss << "** Mesh created **" <<std::endl;
+    ss << "\tfaces->nMax() = " << faces->nMax() << ", faces->n() = " << faces->n() << ", faces->nLeaves() = " << faces->nLeaves() << std::endl;
+    ss << "\tedges->nMax() = " << edges->nMax() << ", edges->n() = " << edges->n() << ", edges->nLeaves() = " << edges->nLeaves() << std::endl;    
+    ss << "\tsurface area = " << faces->surfaceArea();
+    statusMsg.resetMsgString(ss.str());
+    log->logMessage(statusMsg);
+    log->endSection();
 }
 
 index_type PolyMesh2d::locateFaceContainingPoint(const XyzVector& queryPt) const {

@@ -65,6 +65,18 @@ std::ostream& operator << ( std::ostream& os, const XyzVector& vec );
  
 scalar_type atan4( const scalar_type y, const scalar_type x );
 
+inline void llToXyz(scalar_type& x, scalar_type& y, scalar_type& z, const scalar_type& lambda, const scalar_type& theta, 
+    const scalar_type radius = 1.0) {
+    x = std::cos(lambda) * std::cos(theta) * radius;
+    y = std::sin(lambda) * std::cos(theta) * radius;
+    z = std::sin(theta) * radius;
+}
+
+inline void xyzToLl(scalar_type& lambda, scalar_type& theta, const scalar_type& x, const scalar_type& y, const scalar_type& z) {
+    lambda = atan4(y, x);
+    theta = std::atan2(z, std::sqrt(x * x + y * y));
+}
+
 bool operator == ( const XyzVector& vecA, const XyzVector& vecB );
 
 XyzVector midpoint( const XyzVector& vecA, const XyzVector& vecB );

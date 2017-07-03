@@ -95,13 +95,13 @@ void Faces::resetAreas() {
 
 bool Faces::verifyConnectivity(const index_type i) const {
     std::vector<std::string> msgStrings;
-    std::stringstream ss;
+//     std::stringstream ss;
     bool edgesConnect = true;
-    ss << "Face " << i << ":\n";
+//     ss << "Face " << i << ":\n";
     const std::vector<index_type> edgeList = _edgeInds[i];
     for (index_type j = 0; j < edgeList.size(); ++j) {
         if (!(edges->rightFace(edgeList[j]) == i || edges->leftFace(edgeList[j]) == i) ) {
-            ss << "\tdoes not connect to edge " << edgeList[j] << ", face-relative index " << j << std::endl;
+//             ss << "\tdoes not connect to edge " << edgeList[j] << ", face-relative index " << j << std::endl;
             edgesConnect = false;
         }
     }
@@ -118,25 +118,39 @@ bool Faces::verifyConnectivity(const index_type i) const {
         }
     }
     bool isClosed = (verts[0] == vert2);
-    if (!isClosed) {
-        ss << "\tvertices are not closed\n";
-    }
+//     if (!isClosed) {
+//         ss << "\tvertices are not closed\n";
+//     }
     bool result = (edgesConnect && isClosed);
-    if (!result) {
-        OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Faces::verifyConnectivity");
-        log->logMessage(errMsg);
-    }
+//     if (!result) {
+//         OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Faces::verifyConnectivity");
+//         log->logMessage(errMsg);
+//         throw std::runtime_error("Faces::verifyConnectivity");
+//     }
     return result;
 }
 
+std::string Faces::faceRecord(const index_type ind) const {
+    std::stringstream ss;
+    const std::vector<index_type> edgeList(_edgeInds[ind]);
+    ss << "face record " << ind << ":" << std::endl;
+    log->startSection();
+    for (index_type j = 0; j < edgeList.size(); ++j)
+        ss << edges->edgeRecord(_edgeInds[ind][j]) << std::endl;
+    ss << std::endl;
+    log->endSection();
+    return ss.str();
+}
+
 std::vector<index_type> Faces::vertexIndices(const index_type i) const {
-#ifdef DEBUG_ALL
     const bool correctConnectivity = verifyConnectivity(i);
     if (!correctConnectivity) {
-        OutputMessage errMsg("connectivity error", OutputMessage::errorPriority, "Faces::vertices");
+        std::stringstream ss;
+        ss << faceRecord(i);
+        OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Faces::vertexIndices");
         log->logMessage(errMsg);
+        throw std::runtime_error("Faces::verifyConnectivity failed");
     }
-#endif
     std::vector<index_type> verts;
     const std::vector<index_type> edgeList(_edgeInds[i]);
     for (index_type j = 0; j < edgeList.size(); ++j) {

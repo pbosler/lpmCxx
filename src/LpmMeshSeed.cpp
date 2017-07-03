@@ -14,7 +14,8 @@ namespace Lpm {
 
 std::unique_ptr<Logger> MeshSeed::log(new Logger(OutputMessage::debugPriority, "MeshSeed_log"));
 
-void MeshSeed::initMeshFromSeed(std::shared_ptr<Coords> crds, std::shared_ptr<Edges> edges, std::shared_ptr<Faces> faces) {
+void MeshSeed::initMeshFromSeed(std::shared_ptr<Coords> crds, std::shared_ptr<Edges> edges, std::shared_ptr<Faces> faces,
+    const scalar_type domainRadius) {
     readSeedFile();
     bool errorState = false;
     if (crds->n() > 0) {
@@ -54,8 +55,10 @@ void MeshSeed::initMeshFromSeed(std::shared_ptr<Coords> crds, std::shared_ptr<Ed
         throw std::out_of_range("mesh objects insufficient to contain MeshSeed");
     }
     
-    for (index_type i = 0; i < vertCrds.size(); ++i)
+    for (index_type i = 0; i < vertCrds.size(); ++i) {
+        vertCrds[i].scale(domainRadius);
         crds->insert(vertCrds[i]);
+    }
     for (index_type i = 0; i < edgeOrigs.size(); ++i)
         edges->insert(edgeOrigs[i], edgeDests[i], edgeLefts[i], edgeRights[i]);
     for (index_type i = 0; i < faceEdges.size(); ++i)
@@ -89,6 +92,12 @@ std::string MeshSeed::infoString() const {
 }
 
 void MeshSeed::readSeedFile(){
+    vertCrds.clear();
+    edgeOrigs.clear();
+    edgeDests.clear();
+    edgeLefts.clear();
+    edgeRights.clear();
+    faceEdges.clear();
     std::string line;
     std::string fullFilename(LPM_MESH_SEED_DIR);
     fullFilename += "/";
@@ -207,10 +216,10 @@ void MeshSeed::readSeedFile(){
             }
         }
     }
-#ifdef DEBUG_ALL
-    std::cout << "edgeSectionHeaderLine = " << edgeSectionHeaderLine << std::endl;
-    std::cout << "faceSectionHeaderLine = " << faceSectionHeaderLine << std::endl;
-#endif
+// #ifdef DEBUG_ALL
+//     std::cout << "edgeSectionHeaderLine = " << edgeSectionHeaderLine << std::endl;
+//     std::cout << "faceSectionHeaderLine = " << faceSectionHeaderLine << std::endl;
+// #endif
 }
 
 index_type TriHexSeed::nFaces(const int recursionLevel) const {
