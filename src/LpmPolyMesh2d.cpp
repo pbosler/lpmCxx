@@ -32,13 +32,11 @@ PolyMesh2d::PolyMesh2d(MeshSeed& seed, const int maxRecursionLevel, const bool i
     }
     
     if (typeid(seed) == typeid(IcosTriSphereSeed) || typeid(seed) == typeid(CubedSphereSeed)) {
-        geometry = SPHERICAL_SURFACE_GEOMETRY;
         coords = std::shared_ptr<Coords>(new SphericalCoords(nMaxVerts, domainRadius));
         
     }
     else if (typeid(seed) == typeid(TriHexSeed) || typeid(seed) == typeid(QuadRectSeed)) {
-        geometry = PLANAR_GEOMETRY;
-        coords = std::shared_ptr<Coords>(new EuclideanCoords(nMaxVerts));
+        coords = std::shared_ptr<Coords>(new EuclideanCoords(nMaxVerts, PLANAR_GEOMETRY));
     }
     
     edges = std::shared_ptr<Edges>(new Edges(nMaxEdges, coords));

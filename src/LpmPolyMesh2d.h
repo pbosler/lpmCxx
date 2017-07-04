@@ -20,16 +20,27 @@ namespace Lpm {
 class PolyMesh2d {
     public:
         typedef std::tuple<index_type, index_type, index_type, index_type> quad_index_type;
-        friend class MeshedParticles;
     
         PolyMesh2d(MeshSeed& seed, const int maxRecursionLevel, const bool isLagrangian = false, const scalar_type domainRadius = 1.0);
-
+    
+        inline GeometryType geometry() const {return coords->geometry();}
+        
         inline std::shared_ptr<Coords> getPhysCoords() const {return coords;}
         inline std::shared_ptr<Coords> getLagCoords() const {return lagCoords;}
     
         inline index_type nVertices() const {return coords->n();}
         inline index_type nEdges() const {return edges->n();}
         inline index_type nFaces() const {return faces->n();}
+        
+        inline bool faceIsDivided(const index_type faceInd) const {return faces->hasChildren(faceInd);}
+        inline XyzVector faceCentroid(const index_type faceInd, const bool lagrangian = false) const 
+            {return faces->centroid(faceInd, lagrangian);}
+        inline scalar_type faceArea(const index_type faceInd) const {return faces->area(faceInd);}
+        
+        inline bool isLagrangian() const {return (lagCoords.use_count() > 0);}
+        
+        inline index_type nLeafFaces() const {return faces->nLeaves();}
+        inline index_type nLeafEdges() const {return edges->nLeaves();}
         
         inline scalar_type surfaceArea() const {return faces->surfaceArea();}
         inline scalar_type avgMeshSize() const {return std::sqrt(surfaceArea() / faces->n());}
@@ -60,7 +71,6 @@ class PolyMesh2d {
         std::shared_ptr<Edges> edges;
         std::shared_ptr<Faces> faces;
         
-        GeometryType geometry;
         int nRootFaces;
         bool lagrangian;
         
