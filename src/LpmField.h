@@ -19,6 +19,7 @@ class Field {
         
         inline std::string name() const {return _name;}
         inline std::string units() const {return _units;}
+        inline void rename(const std::string& nname) {_name = nname;}
         
         inline index_type nMax() const {return _nMax;}
         inline index_type n() const {return comp0.size();}
@@ -28,6 +29,8 @@ class Field {
         inline XyzVector get2dVector(const index_type ind) const {return XyzVector(comp0[ind], comp1[ind]);}
         inline XyzVector get3dVector(const index_type ind) const {return XyzVector(comp0[ind], comp1[ind], comp2[ind]);}
         
+        inline void clear() {comp0.clear(); comp1.clear(); comp2.clear();}
+        
         void insert(const scalar_type fx);
         void insert(const scalar_type fx, const scalar_type fy, const scalar_type fz = 0.0);
         void insert(const XyzVector& vec);
@@ -36,7 +39,8 @@ class Field {
         void replace(const index_type ind, const scalar_type fx, const scalar_type fy, const scalar_type fz = 0.0);
         void replace(const index_type ind, const XyzVector& vec);
         
-        void initializeToConstant(const scalar_type val = 0.0);
+        void initializeToConstant(const Coords* crds, const scalar_type val = 0.0);
+        void initializeToConstant(const index_type nn, const scalar_type val = 0.0);
         void initializeToScalarFunction(const Coords* crds, const AnalyticFunction* fn);
         void initializeToVectorFunction(const Coords* crds, const AnalyticFunction* fn);
     

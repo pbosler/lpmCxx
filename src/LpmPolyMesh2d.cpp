@@ -151,6 +151,14 @@ index_type PolyMesh2d::nearestRootFace(const XyzVector& queryPt) const {
     return result;
 }
 
+std::shared_ptr<Field> PolyMesh2d::createFaceAreaField() const {
+    std::shared_ptr<Field> result(new Field(faces->n(), 1, "area", "length^2"));
+    for (index_type i = 0; i < faces->n(); ++i) {
+        result->insert(faces->area(i));
+    }
+    return result;
+}
+
 void PolyMesh2d::writeToVTKFile(const std::string& fname, const std::string& desc) const {
     VtkWriter writer;
     std::ofstream fs(fname);

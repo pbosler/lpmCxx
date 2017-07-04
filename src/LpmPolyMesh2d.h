@@ -20,6 +20,7 @@ namespace Lpm {
 class PolyMesh2d {
     public:
         typedef std::tuple<index_type, index_type, index_type, index_type> quad_index_type;
+        friend class MeshedParticles;
     
         PolyMesh2d(MeshSeed& seed, const int maxRecursionLevel, const bool isLagrangian = false, const scalar_type domainRadius = 1.0);
     
@@ -60,6 +61,9 @@ class PolyMesh2d {
             {return faces->ccwAdjacentFaces(faceInd);}
         
         void writeToVTKFile(const std::string& fname, const std::string& desc = "") const;
+        
+        std::shared_ptr<Field> createFaceAreaField() const;
+        
     protected:
         
         index_type walkSearch(const XyzVector& queryPt, index_type startIndex) const;

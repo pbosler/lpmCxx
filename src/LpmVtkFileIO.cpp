@@ -114,6 +114,43 @@ void VtkWriter::writeFaceAreaToVTKCellData(std::ofstream& os, const std::shared_
     }
 }
 
+void VtkWriter::writeFaceFieldToVTKCellData(std::ofstream& os, const std::shared_ptr<Faces>& faces, 
+            const std::shared_ptr<Field>& field) const {
+    std::string fieldstring(field->name());
+    fieldstring += "_";
+    fieldstring += field->units();
+    os << "SCALARS " << fieldstring << " double " << field->nDim() << std::endl;
+    os << "LOOKUP_TABLE default" << std::endl;
+    os << std::setprecision(std::numeric_limits<long double>::digits10 + 1);
+    switch (field->nDim()) {
+        case (1) : {
+            for (index_type i = 0; i < faces->n(); ++i) {
+                if (!faces->hasChildren(i)) {
+                    os << field->getScalar(i) << std::endl;
+                }
+            }
+            break;
+        }
+        case (2) : {
+            for (index_type i = 0; i < faces->n(); ++i) {
+                if (!faces->hasChildren(i)) {
+                    const XyzVector fVec = field->get2dVector(i);
+                    os << fVec.x << " " << fVec.y << std::endl;
+                }
+            }
+            break;
+        }
+        case (3) : {
+            for (index_type i = 0; i < faces->n(); ++i) {
+                if (!faces->hasChildren(i)) {
+                    const XyzVector fVec = field->get3dVector(i);
+                    os << fVec.x << " " << fVec.y << " " << fVec.z << std::endl;
+                }
+            }
+            break;
+        }
+    }
+}
 
 
 }

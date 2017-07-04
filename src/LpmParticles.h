@@ -22,7 +22,9 @@ class Particles {
         Particles(const index_type nMax, const std::vector<std::string>& fnames, const std::vector<int>& fdims, 
             const std::vector<std::string>& funits, const GeometryType gkind, const bool lagrangian = false, 
             const scalar_type domainRadius = 1.0);
-        Particles(const std::shared_ptr<PolyMesh2d> mesh);
+        
+        
+        std::shared_ptr<Field> getFieldPtr(const std::string& fieldname);
     
         void insert(const XyzVector& newCoord);
         void replaceCoordinate(const index_type ind, const XyzVector& newCoord, const bool lagrangian = false);
@@ -48,15 +50,16 @@ class Particles {
         inline GeometryType geometry() const {return _coords->geometry();}
         inline std::vector<BoundaryCondition> boundaryConditions() const {return _boundaryConditions;}
         
-        
-        
     protected:
+        Particles(){};
         std::shared_ptr<Coords> _coords;
         std::shared_ptr<Coords> _lagCoords;
         
         std::vector<BoundaryCondition> _boundaryConditions;
         
         std::map<std::string, std::shared_ptr<Field>> _fieldMap;
+        
+        static std::unique_ptr<Logger> log;
 };
 
 }

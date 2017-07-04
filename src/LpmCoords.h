@@ -30,6 +30,7 @@ class Coords {
         inline index_type n() const {return x.size();}
         
         inline GeometryType geometry() const {return _geometry;}
+        inline bool is2d() const {return (_geometry == PLANAR_GEOMETRY);}
         
         void scaleAll(const scalar_type multiplier);
         void normalizeAll();

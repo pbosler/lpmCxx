@@ -36,7 +36,7 @@ void Field::insert(const scalar_type fx) {
     if (n() + 1 > _nMax) {
         std::stringstream ss;
         ss << "not enough memory to insert scalar " << fx;
-        OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Field::insert");
+        OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Field::insert(scalar)");
         log->logMessage(errMsg);
         throw std::bad_alloc();
     }
@@ -47,7 +47,7 @@ void Field::insert(const scalar_type fx, const scalar_type fy, const scalar_type
     if (n() + 1 > _nMax) {
         std::stringstream ss;
         ss << "not enough memory to insert vector " << XyzVector(fx, fy, fz);
-        OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Field::insert");
+        OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Field::insert(3 scalars)");
         log->logMessage(errMsg);
         throw std::bad_alloc();
     }
@@ -61,7 +61,7 @@ void Field::insert(const XyzVector& vec) {
     if (n() + 1 > _nMax) {
         std::stringstream ss;
         ss << "not enough memory to insert vector " << vec;
-        OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Field::insert");
+        OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Field::insert(XyzVector)");
         log->logMessage(errMsg);
         throw std::bad_alloc();
     }
@@ -89,31 +89,46 @@ void Field::replace(const index_type ind, const XyzVector& vec) {
         comp2[ind] = vec.z;
 }
 
-void Field::initializeToConstant(const scalar_type val) {
+void Field::initializeToConstant(const Coords* crds, const scalar_type val) {
     switch (_nDim) {
         case (1) : {
-            for (index_type i = 0; i < comp0.size(); ++i) {
-                comp0[i] = val;
-            }
+            comp0 = std::vector<scalar_type>(crds->n(), val);
             break;
         }
         case (2) : {
-            for (index_type i = 0; i < comp0.size(); ++i) {
-                comp0[i] = val;
-                comp1[i] = val;
-            }
+            comp0 = std::vector<scalar_type>(crds->n(), val);
+            comp1 = std::vector<scalar_type>(crds->n(), val);
             break;
         }
         case (3) : {
-            for (index_type i = 0; i < comp0.size(); ++i) {
-                comp0[i] = val;
-                comp1[i] = val;
-                comp2[i] = val;
-            }
+            comp0 = std::vector<scalar_type>(crds->n(), val);
+            comp1 = std::vector<scalar_type>(crds->n(), val);
+            comp2 = std::vector<scalar_type>(crds->n(), val);
             break;
         }
     }
-}   
+}
+
+ 
+void Field::initializeToConstant(const index_type nn, const scalar_type val) {
+    switch (_nDim) {
+        case (1) : {
+            comp0 = std::vector<scalar_type>(nn, val);
+            break;
+        }
+        case (2) : {
+            comp0 = std::vector<scalar_type>(nn, val);
+            comp1 = std::vector<scalar_type>(nn, val);
+            break;
+        }
+        case (3) : {
+            comp0 = std::vector<scalar_type>(nn, val);
+            comp1 = std::vector<scalar_type>(nn, val);
+            comp2 = std::vector<scalar_type>(nn, val);
+            break;
+        }
+    }
+} 
 
 void Field::initializeToScalarFunction(const Coords* crds, const AnalyticFunction* fn) {
     comp0.clear();

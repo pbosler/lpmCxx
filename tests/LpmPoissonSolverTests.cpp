@@ -3,11 +3,13 @@
 #include "LpmOutputMessage.h"
 #include "LpmLogger.h"
 #include "LpmParticles.h"
+#include "LpmMeshedParticles.h"
 #include "LpmPolyMesh2d.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <memory>
+#include <cmath>
 
 using namespace Lpm;
 
@@ -17,7 +19,8 @@ class radial2dsource : public AnalyticFunction {
     
         scalar_type evaluateScalar(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const {
             const scalar_type rr = std::sqrt(x*x + y*y);
-            return (std::abs(rr) <= 1.0 ? -0.5 * PI *(std::sin(PI * rr) / rr + std::cos(PI * rr)) : 0.0);
+            const scalar_type rrdenom = rr / (ZERO_TOL * ZERO_TOL + rr * rr);
+            return (std::abs(rr) <= 1.0 ? -0.5 * PI * (std::sin(PI * rr) * rrdenom + PI * std::cos(PI * rr)) : 0.0);
         };
         scalar_type evaluateScalar(const XyzVector& crdVec) const {
             return evaluateScalar(crdVec.x, crdVec.y);
@@ -71,16 +74,27 @@ int main (int argc, char* argv[]) {
         
         std::unique_ptr<TriHexSeed> mSeed(new TriHexSeed());
         for (int k = 0; k < maxRecursion; ++k) {
-            std::shared_ptr<PolyMesh2d> mesh(new PolyMesh2d(*mSeed, k, false, dradius));
+            MeshedParticles pmesh(*mSeed, k, false, dradius);
             
-            Particles particles(mesh);
-            particles.createField("source", "n/a", 1);
-            particles.createField("potential", "n/a", 1);
-            particles.createField("exactPotential", "n/a", 1);
-            particles.createField("error", "n/a", 1);
+            pmesh.createVertexField("source", "n/a", 1);
+            pmesh.createVertexField("potential", "n/a", 1);
+            pmesh.createVertexField("exactPotential", "n/a", 1);
+            pmesh.createVertexField("vertexError", "n/a", 1);
             
-            particles.initializeFieldWithFunction("source", &source);
-            particles.initializeFieldWithFunction("exactPotential", &exactPotential);
+            pmesh.initializeVertexFieldWithFunction("source", &source);
+            pmesh.initializeVertexFieldWithFunction("exactPotential", &exactPotential);
+            
+            pmesh.createFaceField("source", "n/a", 1);
+            pmesh.createFaceField("potential", "n/a", 1);
+            pmesh.createFaceField("exactPotential", "n/a", 1);
+            pmesh.createFaceField("faceError", "n/a", 1);
+            
+            pmesh.initializeFaceFieldWithFunction("source", &source);
+            pmesh.initializeFaceFieldWithFunction("exactPotential", &exactPotential);
+            
+            ss.str(std::string());
+            ss << "poissonTest_triHex" << k << ".vtk";
+            pmesh.writeToVtkFile(ss.str(), "2d Poisson sovler test, free boundaries");
         }
 
     }
@@ -91,16 +105,29 @@ int main (int argc, char* argv[]) {
         QuadRectSeed mSeed;
         for (int k = 0; k < maxRecursion; ++k) {
             std::cout << "Mesh recursion " << k << std::endl;
-            std::shared_ptr<PolyMesh2d> mesh(new PolyMesh2d(mSeed, k, false, dradius));
             
-            Particles particles(mesh);
-            particles.createField("source", "n/a", 1);
-            particles.createField("potential", "n/a", 1);
-            particles.createField("exactPotential", "n/a", 1);
-            particles.createField("error", "n/a", 1);
+            MeshedParticles pmesh(mSeed, k, false, dradius);
             
-            particles.initializeFieldWithFunction("source", &source);
-            particles.initializeFieldWithFunction("exactPotential", &exactPotential);
+            pmesh.createVertexField("source", "n/a", 1);
+            pmesh.createVertexField("potential", "n/a", 1);
+            pmesh.createVertexField("exactPotential", "n/a", 1);
+            pmesh.createVertexField("vertexError", "n/a", 1);
+            
+            pmesh.initializeVertexFieldWithFunction("source", &source);
+            pmesh.initializeVertexFieldWithFunction("exactPotential", &exactPotential);
+            
+            pmesh.createFaceField("source", "n/a", 1);
+            pmesh.createFaceField("potential", "n/a", 1);
+            pmesh.createFaceField("exactPotential", "n/a", 1);
+            pmesh.createFaceField("faceError", "n/a", 1);
+            
+            pmesh.initializeFaceFieldWithFunction("source", &source);
+            pmesh.initializeFaceFieldWithFunction("exactPotential", &exactPotential);
+            
+            ss.str(std::string());
+            ss << "poissonTest_quadRect" << k << ".vtk";
+            pmesh.writeToVtkFile(ss.str(), "2d Poisson sovler test, free boundaries");
+
         }
     }
 

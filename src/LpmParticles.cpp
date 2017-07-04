@@ -1,8 +1,13 @@
 #include "LpmParticles.h"
+#include "LpmOutputMessage.h"
 #include "LpmEuclideanCoords.h"
 #include "LpmSphericalCoords.h"
+#include <sstream>
+#include <exception>
 
 namespace Lpm {
+
+std::unique_ptr<Logger> Particles::log(new Logger(OutputMessage::debugPriority, "Particles_log"));
 
 Particles::Particles(const std::shared_ptr<Coords> crds, const std::shared_ptr<Coords> lagCrds) : 
 _coords(crds), _lagCoords(lagCrds) {};
@@ -34,9 +39,19 @@ Particles::Particles(const index_type nMax, const std::vector<std::string>& fnam
     }
 }
 
-Particles::Particles(const std::shared_ptr<PolyMesh2d> mesh) {
-    _coords = mesh->getPhysCoords();
-    _lagCoords = mesh->getLagCoords();
+std::shared_ptr<Field> Particles::getFieldPtr(const std::string& fieldname) {
+    std::shared_ptr<Field> result;
+    try {
+        result = _fieldMap.at(fieldname);
+    }
+    catch ( std::out_of_range& oor) {
+        std::stringstream ss;
+        ss << "field '" << fieldname << "' not registered.";
+        
+        OutputMessage warnMsg(ss.str(), OutputMessage::warningPriority, "Particles::getFieldPtr");
+        log->logMessage(warnMsg);
+    }
+    return result;
 }
 
 void Particles::insert(const XyzVector& newCoord) {
