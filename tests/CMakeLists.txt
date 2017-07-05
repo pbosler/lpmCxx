@@ -61,6 +61,10 @@ ADD_EXECUTABLE(lpmMPIReplicatedDataUnitTest.exe LpmMPIReplicatedDataUnitTests.cp
 TARGET_LINK_LIBRARIES(lpmMPIReplicatedDataUnitTest.exe lpm)
 ADD_TEST(mpiReplicatedDataUnitTest COMMAND mpirun -np 2 lpmMPIReplicatedDataUnitTest.exe)
 
+ADD_EXECUTABLE(lpmTimerUnitTest.exe LpmTimerUnitTests.cpp)
+TARGET_LINK_LIBRARIES(lpmTimerUnitTest.exe lpm)
+ADD_TEST(timerUnitTest COMMAND mpirun -np 2 lpmTimerUnitTest.exe)
+
 ADD_EXECUTABLE(lpmPoissonSolver.exe LpmPoissonSolverTests.cpp)
 TARGET_LINK_LIBRARIES(lpmPoissonSolver.exe lpm)
 ADD_TEST(poissonSolver lpmPoissonSolver.exe)
