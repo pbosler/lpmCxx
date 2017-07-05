@@ -1,5 +1,5 @@
-#ifndef _LPM_HEADER_TEMPLATE_H_
-#define _LPM_HEADER_TEMPLATE_H_
+#ifndef _LPM_POLYMESH_2D_H_
+#define _LPM_POLYMESH_2D_H_
 
 #include "LpmConfig.h"
 #include "LpmTypeDefs.h"
@@ -28,6 +28,8 @@ class PolyMesh2d {
         
         inline std::shared_ptr<Coords> getPhysCoords() const {return coords;}
         inline std::shared_ptr<Coords> getLagCoords() const {return lagCoords;}
+        
+        inline std::shared_ptr<Faces> getFaces() const {return faces;}
     
         inline index_type nVertices() const {return coords->n();}
         inline index_type nEdges() const {return edges->n();}

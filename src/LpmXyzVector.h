@@ -43,6 +43,7 @@ class XyzVector
 			  return *this;	}
 		
 		inline scalar_type magnitude() const { return std::sqrt( x*x + y*y + z*z); }
+		inline scalar_type magnitudeSquared() const {return x * x + y * y + z * z;}
 		
 		inline scalar_type dotProduct( const XyzVector& other) const { return x*other.x + y*other.y + z*other.z	; }
 		

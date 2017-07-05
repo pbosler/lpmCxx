@@ -10,9 +10,11 @@ namespace Lpm {
 
 class MPIReplicatedData {
     public:
-        MPIReplicatedData(const index_type nItems, const index_type nProcs = 1);
+        MPIReplicatedData(const index_type nItems, const int rank = 0, const int nProcs = 1);
         
         inline index_type n() const {return _nItems;}
+        inline int getRank() const {return _rank;}
+        inline int getSize() const {return _nProcs;}
         
         inline index_type startIndex(const index_type procRank) const {return _procStartIndex[procRank];}
         inline index_type endIndex(const index_type procRank) const {return _procEndIndex[procRank];}
@@ -29,7 +31,8 @@ class MPIReplicatedData {
         std::vector<index_type> _procMsgSize;
         
         index_type _nItems;
-        index_type _nProcs;
+        int _nProcs;
+        int _rank;
     
 };
 

@@ -31,6 +31,25 @@ class Field {
         
         inline void clear() {comp0.clear(); comp1.clear(); comp2.clear();}
         
+        inline scalar_type* getPtrToData(const int comp = 0) {
+            scalar_type* result = NULL;
+            switch (comp) {
+                case (0) : {
+                    result = &comp0[0];
+                    break;
+                }
+                case (1) : {
+                    result = &comp1[0];
+                    break;
+                }
+                case (2) : {
+                    result = &comp2[0];
+                    break;
+                }
+            }
+            return result;
+        }
+        
         void insert(const scalar_type fx);
         void insert(const scalar_type fx, const scalar_type fy, const scalar_type fz = 0.0);
         void insert(const XyzVector& vec);

@@ -4,8 +4,8 @@
 
 namespace Lpm {
 
-MPIReplicatedData::MPIReplicatedData(const index_type nItems, const index_type nProcs) :
-     _nItems(nItems), _nProcs(nProcs), _procStartIndex(nProcs, -1), _procEndIndex(nProcs, -1), _procMsgSize(nProcs, -1) {
+MPIReplicatedData::MPIReplicatedData(const index_type nItems, const int rank, const int nProcs) :
+     _nItems(nItems), _nProcs(nProcs), _rank(rank), _procStartIndex(nProcs, -1), _procEndIndex(nProcs, -1), _procMsgSize(nProcs, -1) {
      loadBalance();
 }
 

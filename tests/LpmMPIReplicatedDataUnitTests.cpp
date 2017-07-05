@@ -31,7 +31,7 @@ int main (int argc, char* argv[]) {
     
     const int nn = 1055;
     
-    MPIReplicatedData mpi(nn, numProcs);
+    MPIReplicatedData mpi(nn, procRank, numProcs);
     
     OutputMessage statusMsg(mpi.infoString(), OutputMessage::remarkPriority, "main");
     log->logMessage(statusMsg);

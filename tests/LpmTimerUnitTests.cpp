@@ -29,7 +29,7 @@ int main (int argc, char* argv[]) {
         log->logMessage(introMsg);
     }
 
-    Timer timer("unitTestTmer");
+    Timer timer("unitTestTimer");
     timer.start();
     const index_type maxIter = 1e6;
     index_type j = 0;

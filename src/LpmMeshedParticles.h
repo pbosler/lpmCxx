@@ -12,6 +12,13 @@ class MeshedParticles : public Particles {
     public:
         typedef std::map<std::string, std::shared_ptr<Field>> field_map_type;
         
+        inline index_type nFaces() const {return mesh2d->nFaces();}
+        inline index_type nLeafFaces() const {return mesh2d->nLeafFaces();}
+        
+        inline index_type nVertices() const {return mesh2d->nVertices();}
+        inline index_type nEdges() const {return mesh2d->nEdges();}
+        inline index_type nLeafEdges() const {return mesh2d->nLeafEdges();}
+        
         MeshedParticles(MeshSeed& seed, const int maxRecursionLevel, const bool isLagrangian = false, 
             const scalar_type domainRadius = 1.0);
     
@@ -28,6 +35,8 @@ class MeshedParticles : public Particles {
         void initializeFaceFieldWithFunction(const std::string& fieldName, const AnalyticFunction* fn);
         
         void writeToVtkFile(const std::string& fname, const std::string& desc = "") const;
+        
+        inline std::shared_ptr<PolyMesh2d> meshPtr() {return mesh2d;}
         
     protected:
         std::shared_ptr<PolyMesh2d> mesh2d;

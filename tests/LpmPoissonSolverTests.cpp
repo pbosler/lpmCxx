@@ -5,11 +5,15 @@
 #include "LpmParticles.h"
 #include "LpmMeshedParticles.h"
 #include "LpmPolyMesh2d.h"
+#include "LpmMPIReplicatedData.h"
+#include "LpmPoissonSolverDirectSum.h"
+#include "LpmTimer.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <memory>
 #include <cmath>
+#include <mpi.h>
 
 using namespace Lpm;
 
@@ -53,8 +57,14 @@ class exact2dpotential : public AnalyticFunction {
 };
 
 int main (int argc, char* argv[]) {
-
-    std::unique_ptr<Logger> log(new Logger(OutputMessage::debugPriority));
+    int mpiErrCode;
+    int numProcs;
+    int procRank;
+    mpiErrCode = MPI_Init(&argc, &argv);
+    mpiErrCode = MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
+    mpiErrCode = MPI_Comm_rank(MPI_COMM_WORLD, &procRank);
+    
+    std::unique_ptr<Logger> log(new Logger(OutputMessage::debugPriority, "Poisson solver test log", procRank));
     std::stringstream ss;
     ss << "Test info: \n \t title: " << "Poisson Solver Tests" << std::endl;
     ss << "\t objectives: " << std::endl;
@@ -74,6 +84,11 @@ int main (int argc, char* argv[]) {
         
         std::unique_ptr<TriHexSeed> mSeed(new TriHexSeed());
         for (int k = 0; k < maxRecursion; ++k) {
+            ss.str(std::string());
+            ss << "TriHex recursion level " << k;
+            Timer timer(ss.str());
+            timer.start();
+            
             MeshedParticles pmesh(*mSeed, k, false, dradius);
             
             pmesh.createVertexField("source", "n/a", 1);
@@ -92,9 +107,25 @@ int main (int argc, char* argv[]) {
             pmesh.initializeFaceFieldWithFunction("source", &source);
             pmesh.initializeFaceFieldWithFunction("exactPotential", &exactPotential);
             
-            ss.str(std::string());
-            ss << "poissonTest_triHex" << k << ".vtk";
-            pmesh.writeToVtkFile(ss.str(), "2d Poisson sovler test, free boundaries");
+            MPIReplicatedData mpiVerts(pmesh.nVertices(), procRank, numProcs);
+            MPIReplicatedData mpiFaces(pmesh.nFaces(), procRank, numProcs);
+            if (procRank == 0) {
+                OutputMessage mpiMsg(mpiFaces.infoString(), OutputMessage::tracePriority, "main");
+                log->logMessage(mpiMsg);
+            }
+            
+            PoissonSolverDirectSum solver(pmesh.meshPtr(), pmesh.getFaceFieldPtr("source"), 
+                pmesh.getVertexFieldPtr("potential"), pmesh.getFaceFieldPtr("potential"));
+            solver.solve(mpiVerts, mpiFaces);
+            
+            if (procRank == 0 ) {
+                ss.str(std::string());
+                ss << "poissonTest_triHex" << k << ".vtk";
+                pmesh.writeToVtkFile(ss.str(), "2d Poisson sovler test, free boundaries");
+            }
+            timer.end();
+            OutputMessage timerMsg(timer.infoString(), OutputMessage::tracePriority, "main");
+            log->logMessage(timerMsg);
         }
 
     }
@@ -104,7 +135,10 @@ int main (int argc, char* argv[]) {
         
         QuadRectSeed mSeed;
         for (int k = 0; k < maxRecursion; ++k) {
-            std::cout << "Mesh recursion " << k << std::endl;
+            ss.str(std::string());
+            ss << "QuadRect_recursion_level_" << k;
+            Timer timer(ss.str());
+            timer.start();
             
             MeshedParticles pmesh(mSeed, k, false, dradius);
             
@@ -124,13 +158,30 @@ int main (int argc, char* argv[]) {
             pmesh.initializeFaceFieldWithFunction("source", &source);
             pmesh.initializeFaceFieldWithFunction("exactPotential", &exactPotential);
             
-            ss.str(std::string());
-            ss << "poissonTest_quadRect" << k << ".vtk";
-            pmesh.writeToVtkFile(ss.str(), "2d Poisson sovler test, free boundaries");
-
+            MPIReplicatedData mpiVerts(pmesh.nVertices(), procRank, numProcs);
+            MPIReplicatedData mpiFaces(pmesh.nFaces(), procRank, numProcs);
+            if (procRank == 0) {
+                OutputMessage mpiMsg(mpiFaces.infoString(), OutputMessage::tracePriority, "main");
+                log->logMessage(mpiMsg);
+            }
+            
+            PoissonSolverDirectSum solver(pmesh.meshPtr(), pmesh.getFaceFieldPtr("source"), 
+                pmesh.getVertexFieldPtr("potential"), pmesh.getFaceFieldPtr("potential"));;
+            solver.solve(mpiVerts, mpiFaces);
+            
+            if (procRank == 0) {
+                ss.str(std::string());
+                ss << "poissonTest_quadRect" << k << ".vtk";
+                pmesh.writeToVtkFile(ss.str(), "2d Poisson sovler test, free boundaries");
+            }
+            
+            timer.end();
+            OutputMessage timerMsg(timer.infoString(), OutputMessage::tracePriority, "main");
+            log->logMessage(timerMsg);
         }
     }
 
+    MPI_Finalize();
 return 0;
 }
 
