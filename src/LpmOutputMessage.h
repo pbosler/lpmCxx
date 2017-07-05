@@ -52,6 +52,7 @@ public:
 	virtual ~OutputMessage(){};
     
     std::string priorityString() const;
+
     inline std::string getMessage() const {return _msgString;}
     inline void resetMsgString(const std::string& newstr) { _msgString = newstr;}
     
@@ -64,6 +65,8 @@ protected:
     priority _pri;
     std::string _codeOrigin;
 };
+
+std::string priorityString(const OutputMessage::priority);
 
 /// basic output
 inline std::ostream& operator << ( std::ostream& os, const OutputMessage& msg)

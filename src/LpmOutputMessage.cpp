@@ -64,6 +64,32 @@ void OutputMessage::printMsg(std::ostream& os) const
     os << "\tcode Location: " << _codeOrigin << std::endl;
 };
 
+std::string priorityString(const OutputMessage::priority pri) {
+    std::string priString;
+    switch (pri)
+    {
+        case OutputMessage::debugPriority:
+            priString = "Debug";
+            break;
+        case OutputMessage::tracePriority:
+            priString = "Trace";
+            break;
+        case OutputMessage::remarkPriority:
+            priString = "Remark";
+            break;
+        case OutputMessage::warningPriority:
+            priString = "WARNING";
+            break;
+        case OutputMessage::errorPriority:
+            priString = "ERROR";
+            break;
+        default:
+            priString = "undefined priority";
+            break;
+    }
+    return priString;
+}
+
 /** @brief adds a string to the content of a LongMessage
 	@param s
 */

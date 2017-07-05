@@ -31,7 +31,7 @@ add_test( outputMessageTest lpmOutputMessageUnitTest.exe)
 
 ADD_EXECUTABLE(lpmLoggerUnitTest.exe LpmLoggerUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmLoggerUnitTest.exe lpm)
-add_test( loggerTest lpmLoggerUnitTest.exe)
+add_test( loggerTest COMMAND mpirun -np 2 lpmLoggerUnitTest.exe)
 
 ADD_EXECUTABLE(lpmCoordsUnitTest.exe LpmCoordsUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmCoordsUnitTest.exe lpm)
@@ -56,6 +56,10 @@ add_test( meshSeedUnitTest lpmMeshSeedUnitTest.exe)
 ADD_EXECUTABLE(lpmPolyMeshUnitTest.exe LpmPolyMesh2dUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmPolyMeshUnitTest.exe lpm)
 ADD_TEST(polymesh2dUnitTest lpmPolyMeshUnitTest.exe)
+
+ADD_EXECUTABLE(lpmMPIReplicatedDataUnitTest.exe LpmMPIReplicatedDataUnitTests.cpp)
+TARGET_LINK_LIBRARIES(lpmMPIReplicatedDataUnitTest.exe lpm)
+ADD_TEST(mpiReplicatedDataUnitTest COMMAND mpirun -np 2 lpmMPIReplicatedDataUnitTest.exe)
 
 ADD_EXECUTABLE(lpmPoissonSolver.exe LpmPoissonSolverTests.cpp)
 TARGET_LINK_LIBRARIES(lpmPoissonSolver.exe lpm)

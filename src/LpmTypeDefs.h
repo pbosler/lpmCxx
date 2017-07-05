@@ -37,6 +37,8 @@ namespace Lpm {
     /// Kinds of geometry used by Lpm classes
     enum GeometryType {PLANAR_GEOMETRY, SPHERICAL_SURFACE_GEOMETRY, CARTESIAN_3D_GEOMETRY};
     
+    /// Kinds of boundary conditions
     enum BoundaryCondition {FREE, DIRICHLET, NEUMANN, PERIODIC};
+
 }
 #endif

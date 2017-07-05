@@ -24,9 +24,8 @@ namespace Lpm {
  @param procRank
  @param numProcs
 */
-Logger::Logger( const OutputMessage::priority logLevel, const std::string logid, const int procRank, const int numProcs) :
-_baseLevel(logLevel), _procRank(procRank), _numProcs(numProcs), _allOutputLevel(OutputMessage::warningPriority), 
-_key(logid), _tablevel(0) {};
+Logger::Logger( const OutputMessage::priority logLevel, const std::string logid, const int procRank) :
+_baseLevel(logLevel), _allOutputLevel(OutputMessage::warningPriority), _key(logid), _tablevel(0), _procRank(procRank) {};
 
 
 /**
@@ -53,15 +52,16 @@ void Logger::logMessage( const OutputMessage msg) const
             formattedMessage += msgstr[i];
     }
     
-    if ( msg.getPriority() < _allOutputLevel) {
-        if ( _procRank == 0 && msg.getPriority() >= _baseLevel)
+    if ( msg.getPriority() >= _baseLevel && msg.getPriority() < _allOutputLevel) {
+        if ( _procRank == 0 && msg.getPriority() >= _baseLevel) {
             cout << tabstr << "------- start message --------" << std::endl;
-            cout << tabstr << _key << " proc0 (" << msg.priorityString() << ")" << std::endl;
+            cout << tabstr << _key << " proc_" << _procRank << " (" << msg.priorityString() << ")" << std::endl;
             cout << tabstr << formattedMessage << std::endl;
             cout << tabstr << "------- end message ----------" << std::endl;
+        }
     }
     else {
-        cout << "proc " << _procRank << " " << _key << ":" << msg << endl;
+        cout << _key << " proc_" << _procRank << " :" << formattedMessage << endl;
     }
 };
 
