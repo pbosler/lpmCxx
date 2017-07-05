@@ -62,6 +62,12 @@ class Field {
         void initializeToConstant(const index_type nn, const scalar_type val = 0.0);
         void initializeToScalarFunction(const Coords* crds, const AnalyticFunction* fn);
         void initializeToVectorFunction(const Coords* crds, const AnalyticFunction* fn);
+        
+        void abs();
+        void update(const scalar_type a, const std::shared_ptr<Field>& other, 
+                    const scalar_type b = 0.0, const std::shared_ptr<Field>& other1 = NULL);
+        scalar_type maxScalarVal() const;
+        scalar_type minScalarVal() const;
     
     protected:
         std::vector<scalar_type> comp0;

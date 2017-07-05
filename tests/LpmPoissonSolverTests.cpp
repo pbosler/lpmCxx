@@ -78,6 +78,14 @@ int main (int argc, char* argv[]) {
     
     const int maxRecursion = 6;
     const scalar_type dradius = 3.0;
+    std::vector<scalar_type> triHexTimes(maxRecursion, 0.0);
+    std::vector<scalar_type> quadRectTimes(maxRecursion, 0.0);
+    std::vector<scalar_type> triHexLinfVerts(maxRecursion, 0.0);
+    std::vector<scalar_type> triHexLinfFaces(maxRecursion, 0.0);
+    std::vector<scalar_type> quadRectLinfVerts(maxRecursion, 0.0);
+    std::vector<scalar_type> quadRectLinfFaces(maxRecursion, 0.0);
+    std::vector<scalar_type> triHexAvgMeshSize(maxRecursion, 0.0);
+    std::vector<scalar_type> quadRectAvgMeshSize(maxRecursion, 0.0);
     {    
         statusMsg.resetMsgString("Test 1: planar triangles");
         log->logMessage(statusMsg);
@@ -117,6 +125,15 @@ int main (int argc, char* argv[]) {
             PoissonSolverDirectSum solver(pmesh.meshPtr(), pmesh.getFaceFieldPtr("source"), 
                 pmesh.getVertexFieldPtr("potential"), pmesh.getFaceFieldPtr("potential"));
             solver.solve(mpiVerts, mpiFaces);
+            solver.broadcastSolution(mpiVerts, mpiFaces);
+            
+            pmesh.getVertexFieldPtr("vertexError")->update(1.0, pmesh.getVertexFieldPtr("potential"), 
+                                                          -1.0, pmesh.getVertexFieldPtr("exactPotential"));
+            pmesh.getVertexFieldPtr("vertexError")->abs();
+            
+            pmesh.getFaceFieldPtr("faceError")->update(1.0, pmesh.getFaceFieldPtr("potential"),
+                                                      -1.0, pmesh.getFaceFieldPtr("exactPotential"));
+            pmesh.getFaceFieldPtr("faceError")->abs();
             
             if (procRank == 0 ) {
                 ss.str(std::string());
@@ -126,6 +143,10 @@ int main (int argc, char* argv[]) {
             timer.end();
             OutputMessage timerMsg(timer.infoString(), OutputMessage::tracePriority, "main");
             log->logMessage(timerMsg);
+            triHexTimes[k] = timer.elapsed();
+            triHexLinfVerts[k] = pmesh.getVertexFieldPtr("vertexError")->maxScalarVal();
+            triHexLinfFaces[k] = pmesh.getFaceFieldPtr("faceError")->maxScalarVal();
+            triHexAvgMeshSize[k] = pmesh.meshPtr()->avgMeshSize();  
         }
 
     }
@@ -168,6 +189,15 @@ int main (int argc, char* argv[]) {
             PoissonSolverDirectSum solver(pmesh.meshPtr(), pmesh.getFaceFieldPtr("source"), 
                 pmesh.getVertexFieldPtr("potential"), pmesh.getFaceFieldPtr("potential"));;
             solver.solve(mpiVerts, mpiFaces);
+            solver.broadcastSolution(mpiVerts, mpiFaces);
+            
+            pmesh.getVertexFieldPtr("vertexError")->update(1.0, pmesh.getVertexFieldPtr("potential"), 
+                                                          -1.0, pmesh.getVertexFieldPtr("exactPotential"));
+            pmesh.getVertexFieldPtr("vertexError")->abs();
+            
+            pmesh.getFaceFieldPtr("faceError")->update(1.0, pmesh.getFaceFieldPtr("potential"),
+                                                      -1.0, pmesh.getFaceFieldPtr("exactPotential"));
+            pmesh.getFaceFieldPtr("faceError")->abs();
             
             if (procRank == 0) {
                 ss.str(std::string());
@@ -178,9 +208,55 @@ int main (int argc, char* argv[]) {
             timer.end();
             OutputMessage timerMsg(timer.infoString(), OutputMessage::tracePriority, "main");
             log->logMessage(timerMsg);
+            quadRectTimes[k] = timer.elapsed();
+            quadRectLinfVerts[k] = pmesh.getVertexFieldPtr("vertexError")->maxScalarVal();
+            quadRectLinfFaces[k] = pmesh.getFaceFieldPtr("faceError")->maxScalarVal();
+            quadRectAvgMeshSize[k] = pmesh.meshPtr()->avgMeshSize();
         }
     }
-
+    
+    mpiErrCode = MPI_Barrier(MPI_COMM_WORLD);
+    
+    ss.str(std::string());
+    ss << "SUMMARY (nProc = " << numProcs << ")" << std::endl;
+    ss << "TriHex results: " << std::endl;
+    ss << "\tmesh size: ";
+    for (int k = 0; k < maxRecursion; ++k)
+        ss << triHexAvgMeshSize[k] << " ";
+    ss << std::endl;
+    ss << "\tvertex linf error: ";
+    for (int k = 0; k < maxRecursion; ++k)
+        ss << triHexLinfVerts[k] << " ";
+    ss << std::endl;
+    ss << "\tface linf error: ";
+    for (int k = 0; k < maxRecursion; ++k)
+        ss << triHexLinfFaces[k] << " ";
+    ss << std::endl;
+    ss << "\ttime (seconds) :";
+    for (int k = 0; k < maxRecursion; ++k)
+        ss << triHexTimes[k] << " ";
+    ss << std::endl;
+    ss << "QuadRect results:" << std::endl;
+    ss << "\tmesh size: ";
+    for (int k = 0; k < maxRecursion; ++k)
+        ss << quadRectAvgMeshSize[k] << " ";
+    ss << std::endl;
+    ss << "\tvertex linf error: ";
+    for (int k = 0; k < maxRecursion; ++k)
+        ss << quadRectLinfVerts[k] << " ";
+    ss << std::endl;
+    ss << "\tface linf error: ";
+    for (int k = 0; k < maxRecursion; ++k)
+        ss << quadRectLinfFaces[k] << " ";
+    ss << std::endl;
+    ss << "\ttime (seconds) :";
+    for (int k = 0; k < maxRecursion; ++k)
+        ss << quadRectTimes[k] << " ";
+    ss << std::endl;
+    
+    OutputMessage summaryMsg(ss.str(), OutputMessage::remarkPriority, "main");
+    log->logMessage(summaryMsg);
+    
     MPI_Finalize();
 return 0;
 }

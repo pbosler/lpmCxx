@@ -1,6 +1,9 @@
 #include "LpmField.h"
 #include <sstream>
+#include <algorithm>
 #include <exception>
+#include <numeric>
+#include <cmath>
 
 namespace Lpm {
 
@@ -28,6 +31,127 @@ Field::Field(const index_type nMax, const int nDim, const std::string name, cons
             OutputMessage errMsg("ERROR invalid dimensions (nDim)", OutputMessage::errorPriority, "Field::Field");
             log->logMessage(errMsg);
             throw std::runtime_error("invalid input");
+        }
+    }
+}
+
+scalar_type Field::maxScalarVal() const {
+    return *std::max_element(comp0.begin(), comp0.end());
+}
+
+scalar_type Field::minScalarVal() const {
+    return *std::min_element(comp0.begin(), comp0.end());
+}
+
+
+void Field::abs() {
+    switch (_nDim) {
+        case (1) : {
+            for (index_type i = 0; i < n(); ++i) {
+                comp0[i] = std::abs(comp0[i]);
+            }
+            break;
+        }
+        case (2) : { 
+            for (index_type i = 0; i < n(); ++i) {
+                comp0[i] = std::abs(comp0[i]);
+                comp1[i] = std::abs(comp1[i]);
+            }
+            break;
+        }
+        case (3) : {
+            for (index_type i = 0; i < n(); ++i) {
+                comp0[i] = std::abs(comp0[i]);
+                comp1[i] = std::abs(comp1[i]);
+                comp2[i] = std::abs(comp2[i]);
+            }
+            break;
+        }
+    }
+}
+
+
+void Field::update(const scalar_type a, const std::shared_ptr<Field>& other, 
+                   const scalar_type b, const std::shared_ptr<Field>& other1) {
+    if (_nDim != other->nDim()) {
+        std::stringstream ss;
+        ss << _name << " field " << " does not have same dimension as " << other->_name << "; cannot update.";
+        OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Field::update");
+        log->logMessage(errMsg);
+        throw std::runtime_error("field dimension mismatch");
+    }
+    if ( n() < other->n() ) {
+        std::stringstream ss;
+        ss << _name << " field " << " has insufficient memory to update with field " << other->_name;
+        OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Field::update");
+        log->logMessage(errMsg);
+        throw std::runtime_error("field memory mismatch");
+    }
+    if ( other1 && b != 0.0) {
+        if (_nDim != other1->nDim()) {
+            std::stringstream ss;
+            ss << _name << " field " << " does not have same dimension as " << other1->_name << "; cannot update.";
+            OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Field::update");
+            log->logMessage(errMsg);
+            throw std::runtime_error("field dimension mismatch");
+        }
+        if ( n() < other1->n() ) {
+            std::stringstream ss;
+            ss << _name << " field " << " has insufficient memory to update with field " << other1->_name;
+            OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Field::update");
+            log->logMessage(errMsg);
+            throw std::runtime_error("field memory mismatch");
+        }
+    }
+    
+    if (other1 && b != 0.0) {
+        switch (_nDim) {
+            case (1) : {
+                for (index_type i = 0; i < n(); ++i) {
+                    comp0[i] = a * other->comp0[i] + b * other1->comp0[i];
+                }
+                break;
+            }
+            case (2) : { 
+                for (index_type i = 0; i < n(); ++i) {
+                    comp0[i] = a * other->comp0[i] + b * other1->comp0[i];
+                    comp1[i] = a * other->comp0[i] + b * other1->comp1[i];
+                }
+                break;
+            }
+            case (3) : {
+                for (index_type i = 0; i < n(); ++i) {
+                    comp0[i] = a * other->comp0[i] + b * other1->comp0[i];
+                    comp1[i] = a * other->comp1[i] + b * other1->comp1[i];
+                    comp2[i] = a * other->comp2[i] + b * other1->comp2[i];
+                }
+                break;
+            }
+        }
+    }
+    else {
+        switch (_nDim) {
+            case (1) : {
+                for (index_type i = 0; i < n(); ++i) {
+                    comp0[i] = a * other->comp0[i];
+                }
+                break;
+            }
+            case (2) : { 
+                for (index_type i = 0; i < n(); ++i) {
+                    comp0[i] = a * other->comp0[i];
+                    comp1[i] = a * other->comp1[i];
+                }
+                break;
+            }
+            case (3) : {
+                for (index_type i = 0; i < n(); ++i) {
+                    comp0[i] = a * other->comp0[i];
+                    comp1[i] = a * other->comp1[i];
+                    comp2[i] = a * other->comp2[i];
+                }
+                break;
+            }
         }
     }
 }
