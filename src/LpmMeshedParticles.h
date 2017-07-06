@@ -20,7 +20,7 @@ class MeshedParticles : public Particles {
         inline index_type nLeafEdges() const {return mesh2d->nLeafEdges();}
         
         MeshedParticles(MeshSeed& seed, const int maxRecursionLevel, const bool isLagrangian = false, 
-            const scalar_type domainRadius = 1.0);
+            const scalar_type domainRadius = 1.0, const int prank = 0);
     
         void createVertexField(const std::string& fieldName, const std::string& fieldUnits, const int fieldDim);
         void createEdgeField(const std::string& fieldName, const std::string& fieldUnits, const int fieldDim); 
@@ -38,6 +38,8 @@ class MeshedParticles : public Particles {
         
         inline std::shared_ptr<PolyMesh2d> meshPtr() {return mesh2d;}
         
+        inline void setLogProc(const int rank) {log->setProcRank(rank);}
+        
     protected:
         std::shared_ptr<PolyMesh2d> mesh2d;
         
@@ -45,6 +47,7 @@ class MeshedParticles : public Particles {
         field_map_type _edgeFieldMap;
         field_map_type _faceFieldMap;
     
+        static std::unique_ptr<Logger> log;
 };
 
 }

@@ -54,6 +54,8 @@ class Edges {
         XyzVector destCoord(const index_type i, const bool lagrangian = false) const;
         XyzVector edgeVector(const index_type i, const bool lagrangian = false) const;
         
+        inline void setLogProc(const int rank) {log->setProcRank(rank);}
+        
         inline void setLeftFace(const index_type i, const index_type faceInd) {_leftFace[i] = faceInd;}
         inline void setRightFace(const index_type i, const index_type faceInd) {_rightFace[i] = faceInd;}
         

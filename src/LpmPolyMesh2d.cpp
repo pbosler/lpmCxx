@@ -10,13 +10,14 @@
 #include <fstream>
 #include <exception>
 #include <sstream>
+#include <mpi.h>
 
 namespace Lpm {
 
 std::unique_ptr<Logger> PolyMesh2d::log(new Logger(OutputMessage::debugPriority, "PolyMesh2d_log"));
 
 PolyMesh2d::PolyMesh2d(MeshSeed& seed, const int maxRecursionLevel, const bool isLagrangian, 
-    const scalar_type domainRadius) : lagrangian(isLagrangian), nRootFaces(seed.nRootFaces()) {
+    const scalar_type domainRadius, const int prank) : lagrangian(isLagrangian), nRootFaces(seed.nRootFaces()) {
     std::stringstream ss;
     ss << "building" << (lagrangian ? " Lagrangian " : " ") << "PolyMesh2d with seed: " << seed.idString() << 
         ", recursion level " << maxRecursionLevel << ", and radius " << domainRadius;
@@ -33,13 +34,14 @@ PolyMesh2d::PolyMesh2d(MeshSeed& seed, const int maxRecursionLevel, const bool i
     
     if (typeid(seed) == typeid(IcosTriSphereSeed) || typeid(seed) == typeid(CubedSphereSeed)) {
         coords = std::shared_ptr<Coords>(new SphericalCoords(nMaxVerts, domainRadius));
-        
     }
     else if (typeid(seed) == typeid(TriHexSeed) || typeid(seed) == typeid(QuadRectSeed)) {
         coords = std::shared_ptr<Coords>(new EuclideanCoords(nMaxVerts, PLANAR_GEOMETRY));
     }
+    coords->setLogProc(prank);
     
     edges = std::shared_ptr<Edges>(new Edges(nMaxEdges, coords));
+    edges->setLogProc(prank);
     
     if (typeid(seed) == typeid(IcosTriSphereSeed) || typeid(seed) == typeid(TriHexSeed)) {
         faces = std::shared_ptr<Faces>(new TriFaces(nMaxFaces, edges, coords));
@@ -47,6 +49,7 @@ PolyMesh2d::PolyMesh2d(MeshSeed& seed, const int maxRecursionLevel, const bool i
     else if  (typeid(seed) == typeid(QuadRectSeed) || typeid(seed) == typeid(CubedSphereSeed)) {
         faces = std::shared_ptr<Faces>(new QuadFaces(nMaxFaces, edges, coords));
     }
+    faces->setLogProc(prank);
     
     seed.initMeshFromSeed(coords, edges, faces, domainRadius);
 //     ss.str(std::string());
@@ -70,6 +73,7 @@ PolyMesh2d::PolyMesh2d(MeshSeed& seed, const int maxRecursionLevel, const bool i
         else if (typeid(seed) == typeid(TriHexSeed) || typeid(seed) == typeid(QuadRectSeed)) {
             lagCoords = std::shared_ptr<Coords>(new EuclideanCoords(*(dynamic_cast<EuclideanCoords*>(coords.get()))));
         }
+        lagCoords->setLogProc(prank);
         
         edges->makeLagrangian(lagCoords);
         faces->makeLagrangian(lagCoords);

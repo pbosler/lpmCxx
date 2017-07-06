@@ -26,6 +26,20 @@ class PlanarGreensFnFreeBoundaries : public ScalarKernel {
         }
 };
 
+class SphereGreensFn : public ScalarKernel {
+    public:
+        SphereGreensFn(const scalar_type r) : _radius(r) {};
+    
+        inline scalar_type evaluate(const XyzVector& tgtLoc, const XyzVector& srcLoc) const {
+            const scalar_type inarg = _radius * _radius - srcLoc.dotProduct(tgtLoc);
+            return -std::log(inarg) / (4.0 * PI * _radius);
+        }
+        
+    protected:
+        scalar_type _radius;
+    
+};
+
 }
 
 #endif

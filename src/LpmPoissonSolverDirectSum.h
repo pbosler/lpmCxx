@@ -8,6 +8,7 @@
 #include "LpmMeshedParticles.h"
 #include "LpmMPIReplicatedData.h"
 #include "LpmPolyMesh2d.h"
+#include "LpmScalarKernel.h"
 #include <memory>
 
 
@@ -16,9 +17,10 @@ namespace Lpm {
 class PoissonSolverDirectSum {
     public:
         PoissonSolverDirectSum(const std::shared_ptr<PolyMesh2d>& mesh, const std::shared_ptr<Field>& src, 
-            const std::shared_ptr<Field>& vertexPotential, const std::shared_ptr<Field>& facePotential) : 
+            const std::shared_ptr<Field>& vertexPotential, const std::shared_ptr<Field>& facePotential, 
+            const ScalarKernel* kernel) : 
             _faces(mesh->getFaces()), _verts(mesh->getPhysCoords()), _src(src), _vertpot(vertexPotential), 
-            _facepot(facePotential) {};
+            _facepot(facePotential), _kernel(kernel) {};
 
         void solve(const MPIReplicatedData& mpiVerts, const MPIReplicatedData& mpiFaces) const;
         
@@ -30,6 +32,7 @@ class PoissonSolverDirectSum {
         std::shared_ptr<Field> _src;
         std::shared_ptr<Field> _facepot;
         std::shared_ptr<Field> _vertpot;
+        const ScalarKernel* _kernel;
 };
 
 }

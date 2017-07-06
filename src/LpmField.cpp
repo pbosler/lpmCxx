@@ -71,6 +71,32 @@ void Field::abs() {
 }
 
 
+void Field::scale(const scalar_type multiplier) {
+    switch (_nDim) {
+        case (1) : {
+            for (index_type i = 0; i < n(); ++i) {
+                comp0[i] *= multiplier;
+            }
+            break;
+        }
+        case (2) : { 
+            for (index_type i = 0; i < n(); ++i) {
+                comp0[i] *= multiplier;
+                comp1[i] *= multiplier;
+            }
+            break;
+        }
+        case (3) : {
+            for (index_type i = 0; i < n(); ++i) {
+                comp0[i] *= multiplier;
+                comp1[i] *= multiplier;
+                comp2[i] *= multiplier;
+            }
+            break;
+        }
+    }
+}
+
 void Field::update(const scalar_type a, const std::shared_ptr<Field>& other, 
                    const scalar_type b, const std::shared_ptr<Field>& other1) {
     if (_nDim != other->nDim()) {

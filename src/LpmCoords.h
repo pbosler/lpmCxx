@@ -46,6 +46,7 @@ class Coords {
         
         std::string listAllCoords() const;
         
+        inline void setLogProc(const int rank) {log->setProcRank(rank);}
     protected:
         Coords(const index_type nMax, const bool coords3d = true);
         

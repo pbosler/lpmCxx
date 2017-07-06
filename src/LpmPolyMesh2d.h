@@ -22,7 +22,8 @@ class PolyMesh2d {
         typedef std::tuple<index_type, index_type, index_type, index_type> quad_index_type;
         friend class MeshedParticles;
     
-        PolyMesh2d(MeshSeed& seed, const int maxRecursionLevel, const bool isLagrangian = false, const scalar_type domainRadius = 1.0);
+        PolyMesh2d(MeshSeed& seed, const int maxRecursionLevel, const bool isLagrangian = false, const scalar_type domainRadius = 1.0,
+            const int prank = 0);
     
         inline GeometryType geometry() const {return coords->geometry();}
         
@@ -66,6 +67,7 @@ class PolyMesh2d {
         
         std::shared_ptr<Field> createFaceAreaField() const;
         
+        inline void setLogProc(const int rank) {log->setProcRank(rank);}
     protected:
         
         index_type walkSearch(const XyzVector& queryPt, index_type startIndex) const;

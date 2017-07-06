@@ -7,13 +7,17 @@
 
 namespace Lpm {
 
-MeshedParticles::MeshedParticles(MeshSeed& seed, const int maxRecursionLevel, const bool isLagrangian, const scalar_type domainRadius) {
-    mesh2d = std::shared_ptr<PolyMesh2d>(new PolyMesh2d(seed, maxRecursionLevel, isLagrangian, domainRadius));
+std::unique_ptr<Logger> MeshedParticles::log(new Logger(OutputMessage::debugPriority, "MeshedParticles_log"));
+
+MeshedParticles::MeshedParticles(MeshSeed& seed, const int maxRecursionLevel, const bool isLagrangian, 
+    const scalar_type domainRadius, const int prank) {
+    mesh2d = std::shared_ptr<PolyMesh2d>(new PolyMesh2d(seed, maxRecursionLevel, isLagrangian, domainRadius, prank));
     _coords = mesh2d->getPhysCoords();
     _lagCoords = mesh2d->getLagCoords();
     std::shared_ptr<Field> faceAreaPtr = mesh2d->createFaceAreaField();
     faceAreaPtr->rename("faceArea");
     _faceFieldMap.emplace("faceArea", faceAreaPtr);
+    log->setProcRank(prank);
 };
 
 void MeshedParticles::createVertexField(const std::string& fieldName, const std::string& fieldUnits, const int fieldDim) {

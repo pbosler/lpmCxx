@@ -41,6 +41,8 @@ public:
     inline OutputMessage::priority getPriorityLevel() const {return _baseLevel;}
     inline OutputMessage::priority getAllOutputPriorityLevel() const {return _allOutputLevel;}
     
+    inline void setProcRank(const int rank) {_procRank = rank;}
+    
     inline void startSection() {_tablevel += 1;}
     void endSection() {_tablevel = std::max(_tablevel - 1, 0);}
 private:

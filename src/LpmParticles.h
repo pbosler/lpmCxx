@@ -16,12 +16,12 @@ namespace Lpm {
 
 class Particles {
     public:
-        Particles(const std::shared_ptr<Coords> crds, const std::shared_ptr<Coords> lagCrds = NULL);
+        Particles(const std::shared_ptr<Coords> crds, const std::shared_ptr<Coords> lagCrds = NULL, const int prank = 0);
         Particles(const std::shared_ptr<Coords> crds, const std::shared_ptr<Coords> lagCrds = NULL, 
-            const std::vector<std::shared_ptr<Field>> fields = std::vector<std::shared_ptr<Field>>());
+            const std::vector<std::shared_ptr<Field>> fields = std::vector<std::shared_ptr<Field>>(), const int prank = 0);
         Particles(const index_type nMax, const std::vector<std::string>& fnames, const std::vector<int>& fdims, 
             const std::vector<std::string>& funits, const GeometryType gkind, const bool lagrangian = false, 
-            const scalar_type domainRadius = 1.0);
+            const scalar_type domainRadius = 1.0, const int prank = 0);
         
         
         std::shared_ptr<Field> getFieldPtr(const std::string& fieldname);
@@ -39,6 +39,8 @@ class Particles {
         inline XyzVector vector3dFieldValue(const std::string& fname, const index_type pIndex) const {
             return _fieldMap.at(fname)->get3dVector(pIndex);
         }
+        
+        inline void setLogProc(const int rank) {log->setProcRank(rank);}
         
         inline index_type n() const {return _coords->n();}
         inline index_type nMax() const {return _coords->nMax();}

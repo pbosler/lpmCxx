@@ -26,6 +26,7 @@ class MeshSeed {
         virtual index_type nRootFaces() const = 0;
         virtual std::string idString() const = 0;
 
+        inline void setLogProc(const int rank) {log->setProcRank(rank);}
     protected:
         MeshSeed(const std::string fname, const int nDim, const index_type nCrds, const index_type nEdges, const index_type nFaces, 
             const int nEdgesPerFace) : 

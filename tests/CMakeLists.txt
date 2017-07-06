@@ -67,7 +67,7 @@ ADD_TEST(timerUnitTest COMMAND mpirun -np 2 lpmTimerUnitTest.exe)
 
 ADD_EXECUTABLE(lpmPoissonSolver.exe LpmPoissonSolverTests.cpp)
 TARGET_LINK_LIBRARIES(lpmPoissonSolver.exe lpm)
-ADD_TEST(poissonSolver lpmPoissonSolver.exe)
+ADD_TEST(poissonSolver COMMAND mpirun -np 4 lpmPoissonSolver.exe)
 SET_TESTS_PROPERTIES(poissonSolver PROPERTIES TIMEOUT 300)
 
 #add_test( baselibTest lpmBaseObsTest.exe )

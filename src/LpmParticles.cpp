@@ -9,19 +9,20 @@ namespace Lpm {
 
 std::unique_ptr<Logger> Particles::log(new Logger(OutputMessage::debugPriority, "Particles_log"));
 
-Particles::Particles(const std::shared_ptr<Coords> crds, const std::shared_ptr<Coords> lagCrds) : 
-_coords(crds), _lagCoords(lagCrds) {};
+Particles::Particles(const std::shared_ptr<Coords> crds, const std::shared_ptr<Coords> lagCrds, const int prank) : 
+_coords(crds), _lagCoords(lagCrds) {log->setProcRank(prank);};
 
 Particles::Particles(const std::shared_ptr<Coords> crds, const std::shared_ptr<Coords> lagCrds, 
-    const std::vector<std::shared_ptr<Field>> fields) : _coords(crds), _lagCoords(lagCrds) {
+    const std::vector<std::shared_ptr<Field>> fields, const int prank) : _coords(crds), _lagCoords(lagCrds) {
     for (index_type i = 0; i < fields.size(); ++i) {
         _fieldMap.emplace(fields[i]->name(), fields[i]);
     }    
+    log->setProcRank(prank);
 }
 
 Particles::Particles(const index_type nMax, const std::vector<std::string>& fnames, const std::vector<int>& fdims, 
     const std::vector<std::string>& funits, const GeometryType gkind, const bool lagrangian, 
-    const scalar_type domainRadius) {
+    const scalar_type domainRadius, const int prank) {
     
     if (gkind == PLANAR_GEOMETRY || gkind == CARTESIAN_3D_GEOMETRY) {
         _coords = std::shared_ptr<Coords>(new EuclideanCoords(nMax, gkind));
@@ -37,6 +38,7 @@ Particles::Particles(const index_type nMax, const std::vector<std::string>& fnam
     for (index_type i = 0; i < fnames.size(); ++i) {
         _fieldMap.emplace(fnames[i], std::shared_ptr<Field>(new Field(nMax, fdims[i], fnames[i], funits[i])));
     }
+    log->setProcRank(prank);
 }
 
 std::shared_ptr<Field> Particles::getFieldPtr(const std::string& fieldname) {

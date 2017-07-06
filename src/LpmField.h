@@ -66,8 +66,12 @@ class Field {
         void abs();
         void update(const scalar_type a, const std::shared_ptr<Field>& other, 
                     const scalar_type b = 0.0, const std::shared_ptr<Field>& other1 = NULL);
+                    
+        void scale(const scalar_type multiplier);
         scalar_type maxScalarVal() const;
         scalar_type minScalarVal() const;
+        
+        inline void setLogProc(const int rank) {log->setProcRank(rank);}
     
     protected:
         std::vector<scalar_type> comp0;

@@ -8,7 +8,6 @@
 namespace Lpm {
 
 void PoissonSolverDirectSum::solve(const MPIReplicatedData& mpiVerts, const MPIReplicatedData& mpiFaces) const {
-    const PlanarGreensFnFreeBoundaries kernel;
     const int myRank = mpiFaces.getRank();
     const int commSize = mpiFaces.getSize();
     
@@ -22,7 +21,7 @@ void PoissonSolverDirectSum::solve(const MPIReplicatedData& mpiVerts, const MPIR
             if (!_faces->hasChildren(j)) {
                 const XyzVector srcLoc = _faces->centroid(j);
                 const scalar_type kernelWeight = _src->getScalar(j) * _faces->area(j);
-                const scalar_type kernelVal = kernel.evaluate(tgtLoc, srcLoc);
+                const scalar_type kernelVal = _kernel->evaluate(tgtLoc, srcLoc);
                 potVal += kernelVal * kernelWeight;
             }
         }
@@ -40,7 +39,7 @@ void PoissonSolverDirectSum::solve(const MPIReplicatedData& mpiVerts, const MPIR
                 if (!_faces->hasChildren(j)) {
                     const XyzVector srcLoc = _faces->centroid(j);
                     const scalar_type kernelWeight = _src->getScalar(j) * _faces->area(j);
-                    const scalar_type kernelVal = kernel.evaluate(tgtLoc, srcLoc);
+                    const scalar_type kernelVal = _kernel->evaluate(tgtLoc, srcLoc);
                     potVal += kernelVal * kernelWeight;
                 }
             }
@@ -48,7 +47,7 @@ void PoissonSolverDirectSum::solve(const MPIReplicatedData& mpiVerts, const MPIR
                 if (!_faces->hasChildren(j)) {
                     const XyzVector srcLoc = _faces->centroid(j);
                     const scalar_type kernelWeight = _src->getScalar(j) * _faces->area(j);
-                    const scalar_type kernelVal = kernel.evaluate(tgtLoc, srcLoc);
+                    const scalar_type kernelVal = _kernel->evaluate(tgtLoc, srcLoc);
                     potVal += kernelVal * kernelWeight;
             
                 }        
