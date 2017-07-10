@@ -26,12 +26,12 @@ int main ( int argc, char* argv[] )
 	
 	GlobalConstants* constants = GlobalConstants::Instance();
 	
-// 	for (int i = 1; i < 9; ++i) 
+	for (int i = 1; i < 9; ++i) 
 	{
 		//
 		// construct 2 sphere mesh objects
 		//
-		const int i = 9;
+// 		const int i = 1;
 		const int initNest = i;
 		const double sphereRadius = 1.0;
 	// 	constants->SetEarthRadius( sphereRadius );
@@ -55,11 +55,18 @@ int main ( int argc, char* argv[] )
 		// output meshes to paraview data files
 		//
 		ss.str("");
-		ss << "icosTri_" << i << ".vtk";
-		triMesh.outputToVTK( ss.str() );
+// 		ss << "icosTri_" << i << ".vtk";
+// 		triMesh.outputToVTK( ss.str() );
+ 		ss << "icosTri_" << i << ".vtk";
+        triMesh.writeActiveParticlesToVTK(ss.str(), "icosahedral triangles");
+        std::cout << "write routine finished, back to main.\n";
 		ss.str("");
-		ss << "cubedSphere_" << i << ".vtk";
-		quadMesh.outputToVTK(ss.str());
+// 		ss << "cubedSphere_" << i << ".vtk";
+// 		quadMesh.outputToVTK(ss.str());
+        ss << "cubedSphere_" << i << ".vtk";
+        quadMesh.writeActiveParticlesToVTK(ss.str(), "spherical quadrilaterals");
+        
+        std::cout << "write routine finished, back to main.\n";
 	}
 	
 	return 0;

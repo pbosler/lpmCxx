@@ -26,6 +26,8 @@
 #include <sstream>
 #include <fstream>
 #include <algorithm>
+#include <limits>
+#include <iomanip>
 
 PolyMesh2d::PolyMesh2d( const int initNest, const meshSeed seed,
 					const double maxR, const int procRank, const int numProcs )
@@ -1578,7 +1580,7 @@ void PolyMesh2d::outputToVTK( const std::string filename, const std::vector<Fiel
 	std::ofstream file(filename.c_str() );
 	if ( !file )
 	{
-		OutputMessage statusMsg("cannot open output file.", OutputMessage::errorPriority, "PolyMesh2d::outputToMatlab");
+		OutputMessage statusMsg("cannot open output file.", OutputMessage::errorPriority, "PolyMesh2d::outputToVTK");
 		log->logMessage(statusMsg);
 		return;
 	}
@@ -1593,6 +1595,65 @@ void PolyMesh2d::outputToVTK( const std::string filename, const std::vector<Fiel
 		}
 	}
 };
+
+void PolyMesh2d::writeActiveParticlesToCSV(const std::string filename) const{
+    std::ofstream file(filename.c_str());
+	if ( !file )
+	{
+		OutputMessage statusMsg("cannot open output file.", OutputMessage::errorPriority, 
+		    "PolyMesh2d::writeActiveParticlesToCSV");
+		log->logMessage(statusMsg);
+		return;
+	}
+	file << "x,   y,   z,   boundary_id,   area\n";
+	file << faces.nActive() << std::endl;
+	const std::string sepStr = ",";
+	for (int i = 0; i < particles.N(); ++i){
+	    if ( particles.area[i] > 0.0 ){
+            file << std::setprecision(std::numeric_limits<long double>::digits10 + 1) <<
+            particles.x[i] << sepStr << std::setprecision(std::numeric_limits<long double>::digits10 + 1) <<
+            particles.y[i] << sepStr << std::setprecision(std::numeric_limits<long double>::digits10 + 1) <<
+            particles.z[i] << sepStr << "0" << sepStr << std::setprecision(std::numeric_limits<long double>::digits10 + 1) <<
+            particles.area[i] << std::endl;
+//             std::cout << "i = " << i << ", nactive = " << faces.nActive() << ", particles.N = " << particles.N() << std::endl;
+	    }
+	}
+}
+
+void PolyMesh2d::writeActiveParticlesToVTK(const std::string filename, const std::string title) const {
+    std::ofstream file(filename.c_str());
+	if ( !file )
+	{
+		OutputMessage statusMsg("cannot open output file.", OutputMessage::errorPriority, 
+		    "PolyMesh2d::writeActiveParticlesToVTK");
+		log->logMessage(statusMsg);
+		return;
+	}
+	file << "# vtk DataFile Version 2.0 " << std::endl;
+	file << title << std::endl;
+	file << "ASCII" << std::endl;
+	file << "DATASET POLYDATA" << std::endl;
+	
+	file << "POINTS " << faces.nActive() << " double " << std::endl;
+	const std::string sepStr = "  ";
+	for (int i = 0; i < particles.N(); ++i){
+	    if ( particles.area[i] > 0.0 ){
+            file << std::setprecision(std::numeric_limits<long double>::digits10 + 1) <<
+            particles.x[i] << sepStr << std::setprecision(std::numeric_limits<long double>::digits10 + 1) <<
+            particles.y[i] << sepStr << std::setprecision(std::numeric_limits<long double>::digits10 + 1) <<
+            particles.z[i] << std::endl;
+        }    
+     }
+     file << "POINT_DATA " << faces.nActive() << std::endl;
+     file << "SCALARS area double 1" << std::endl;
+     file << "LOOKUP_TABLE default" << std::endl;
+     for (int i = 0; i < particles.N(); ++i) {
+        if (particles.area[i] > 0.0) {
+            file << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << particles.area[i] << std::endl;
+//             std::cout << "i = " << i << ", nactive = " << faces.nActive() << ", particles.N = " << particles.N() << std::endl;
+	    }
+	}
+}
 
 std::vector< std::string > PolyMesh2d::getInfo() const 
 {

@@ -153,6 +153,10 @@ class PolyMesh2d
 		*/
 		virtual void outputToVTK( const std::string filename, const std::vector<Field> fields = std::vector<Field>() ) const;
 	
+	    void writeActiveParticlesToCSV(const std::string filename) const;
+	    
+	    void writeActiveParticlesToVTK(const std::string filename, const std::string title = " ") const;
+	
 		/** @brief Output mesh data in a matlab-readable ascii file.  Filename should be `*.m`
 			@param filename with extension `.m`
 		*/
