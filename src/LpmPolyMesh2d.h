@@ -17,6 +17,8 @@
 
 namespace Lpm {
 
+class Particles;
+
 class PolyMesh2d {
     public:
         typedef std::tuple<index_type, index_type, index_type, index_type> quad_index_type;
@@ -24,44 +26,44 @@ class PolyMesh2d {
     
         PolyMesh2d(MeshSeed& seed, const int maxRecursionLevel, const bool isLagrangian = false, const scalar_type domainRadius = 1.0,
             const int prank = 0);
+            
+        inline GeometryType geometry() const {return _coords->geometry();}
+        
+        inline std::shared_ptr<Coords> getPhysCoords() const {return _coords;}
+        inline std::shared_ptr<Coords> getLagCoords() const {return _lagCoords;}
+        
+        inline std::shared_ptr<Faces> getFaces() const {return _faces;}
     
-        inline GeometryType geometry() const {return coords->geometry();}
+        inline index_type nVertices() const {return _coords->n();}
+        inline index_type nEdges() const {return _edges->n();}
+        inline index_type nFaces() const {return _faces->n();}
         
-        inline std::shared_ptr<Coords> getPhysCoords() const {return coords;}
-        inline std::shared_ptr<Coords> getLagCoords() const {return lagCoords;}
-        
-        inline std::shared_ptr<Faces> getFaces() const {return faces;}
-    
-        inline index_type nVertices() const {return coords->n();}
-        inline index_type nEdges() const {return edges->n();}
-        inline index_type nFaces() const {return faces->n();}
-        
-        inline bool faceIsDivided(const index_type faceInd) const {return faces->hasChildren(faceInd);}
+        inline bool faceIsDivided(const index_type faceInd) const {return _faces->hasChildren(faceInd);}
         inline XyzVector faceCentroid(const index_type faceInd, const bool lagrangian = false) const 
-            {return faces->centroid(faceInd, lagrangian);}
-        inline scalar_type faceArea(const index_type faceInd) const {return faces->area(faceInd);}
+            {return _faces->centroid(faceInd, lagrangian);}
+        inline scalar_type faceArea(const index_type faceInd) const {return _faces->area(faceInd);}
         
-        inline bool isLagrangian() const {return (lagCoords.use_count() > 0);}
+        inline bool isLagrangian() const {return (_lagCoords.use_count() > 0);}
         
-        inline index_type nLeafFaces() const {return faces->nLeaves();}
-        inline index_type nLeafEdges() const {return edges->nLeaves();}
+        inline index_type nLeafFaces() const {return _faces->nLeaves();}
+        inline index_type nLeafEdges() const {return _edges->nLeaves();}
         
-        inline scalar_type surfaceArea() const {return faces->surfaceArea();}
-        inline scalar_type avgMeshSize() const {return std::sqrt(surfaceArea() / faces->n());}
+        inline scalar_type surfaceArea() const {return _faces->surfaceArea();}
+        inline scalar_type avgMeshSize() const {return std::sqrt(surfaceArea() / _faces->n());}
         
-        inline scalar_type maxMeshSize() const {return edges->maxLength();}
-        inline scalar_type minMeshSize() const {return edges->minLength();}
+        inline scalar_type maxMeshSize() const {return _edges->maxLength();}
+        inline scalar_type minMeshSize() const {return _edges->minLength();}
         
         inline std::vector<index_type> faceVertices(const index_type faceInd) const 
-            {return faces->vertexIndices(faceInd);}
+            {return _faces->vertexIndices(faceInd);}
         
         inline std::vector<XyzVector> getCoordVecs(const std::vector<index_type> crdInds) const 
-            {return coords->getVectors(crdInds);}
+            {return _coords->getVectors(crdInds);}
     
         index_type locateFaceContainingPoint(const XyzVector& queryPt) const;
         
         inline std::vector<index_type> adjacentFaceIndices(const index_type faceInd) const 
-            {return faces->ccwAdjacentFaces(faceInd);}
+            {return _faces->ccwAdjacentFaces(faceInd);}
         
         void writeToVTKFile(const std::string& fname, const std::string& desc = "") const;
         
@@ -74,10 +76,10 @@ class PolyMesh2d {
         index_type treeSearch(const XyzVector& queryPt, index_type startIndex) const;
         index_type nearestRootFace(const XyzVector& queryPt) const;
     
-        std::shared_ptr<Coords> coords;
-        std::shared_ptr<Coords> lagCoords;
-        std::shared_ptr<Edges> edges;
-        std::shared_ptr<Faces> faces;
+        std::shared_ptr<Coords> _coords;
+        std::shared_ptr<Coords> _lagCoords;
+        std::shared_ptr<Edges> _edges;
+        std::shared_ptr<Faces> _faces;
         
         int nRootFaces;
         bool lagrangian;

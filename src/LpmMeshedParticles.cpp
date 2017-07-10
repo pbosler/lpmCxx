@@ -21,18 +21,18 @@ MeshedParticles::MeshedParticles(MeshSeed& seed, const int maxRecursionLevel, co
 };
 
 void MeshedParticles::createVertexField(const std::string& fieldName, const std::string& fieldUnits, const int fieldDim) {
-    _vertexFieldMap.emplace(fieldName, std::shared_ptr<Field>(new Field(mesh2d->coords->n(), fieldDim, fieldName, fieldUnits)));
-    _vertexFieldMap.at(fieldName)->initializeToConstant(mesh2d->coords->n(), 0.0);
+    _vertexFieldMap.emplace(fieldName, std::shared_ptr<Field>(new Field(mesh2d->nVertices(), fieldDim, fieldName, fieldUnits)));
+    _vertexFieldMap.at(fieldName)->initializeToConstant(mesh2d->nVertices(), 0.0);
 }
 
 void MeshedParticles::createEdgeField(const std::string& fieldName, const std::string& fieldUnits, const int fieldDim) {
-    _edgeFieldMap.emplace(fieldName, std::shared_ptr<Field>(new Field(mesh2d->edges->n(), fieldDim, fieldName, fieldUnits)));
-    _edgeFieldMap.at(fieldName)->initializeToConstant(mesh2d->edges->n(), 0.0);
+    _edgeFieldMap.emplace(fieldName, std::shared_ptr<Field>(new Field(mesh2d->nEdges(), fieldDim, fieldName, fieldUnits)));
+    _edgeFieldMap.at(fieldName)->initializeToConstant(mesh2d->nEdges(), 0.0);
 }
 
 void MeshedParticles::createFaceField(const std::string& fieldName, const std::string& fieldUnits, const int fieldDim) {
-    _faceFieldMap.emplace(fieldName, std::shared_ptr<Field>(new Field(mesh2d->faces->n(), fieldDim, fieldName, fieldUnits)));
-    _faceFieldMap.at(fieldName)->initializeToConstant(mesh2d->faces->n(), 0.0);
+    _faceFieldMap.emplace(fieldName, std::shared_ptr<Field>(new Field(mesh2d->nFaces(), fieldDim, fieldName, fieldUnits)));
+    _faceFieldMap.at(fieldName)->initializeToConstant(mesh2d->nFaces(), 0.0);
 }
 
 void MeshedParticles::initializeVertexFieldWithFunction(const std::string& fieldName, const AnalyticFunction* fn){
@@ -50,13 +50,13 @@ void MeshedParticles::initializeEdgeFieldWithFunction(const std::string& fieldNa
     std::shared_ptr<Field> fptr = getEdgeFieldPtr(fieldName);
     fptr->clear();
     if (fptr->nDim() == 1) {
-        for (index_type i = 0; i < mesh2d->edges->n(); ++i) {
-            fptr->insert((mesh2d->edges->hasChildren(i) ? 0.0 : fn->evaluateScalar(mesh2d->edges->midpoint(i))));
+        for (index_type i = 0; i < mesh2d->nEdges(); ++i) {
+            fptr->insert((mesh2d->_edges->hasChildren(i) ? 0.0 : fn->evaluateScalar(mesh2d->_edges->midpoint(i))));
         }
     }
     else {
-        for (index_type i = 0; i < mesh2d->edges->n(); ++i) {
-           fptr->insert((mesh2d->edges->hasChildren(i) ? XyzVector(0.0, 0.0, 0.0) : fn->evaluateVector(mesh2d->edges->midpoint(i))));
+        for (index_type i = 0; i < mesh2d->nEdges(); ++i) {
+           fptr->insert((mesh2d->_edges->hasChildren(i) ? XyzVector(0.0, 0.0, 0.0) : fn->evaluateVector(mesh2d->_edges->midpoint(i))));
         }
     }
 }
@@ -65,13 +65,13 @@ void MeshedParticles::initializeFaceFieldWithFunction(const std::string& fieldNa
     std::shared_ptr<Field> fptr = getFaceFieldPtr(fieldName);
     fptr->clear();
     if (fptr->nDim() == 1) {
-        for (index_type i = 0; i < mesh2d->faces->n(); ++i) {
-            fptr->insert((mesh2d->faces->hasChildren(i) ? 0.0 : fn->evaluateScalar(mesh2d->faces->centroid(i))));
+        for (index_type i = 0; i < mesh2d->nFaces(); ++i) {
+            fptr->insert((mesh2d->_faces->hasChildren(i) ? 0.0 : fn->evaluateScalar(mesh2d->_faces->centroid(i))));
         }
     }
     else {
-        for (index_type i = 0; i < mesh2d->faces->n(); ++i) {
-            fptr->insert((mesh2d->faces->hasChildren(i) ? XyzVector(0.0,0.0,0.0) : fn->evaluateVector(mesh2d->faces->centroid(i))));
+        for (index_type i = 0; i < mesh2d->nFaces(); ++i) {
+            fptr->insert((mesh2d->_faces->hasChildren(i) ? XyzVector(0.0,0.0,0.0) : fn->evaluateVector(mesh2d->_faces->centroid(i))));
         }
     }
 }
@@ -132,7 +132,7 @@ void MeshedParticles::writeToVtkFile(const std::string& fname, const std::string
     }
     writer.writeVTKHeader(fs, desc);
     writer.writeCoordsToVTKPoints(fs, _coords);
-    writer.writeFacesToVTKPolygons(fs, mesh2d->faces);
+    writer.writeFacesToVTKPolygons(fs, mesh2d->_faces);
     writer.writeVTKPointDataHeader(fs, _coords->n());
     if (mesh2d->isLagrangian()) {
         writer.writeCoordsToVTKPointData(fs, _lagCoords, true);
@@ -142,7 +142,7 @@ void MeshedParticles::writeToVtkFile(const std::string& fname, const std::string
     }
     writer.writeVTKCellDataHeader(fs, mesh2d->nLeafFaces());
     for (auto& elem : _faceFieldMap) {
-        writer.writeFaceFieldToVTKCellData(fs, mesh2d->faces, elem.second);
+        writer.writeFaceFieldToVTKCellData(fs, mesh2d->_faces, elem.second);
     }
 }
 

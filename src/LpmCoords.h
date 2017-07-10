@@ -26,6 +26,8 @@ class Coords {
         
         std::vector<XyzVector> getVectors(const std::vector<index_type> inds) const;
         
+        void swap(const index_type i, const index_type j);
+        
         inline index_type nMax() const {return _nMax;}
         inline index_type n() const {return x.size();}
         

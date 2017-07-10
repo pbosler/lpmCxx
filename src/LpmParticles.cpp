@@ -10,14 +10,51 @@ namespace Lpm {
 std::unique_ptr<Logger> Particles::log(new Logger(OutputMessage::debugPriority, "Particles_log"));
 
 Particles::Particles(const std::shared_ptr<Coords> crds, const std::shared_ptr<Coords> lagCrds, const int prank) : 
-_coords(crds), _lagCoords(lagCrds) {log->setProcRank(prank);};
+_coords(crds), _lagCoords(lagCrds) {
+    log->setProcRank(prank); 
+    _coords->setLogProc(prank);
+    if (lagCrds)
+        _lagCoords->setLogProc(prank);
+};
 
 Particles::Particles(const std::shared_ptr<Coords> crds, const std::shared_ptr<Coords> lagCrds, 
     const std::vector<std::shared_ptr<Field>> fields, const int prank) : _coords(crds), _lagCoords(lagCrds) {
     for (index_type i = 0; i < fields.size(); ++i) {
         _fieldMap.emplace(fields[i]->name(), fields[i]);
+        _fieldMap.at(fields[i]->name())->setLogProc(prank);
     }    
     log->setProcRank(prank);
+    _coords->setLogProc(prank);
+    if (_lagCoords)
+        _lagCoords->setLogProc(prank);
+}
+
+Particles::Particles(MeshSeed& seed, const int maxRecursionLevel, const scalar_type domainRadius, 
+    const bool lagrangian, const int prank) {
+    PolyMesh2d tempMesh(seed, maxRecursionLevel, lagrangian, domainRadius, prank);
+    
+    if (typeid(seed) == typeid(IcosTriSphereSeed) || typeid(seed) == typeid(CubedSphereSeed)) {
+        _coords = std::shared_ptr<Coords>(new SphericalCoords(tempMesh.nLeafFaces(), domainRadius));
+    }
+    else if (typeid(seed) == typeid(TriHexSeed) || typeid(seed) == typeid(QuadRectSeed)) {
+        _coords = std::shared_ptr<Coords>(new EuclideanCoords(tempMesh.nLeafFaces(), PLANAR_GEOMETRY));
+    }
+    
+    _fieldMap.emplace("area", std::shared_ptr<Field>(new Field(tempMesh.nLeafFaces(), 1, "area", "length^2")));
+    std::shared_ptr<Field> field_ptr = _fieldMap.at("area");
+    for (index_type i = 0; i < tempMesh.nFaces(); ++i) {
+        if (!tempMesh.faceIsDivided(i)) {
+            _coords->insert(tempMesh.faceCentroid(i));
+            field_ptr->insert(tempMesh.faceArea(i));
+        }
+    }
+    
+    if (typeid(seed) == typeid(IcosTriSphereSeed) || typeid(seed) == typeid(CubedSphereSeed)) {
+        _lagCoords = std::shared_ptr<Coords>(new SphericalCoords(*(dynamic_cast<SphericalCoords*>(_coords.get()))));
+    }
+    else if (typeid(seed) == typeid(TriHexSeed) || typeid(seed) == typeid(QuadRectSeed)) {
+        _lagCoords = std::shared_ptr<Coords>(new EuclideanCoords(*(dynamic_cast<EuclideanCoords*>(_coords.get()))));
+    }
 }
 
 Particles::Particles(const index_type nMax, const std::vector<std::string>& fnames, const std::vector<int>& fdims, 

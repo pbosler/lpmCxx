@@ -23,6 +23,9 @@ class Particles {
             const std::vector<std::string>& funits, const GeometryType gkind, const bool lagrangian = false, 
             const scalar_type domainRadius = 1.0, const int prank = 0);
         
+        Particles(MeshSeed& seed, const int maxRecursionLevel, const scalar_type domainRadius = 1.0, 
+            const bool lagrangian = false, const int prank = 0);
+        
         
         std::shared_ptr<Field> getFieldPtr(const std::string& fieldname);
     

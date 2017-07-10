@@ -106,6 +106,20 @@ void Coords::replace(const index_type ind, const XyzVector& vec) {
         z[ind] = vec.z;
 }
 
+void Coords::swap(const index_type i, const index_type j) {
+    const scalar_type tmpx = x[i];
+    const scalar_type tmpy = y[i];
+    x[i] = x[j];
+    y[i] = y[j];
+    x[j] = tmpx;
+    y[j] = tmpy;
+    if (_geometry != PLANAR_GEOMETRY) {
+        const scalar_type tmpz = z[i];
+        z[i] = z[j];
+        z[j] = tmpz;
+    }
+}
+
 void Coords::insert(const scalar_type nx, const scalar_type ny, const scalar_type nz) {
     if (n() + 1 > _nMax) {
         std::stringstream ss;
