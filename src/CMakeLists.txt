@@ -7,7 +7,7 @@ add_library( lpm LpmXyzVector.cpp LpmOutputMessage.cpp LpmLogger.cpp LpmCoords.c
              LpmEuclideanCoords.cpp LpmSphericalCoords.cpp LpmField.cpp LpmEdges.cpp
              LpmFaces.cpp LpmTriFaces.cpp LpmQuadFaces.cpp LpmMeshSeed.cpp LpmPolyMesh2d.cpp
              LpmVtkFileIO.cpp LpmParticles.cpp LpmMeshedParticles.cpp LpmMPIReplicatedData.cpp
-             LpmTimer.cpp LpmPoissonSolverDirectSum.cpp
+             LpmTimer.cpp LpmPoissonSolverDirectSum.cpp LpmTreecode.cpp
 )
 
 

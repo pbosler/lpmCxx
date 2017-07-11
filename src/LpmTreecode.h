@@ -31,7 +31,7 @@ struct Box3d {
     scalar_type shortestEdge() const;
     scalar_type aspectRatio() const;
     
-    scalar_type edgelength(const int dim) const;
+    scalar_type edgeLength(const int dim) const;
     
     std::vector<Box3d> bisectAll() const;
     std::vector<Box3d> bisectAlongDims(const bool* dims) const;
@@ -55,7 +55,7 @@ struct Box3d {
 struct Treenode {
     Treenode(const Box3d& bbox, const index_type nCrds = 0, const scalar_type maxAspectRatio = 1.0);
     Treenode(const Box3d& bbox, const std::shared_ptr<Treenode>& pparent = NULL, 
-             const std::vector<index_type>& crdInds, const scalar_type maxAspectRatio = 1.0);
+             const std::vector<index_type>& crdInds = std::vector<index_type>(), const scalar_type maxAspectRatio = 1.0);
 
     inline void setLogProc(const int prank) {log->setProcRank(prank);}
 
@@ -86,7 +86,11 @@ index_type nTreenodes(const std::shared_ptr<Treenode>& node);
 
 void generateTree(std::shared_ptr<Treenode>& node, std::shared_ptr<Coords>& crds, const index_type maxCoordsPerNode);
 
-void writeTreeToVtk(const std::string& filename, const std::string& desc = "", const std::shared_ptr<Treenode>& node);
+void writeTreeToVtk(const std::string& filename, const std::string& desc = "", const std::shared_ptr<Treenode>& node = NULL);
+void writeVTKPoints(std::ostream& os, const std::shared_ptr<Treenode>& node);
+void writeVtkCells(std::ofstream& os, const std::shared_ptr<Treenode>& node, index_type& vertIndex);
+void writeVtkCellType(std::ofstream& os, const std::shared_ptr<Treenode>& node);
+void writeVtkLevelData(std::ofstream& os, const std::shared_ptr<Treenode>& node);
 }
 
 #endif

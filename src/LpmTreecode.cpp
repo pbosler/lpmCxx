@@ -37,14 +37,14 @@ scalar_type Box3d::aspectRatio() const {
 scalar_type Box3d::radius() const {
     const XyzVector cntd = centroid();
     std::vector<XyzVector> corners;
-    corners.push_back(xmin, ymin, zmin);
-    corners.push_back(xmin, ymax, zmin);
-    corners.push_back(xmin, ymin, zmax);
-    corners.push_back(xmin, ymax, zmax);
-    corners.push_back(xmax, ymin, zmin);
-    corners.push_back(xmax, ymax, zmin);
-    corners.push_back(xmax, ymin, zmax);
-    corners.push_back(xmax, ymax, zmax);
+    corners.push_back(XyzVector(xmin, ymin, zmin));
+    corners.push_back(XyzVector(xmin, ymax, zmin));
+    corners.push_back(XyzVector(xmin, ymin, zmax));
+    corners.push_back(XyzVector(xmin, ymax, zmax));
+    corners.push_back(XyzVector(xmax, ymin, zmin));
+    corners.push_back(XyzVector(xmax, ymax, zmin));
+    corners.push_back(XyzVector(xmax, ymin, zmax));
+    corners.push_back(XyzVector(xmax, ymax, zmax));
     scalar_type result = 0.0;
     for (int i = 0; i < 8; ++i) {
         const scalar_type testDist = distance(cntd, corners[i]);
@@ -58,12 +58,13 @@ std::vector<Box3d> Box3d::bisectAll() const {
     std::vector<Box3d> result;
     result.push_back(Box3d(xmin, 0.5 * (xmin + xmax), ymin, 0.5 * (ymin + ymax), zmin, 0.5 * (zmin + zmax)));
     result.push_back(Box3d(0.5 * (xmin + xmax), xmax, ymin, 0.5 * (ymin + ymax), zmin, 0.5 * (zmin + zmax)));
-    result.push_back(Box3d(xmin, 0.5 * (xmin + xmax), 0.5 * (ymin + ymax), ymax, zmin, 0.5 * (zmin + zmax))):
+    result.push_back(Box3d(xmin, 0.5 * (xmin + xmax), 0.5 * (ymin + ymax), ymax, zmin, 0.5 * (zmin + zmax)));
     result.push_back(Box3d(0.5 * (xmin + xmax), xmax, 0.5 * (ymin + ymax), ymax, zmin, 0.5 * (zmin + zmax)));
     result.push_back(Box3d(xmin, 0.5 * (xmin + xmax), ymin, 0.5 * (ymin + ymax), 0.5 * (zmin + zmax), zmax));
     result.push_back(Box3d(0.5 * (xmin + xmax), xmax, ymin, 0.5 * (ymin + ymax), 0.5 * (zmin + zmax), zmax));
-    result.push_back(Box3d(xmin, 0.5 * (xmin + xmax), 0.5 * (ymin + ymax), ymax, 0.5 * (zmin + zmax), zmax)):
+    result.push_back(Box3d(xmin, 0.5 * (xmin + xmax), 0.5 * (ymin + ymax), ymax, 0.5 * (zmin + zmax), zmax));
     result.push_back(Box3d(0.5 * (xmin + xmax), xmax, 0.5 * (ymin + ymax), ymax, 0.5 * (zmin + zmax), zmax));
+    return result;
 }
 
 std::vector<Box3d> Box3d::bisectAlongDims(const bool* dims) const {
@@ -115,7 +116,7 @@ std::vector<Box3d> Box3d::bisectAlongDims(const bool* dims) const {
 
 scalar_type Box3d::edgeLength(const int dim) const {
     scalar_type result = 0.0;
-    switch (dim) : {
+    switch (dim) {
         case 0 : {
             result = xmax - xmin;
             break;
@@ -139,7 +140,7 @@ Treenode::Treenode(const Box3d& bbox, const index_type nCrds, const scalar_type 
 }
 
 Treenode::Treenode(const Box3d& bbox, const std::shared_ptr<Treenode>& pparent, const std::vector<index_type>& crdInds, const scalar_type maxRatio) :
-    box(bbox), parent(pparent), coordsContained(crds), maxAspectRatio(maxRatio), level(pparent->level +1) {};
+    box(bbox), parent(pparent), coordsContained(crdInds), maxAspectRatio(maxRatio), level(pparent->level +1) {};
 
 void generateTree(std::shared_ptr<Treenode>& node, std::shared_ptr<Coords>& crds, const index_type maxCoordsPerNode) {
     //
@@ -153,7 +154,7 @@ void generateTree(std::shared_ptr<Treenode>& node, std::shared_ptr<Coords>& crds
         //   divide node
         // 
         bool splitDims[3];
-        const scalar_type edgeThreshold = node->box.longestEdge() / maxAspectRatio;
+        const scalar_type edgeThreshold = node->box.longestEdge() / node->maxAspectRatio;
         for (int i = 0; i < 3; ++i) {
             if ( node->box.edgeLength(i) >= edgeThreshold ) {
                 splitDims[i] = true;
@@ -173,24 +174,24 @@ void generateTree(std::shared_ptr<Treenode>& node, std::shared_ptr<Coords>& crds
             //
             for (index_type j = 0; j < node->coordsContained.size(); ++j) {
                 if (kids[i].containsPoint(crds->getVec(node->coordsContained[j]))) {
-                    kidcoords.push_back(coordsContained[j]);
+                    kidcoords.push_back(node->coordsContained[j]);
                 }
             }
             //
             //  only add non-empty children
             //
             if (!kidcoords.empty()) {
-                node->children.push_back(std::shared_ptr<Treenode>(new Treenode(kids[i], node, kidcoords, maxAspectRatio)));
+                node->children.push_back(std::shared_ptr<Treenode>(new Treenode(kids[i], node, kidcoords, node->maxAspectRatio)));
             }
         }
         
         if (node->children.empty()) {
             OutputMessage errMsg("All children are empty.", OutputMessage::errorPriority, "Treenode::generateTree");
-            log->logMessage(errMsg);
+            node->log->logMessage(errMsg);
             return;
         }
         else {
-            for (int i = 0; i < children.size(); ++i) {
+            for (int i = 0; i < node->children.size(); ++i) {
                 node->children[i]->shrinkBox(crds);
                 generateTree(node->children[i], crds, maxCoordsPerNode);
             }
@@ -202,7 +203,7 @@ void writeTreeToVtk(const std::string& filename, const std::string& desc, const 
     std::ofstream fs(filename);
     if (!fs.is_open()) {
         OutputMessage errMsg("cannot open .vtk file", OutputMessage::errorPriority, "Lpm::writeTreeToVtk");
-        log->logMessage(errMsg);
+        root->log->logMessage(errMsg);
         throw std::ios_base::failure("file write error");
     }
     const index_type nNodes = nTreenodes(root); 
@@ -211,12 +212,12 @@ void writeTreeToVtk(const std::string& filename, const std::string& desc, const 
     fs << "ASCII" << std::endl;
     fs << "DATASET UNSTRUCTURED_GRID" << std::endl;
     fs << "POINTS " << 8 * nNodes << " double" << std::endl;
-    writeVTKPoints(fs, root)
+    Lpm::writeVTKPoints(fs, root);
     fs << "CELLS " << nNodes << " " << 9 * nNodes << std::endl;
-    index_type vertexIndex = 0;
-    writeVtkCells(fs, root);
+    index_type vertIndex = 0;
+    Lpm::writeVtkCells(fs, root, vertIndex);
     fs << "CELL_TYPES " << nNodes << std::endl;
-    writeVtkCellType(fs, root);
+    Lpm::writeVtkCellType(fs, root);
     fs << "CELL_DATA " << nNodes << std::endl;
     fs << "SCALARS tree_level int 1" << std::endl;
     writeVtkLevelData(fs, root);
@@ -224,7 +225,7 @@ void writeTreeToVtk(const std::string& filename, const std::string& desc, const 
 
 void writeVTKPoints(std::ofstream& os, const std::shared_ptr<Treenode>& node) {
     node->writePoints(os);
-    if (node->hasChildren) {
+    if (node->hasChildren()) {
         for (int i = 0; i < node->children.size(); ++i) {
             writeVTKPoints(os, node->children[i]);
         }
@@ -240,7 +241,7 @@ void writeVtkCells(std::ofstream& os, const std::shared_ptr<Treenode>& node, ind
     vertIndex += 8;
     if (node->hasChildren()) {
         for (int i = 0; i < node->children.size(); ++i) {
-            writeVtkCells(node->children[i], vertIndex);
+            Lpm::writeVtkCells(os, node->children[i], vertIndex);
         }
     }
 }
@@ -264,14 +265,14 @@ void writeVtkLevelData(std::ofstream& os, const std::shared_ptr<Treenode>& node)
 }
 
 void Treenode::writePoints(std::ofstream& os) const {
-    os << xmin << " " << ymin << " " << zmin << std::endl;
-    os << xmax << " " << ymin << " " << zmin << std::endl;
-    os << xmin << " " << ymax << " " << zmin << std::endl;
-    os << xmax << " " << ymax << " " << zmin << std::endl;
-    os << xmin << " " << ymin << " " << zmax << std::endl;
-    os << xmax << " " << ymin << " " << zmax << std::endl;
-    os << xmin << " " << ymax << " " << zmax << std::endl;
-    os << xmax << " " << ymax << " " << zmax << std::endl;
+    os << box.xmin << " " << box.ymin << " " << box.zmin << std::endl;
+    os << box.xmax << " " << box.ymin << " " << box.zmin << std::endl;
+    os << box.xmin << " " << box.ymax << " " << box.zmin << std::endl;
+    os << box.xmax << " " << box.ymax << " " << box.zmin << std::endl;
+    os << box.xmin << " " << box.ymin << " " << box.zmax << std::endl;
+    os << box.xmax << " " << box.ymin << " " << box.zmax << std::endl;
+    os << box.xmin << " " << box.ymax << " " << box.zmax << std::endl;
+    os << box.xmax << " " << box.ymax << " " << box.zmax << std::endl;
 }
 
 index_type nTreenodes(const std::shared_ptr<Treenode>& node) {
@@ -300,22 +301,22 @@ void Treenode::shrinkBox(const std::shared_ptr<Coords>& crds) {
         if (crdVec.x < xmin)
             xmin = crdVec.x;
         if (crdVec.x > xmax)
-            xmax = crdInds.x;
+            xmax = crdVec.x;
         if (crdVec.y < ymin)
             ymin = crdVec.y;
         if (crdVec.y > ymax)
-            ymax = crdInds.y;
+            ymax = crdVec.y;
         if (crdVec.z < zmin)
             zmin = crdVec.z;
         if (crdVec.z > zmax)
-            zmax = crdInds.z;
+            zmax = crdVec.z;
     }
     box.xmin = xmin;
     box.xmax = xmax;
     box.ymin = ymin;
     box.ymax = ymax;
     box.zmin = zmin;
-    boz.zmax = zmax;
+    box.zmax = zmax;
 }
 
 }
