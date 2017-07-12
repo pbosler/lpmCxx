@@ -1,6 +1,8 @@
 #include "LpmSphericalCoords.h"
 #include "LpmXyzVector.h"
 #include <cmath>
+#include <random>
+#include <chrono>
 
 namespace Lpm {
 
@@ -50,6 +52,29 @@ scalar_type SphericalCoords::latitude(const index_type ind) const {
 
 scalar_type SphericalCoords::longitude(const index_type ind) const {
     return atan4(y[ind], x[ind]);
+}
+
+void SphericalCoords::initRandom(const bool useTimeSeed, const scalar_type domainRadius) {
+    unsigned seed(1234);
+    if (useTimeSeed) {
+        seed = std::chrono::system_clock::now().time_since_epoch().count();
+    }
+    std::default_random_engine generator(seed);
+    
+    std::uniform_real_distribution<scalar_type> randDist(-1.0, 1.0);
+    for (index_type i = 0; i < _nMax; ++i) {
+        scalar_type uu = randDist(generator);
+        scalar_type vv = randDist(generator);
+        while (uu * uu + vv * vv > 1.0) {
+            uu = randDist(generator);
+            vv = randDist(generator);
+        }
+        const scalar_type uvrad = std::sqrt(1.0 - uu * uu - vv * vv);
+        const scalar_type xx = 2.0 * uu * uvrad * domainRadius;
+        const scalar_type yy = 2.0 * vv * uvrad * domainRadius;
+        const scalar_type zz = (1.0 - 2.0 * uvrad) * domainRadius;
+        insert(xx, yy, zz);
+    }
 }
 
 }

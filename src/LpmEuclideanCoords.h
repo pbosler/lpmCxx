@@ -16,6 +16,8 @@ class EuclideanCoords : public Coords
 	public :
 		EuclideanCoords(const index_type nMax = 0, const GeometryType gkind = PLANAR_GEOMETRY) : 
 		    Coords(nMax, (gkind == PLANAR_GEOMETRY ? false : true)) {};
+		    
+		void initRandom(const bool useTimeSeed = false, const scalar_type domainRadius = 1.0);
 		
 		scalar_type distance( const index_type indexA, const index_type indexB ) const;
 		scalar_type distance(const XyzVector& vec, const index_type ind) const;

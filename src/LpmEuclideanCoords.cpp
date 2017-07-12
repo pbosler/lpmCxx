@@ -1,6 +1,8 @@
 #include "LpmEuclideanCoords.h"
 #include "LpmXyzVector.h"
 #include <vector>
+#include <random>
+#include <chrono>
 
 namespace Lpm {
 
@@ -42,6 +44,23 @@ scalar_type EuclideanCoords::triArea(const XyzVector& v0, const index_type indA,
     const XyzVector v1(x[indA], y[indA], (_geometry != PLANAR_GEOMETRY ? z[indA] : 0.0));
     const XyzVector v2(x[indB], y[indB], (_geometry != PLANAR_GEOMETRY ? z[indB] : 0.0));
     return Lpm::triArea(v0, v1, v2);
+}
+
+void EuclideanCoords::initRandom(const bool useTimeSeed, const scalar_type domainRadius) {
+    unsigned seed(1234);
+    if (useTimeSeed) {
+        seed = std::chrono::system_clock::now().time_since_epoch().count();
+    }
+    std::default_random_engine generator(seed);
+    
+    std::uniform_real_distribution<scalar_type> randDist(-domainRadius, domainRadius);
+    for (index_type i = 0; i < _nMax; ++i) {
+        const scalar_type xx = randDist(generator);
+        const scalar_type yy = randDist(generator);
+        const scalar_type zz = randDist(generator);
+        insert(xx, yy, zz);        
+    }
+
 }
 
 }

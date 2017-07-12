@@ -1,4 +1,4 @@
-#include "LpmTreecode.h"
+#include "LpmOctree.h"
 #include "LpmOutputMessage.h"
 #include <limits>
 #include <iostream>

@@ -20,6 +20,7 @@ class Coords {
         virtual XyzVector centroid(const std::vector<index_type>& inds) const = 0;
         virtual scalar_type triArea(const index_type indA, const index_type indB, const index_type indC) const = 0;
         virtual scalar_type triArea(const XyzVector& v0, const index_type indA, const index_type indB) const = 0;
+        virtual void initRandom(const bool useTimeSeed = false, const scalar_type domainRadius = 1.0) = 0;
         
         XyzVector crossProduct(const index_type indA, const index_type indB) const;
         scalar_type dotProduct(const index_type indA, const index_type indB) const;
