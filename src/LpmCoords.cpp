@@ -120,6 +120,34 @@ void Coords::swap(const index_type i, const index_type j) {
     }
 }
 
+void Coords::writeCoords(std::ostream& os) const {
+    if ( _geometry == PLANAR_GEOMETRY) {
+        for (index_type i = 0; i < n(); ++i) {
+            os << x[i] << " " << y[i] << std::endl;
+        }
+    }
+    else {
+        for (index_type i = 0; i < n(); ++i) {
+            os << x[i] << " " << y[i] << " " << z[i] << std::endl;
+        }
+    }
+}
+
+void Coords::writeCoordsCSV(std::ostream& os) const {
+    if ( _geometry == PLANAR_GEOMETRY) {
+        os << "x,y" << std::endl;
+        for (index_type i = 0; i < n(); ++i) {
+            os << x[i] << "," << y[i] << std::endl;
+        }
+    }
+    else {
+        os << "x,y,z" << std::endl;
+        for (index_type i = 0; i < n(); ++i) {
+            os << x[i] << "," << y[i] << "," << z[i] << std::endl;
+        }
+    }
+}
+
 void Coords::insert(const scalar_type nx, const scalar_type ny, const scalar_type nz) {
     if (n() + 1 > _nMax) {
         std::stringstream ss;

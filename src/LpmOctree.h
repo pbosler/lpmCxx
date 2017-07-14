@@ -21,7 +21,7 @@ struct Box3d {
     inline scalar_type volume() const {return (xmax - xmin) * (ymax - ymin) * (zmax - zmin);}
     inline scalar_type area2d() const {return (xmax - xmin) * (ymax - ymin);}
     
-    inline XyzVector centroid() const {return XyzVector(0.5 * (xmax - xmin), 0.5 * (ymax - ymin), 0.5 * (zmax - zmin));}
+    inline XyzVector centroid() const {return XyzVector(0.5 * (xmax + xmin), 0.5 * (ymax + ymin), 0.5 * (zmax + zmin));}
     
     inline bool containsPoint(const XyzVector& vec) const {return (xmin <= vec.x && vec.x < xmax) &&
                                                                   (ymin <= vec.y && vec.y < ymax) &&
@@ -35,6 +35,8 @@ struct Box3d {
     
     std::vector<Box3d> bisectAll() const;
     std::vector<Box3d> bisectAlongDims(const bool* dims) const;
+    
+    std::string infoString() const;
     
     scalar_type radius() const;
     
@@ -53,44 +55,43 @@ struct Box3d {
 };
 
 struct Treenode {
-    Treenode(const Box3d& bbox, const index_type nCrds = 0, const scalar_type maxAspectRatio = 1.0);
-    Treenode(const Box3d& bbox, const std::shared_ptr<Treenode>& pparent = NULL, 
+    Treenode();
+    Treenode(const std::shared_ptr<Coords> crds, const scalar_type maxAspectRatio = 1.0);
+    Treenode(const Box3d& bbox, const std::shared_ptr<Treenode> pparent = NULL, 
              const std::vector<index_type>& crdInds = std::vector<index_type>(), const scalar_type maxAspectRatio = 1.0);
-
-    inline void setLogProc(const int prank) {log->setProcRank(prank);}
 
     Box3d box;
     scalar_type maxAspectRatio;
     int level;
-    
+    /// ptr to parent
+    std::shared_ptr<Treenode> parent;
+    /// ptrs to child boxes
+    std::vector<std::shared_ptr<Treenode>> children;
     std::vector<index_type> coordsContained;
     
     inline index_type nCoords() const {return coordsContained.size();}
     
     void shrinkBox(const std::shared_ptr<Coords>& crds);
     
-    /// ptr to parent
-    std::shared_ptr<Treenode> parent;
-    
-    /// ptrs to child boxes
-    std::vector<std::shared_ptr<Treenode>> children;
-    
     bool hasChildren() const {return (!children.empty());}
     
     void writePoints(std::ofstream& os) const;
     
     static std::unique_ptr<Logger> log;
+    inline void setLogProc(const int prank) {log->setProcRank(prank);}
+    
+    std::string infoString() const;
 };
 
-index_type nTreenodes(const std::shared_ptr<Treenode>& node);
+index_type nTreenodes(const std::shared_ptr<Treenode> node);
 
-void generateTree(std::shared_ptr<Treenode>& node, std::shared_ptr<Coords>& crds, const index_type maxCoordsPerNode);
+void generateTree(std::shared_ptr<Treenode> node, std::shared_ptr<Coords> crds, const index_type maxCoordsPerNode);
 
-void writeTreeToVtk(const std::string& filename, const std::string& desc = "", const std::shared_ptr<Treenode>& node = NULL);
-void writeVTKPoints(std::ostream& os, const std::shared_ptr<Treenode>& node);
-void writeVtkCells(std::ofstream& os, const std::shared_ptr<Treenode>& node, index_type& vertIndex);
-void writeVtkCellType(std::ofstream& os, const std::shared_ptr<Treenode>& node);
-void writeVtkLevelData(std::ofstream& os, const std::shared_ptr<Treenode>& node);
+void writeTreeToVtk(const std::string& filename, const std::string& desc = "", const std::shared_ptr<Treenode> node = NULL);
+void writeVTKPoints(std::ofstream& os, const std::shared_ptr<Treenode> node);
+void writeVtkCells(std::ofstream& os, const std::shared_ptr<Treenode> node, index_type& vertIndex);
+void writeVtkCellType(std::ofstream& os, const std::shared_ptr<Treenode> node);
+void writeVtkLevelData(std::ofstream& os, const std::shared_ptr<Treenode> node);
 }
 
 #endif

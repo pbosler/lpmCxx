@@ -7,6 +7,9 @@
 #include "LpmLogger.h"
 #include <memory>
 #include <vector>
+#include <iostream>
+#include <algorithm>
+#include <numeric>
 
 namespace Lpm {
 
@@ -32,7 +35,7 @@ class Coords {
         inline index_type nMax() const {return _nMax;}
         inline index_type n() const {return x.size();}
         
-        inline GeometryType geometry() const {return _geometry;}
+        inline GeometryType geometry() const {return this->_geometry;}
         inline bool is2d() const {return (_geometry == PLANAR_GEOMETRY);}
         
         void scaleAll(const scalar_type multiplier);
@@ -45,11 +48,21 @@ class Coords {
         void insert(const scalar_type nx, const scalar_type ny, const scalar_type nz = 0.0);
         void insert(const XyzVector& vec);
         
+        inline scalar_type minX() const {return *std::min_element(x.begin(), x.end());}
+        inline scalar_type minY() const {return *std::min_element(y.begin(), y.end());}
+        inline scalar_type minZ() const {return *std::min_element(z.begin(), z.end());}
+        inline scalar_type maxX() const {return *std::max_element(x.begin(), x.end());}
+        inline scalar_type maxY() const {return *std::max_element(y.begin(), y.end());}
+        inline scalar_type maxZ() const {return *std::max_element(z.begin(), z.end());}
+        
         inline XyzVector getVec(const index_type ind) const {return XyzVector(x[ind], y[ind], (_geometry == PLANAR_GEOMETRY ? 0.0 : z[ind]));}
         
         std::string listAllCoords() const;
         
         inline void setLogProc(const int rank) {log->setProcRank(rank);}
+        
+        void writeCoords(std::ostream& os) const;
+        void writeCoordsCSV(std::ostream& os) const;
     protected:
         Coords(const index_type nMax, const bool coords3d = true);
         

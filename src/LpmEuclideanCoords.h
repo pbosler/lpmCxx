@@ -15,7 +15,7 @@ class EuclideanCoords : public Coords
 {
 	public :
 		EuclideanCoords(const index_type nMax = 0, const GeometryType gkind = PLANAR_GEOMETRY) : 
-		    Coords(nMax, (gkind == PLANAR_GEOMETRY ? false : true)) {};
+		    Coords(nMax, (gkind == PLANAR_GEOMETRY ? false : true)) {_geometry = gkind;}
 		    
 		void initRandom(const bool useTimeSeed = false, const scalar_type domainRadius = 1.0);
 		

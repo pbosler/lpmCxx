@@ -1,26 +1,5 @@
 include(CTest)
 
-#add_executable ( lpmBaseObsTest.exe baseTest.cpp )
-#target_link_libraries( lpmBaseObsTest.exe lpmLib )
-#
-#add_executable ( lpmCoordsUnitTest.exe lpmCoordsUnitTest.cpp )
-#target_link_libraries( lpmCoordsUnitTest.exe lpmLib )
-#
-#add_executable ( lpmParticlesAndFieldsUnitTest.exe lpmParticlesAndFieldTest.cpp )
-#target_link_libraries( lpmParticlesAndFieldsUnitTest.exe lpmLib )
-
-#add_executable ( lpmParticlesAndFieldTest.exe ParticlesAndFieldTest.cpp )
-#target_link_libraries( lpmParticlesAndFieldTest.exe lpmLib )
-
-#add_executable( lpmPlanarMeshTest.exe PlanarMeshTest.cpp )
-#target_link_libraries( lpmPlanarMeshTest.exe lpmLib )
-
-#add_executable( lpmSphereMeshTest.exe sphereVTKMeshTest.cpp)
-#target_link_libraries( lpmSphereMeshTest.exe oldLpmLib )
-
-#install ( TARGETS lpmBaseObsTest.exe lpmParticlesAndFieldTest.exe lpmPlanarMeshTest.exe lpmSphereMeshTest.exe
-#		  DESTINATION bin )
-
 ADD_EXECUTABLE(lpmXyzVectorUnitTest.exe LpmXyzVectorUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmXyzVectorUnitTest.exe lpm)
 add_test( xyzVecTest lpmXyzVectorUnitTest.exe)
@@ -70,9 +49,6 @@ TARGET_LINK_LIBRARIES(lpmPoissonSolver.exe lpm)
 ADD_TEST(poissonSolver COMMAND mpirun -np 4 lpmPoissonSolver.exe)
 SET_TESTS_PROPERTIES(poissonSolver PROPERTIES TIMEOUT 300)
 
-#add_test( baselibTest lpmBaseObsTest.exe )
-#add_test( coordsTest lpmCoordsUnitTest.exe )
-#add_test( particlesAndFieldTest lpmParticlesAndFieldsUnitTest.exe )
-#add_test( particlesAndFieldTest lpmParticlesAndFieldTest.exe )
-#add_test( planarMeshTest lpmPlanarMeshTest.exe )
-#add_test( sphereMeshTest lpmSphereMeshTest.exe )
+ADD_EXECUTABLE(lpmOctreeUnitTest.exe LpmOctreeUnitTests.cpp)
+TARGET_LINK_LIBRARIES(lpmOctreeUnitTest.exe lpm)
+ADD_TEST(octreeUnitTest COMMAND mpirun -np 1 lpmOctreeUnitTest.exe)

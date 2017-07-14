@@ -14,7 +14,7 @@ namespace Lpm {
 class SphericalCoords : public Coords {
 	public :
 		SphericalCoords( const index_type nMax = 0,	const scalar_type radius = 1.0) : 
-			Coords(nMax, true), _radius(radius) {};
+			Coords(nMax, true), _radius(radius) {_geometry = SPHERICAL_SURFACE_GEOMETRY;}
 		
 		scalar_type distance( const index_type indexA, const index_type indexB ) const;
 		scalar_type distance(const XyzVector& v0, const index_type ind) const;
