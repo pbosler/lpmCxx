@@ -60,8 +60,8 @@ int main (int argc, char* argv[]) {
     
     }
     {
-        const int nMax = 100;
-        const scalar_type domainRadius = 1.0;
+        const int nMax = 1000;
+        const scalar_type domainRadius = 2.0;
         
         std::shared_ptr<EuclideanCoords> ec(new EuclideanCoords(nMax, CARTESIAN_3D_GEOMETRY));
         GeometryType geom = ec->geometry();
@@ -102,6 +102,30 @@ int main (int argc, char* argv[]) {
 
         
         const std::string fname("octreeUnitTest.vtk");
+        std::stringstream ss;
+        ss << "nCoords = " << nMax << ", nCoordsPerNode = " << nCoordsPerNode;
+        writeTreeToVtk(fname, ss.str(), tree);
+    }
+    
+    {
+        const int nMax = 5000;
+        std::shared_ptr<SphericalCoords> sc(new SphericalCoords(nMax));
+        
+        sc->initRandom();
+        
+        std::ofstream cfile("octreeSphereCoords.txt");
+        sc->writeCoordsCSV(cfile);
+        cfile.close();
+        
+        const scalar_type maxAspectRatio = 2.0;
+        
+        std::shared_ptr<Treenode> tree(new Treenode(sc, maxAspectRatio));
+        
+        const int nCoordsPerNode = 20;
+        
+        generateTree(tree, sc, nCoordsPerNode);
+        
+        const std::string fname("sphereOctreeUnitTest.vtk");
         std::stringstream ss;
         ss << "nCoords = " << nMax << ", nCoordsPerNode = " << nCoordsPerNode;
         writeTreeToVtk(fname, ss.str(), tree);

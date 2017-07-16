@@ -72,7 +72,7 @@ void SphericalCoords::initRandom(const bool useTimeSeed, const scalar_type domai
         const scalar_type uvrad = std::sqrt(1.0 - uu * uu - vv * vv);
         const scalar_type xx = 2.0 * uu * uvrad * domainRadius;
         const scalar_type yy = 2.0 * vv * uvrad * domainRadius;
-        const scalar_type zz = (1.0 - 2.0 * uvrad) * domainRadius;
+        const scalar_type zz = (1.0 - 2.0 * (uu * uu + vv * vv)) * domainRadius;
         insert(xx, yy, zz);
     }
 }
