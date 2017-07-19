@@ -64,7 +64,7 @@ struct Treenode {
     scalar_type maxAspectRatio;
     int level;
     /// ptr to parent
-    std::shared_ptr<Treenode> parent;
+    std::weak_ptr<Treenode> parent;
     /// ptrs to child boxes
     std::vector<std::shared_ptr<Treenode>> children;
     std::vector<index_type> coordsContained;

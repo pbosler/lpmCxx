@@ -142,12 +142,12 @@ std::string Box3d::infoString() const {
 }
 
 Treenode::Treenode() : box(Box3d()), maxAspectRatio(1.0), level(-1), coordsContained(std::vector<index_type>()), 
-    parent(NULL), children(std::vector<std::shared_ptr<Treenode>>()) {}
+    parent(std::weak_ptr<Treenode>()), children(std::vector<std::shared_ptr<Treenode>>()) {}
 
 Treenode::Treenode(const std::shared_ptr<Coords> crds, const scalar_type maxRatio) : 
     box(crds->minX(), crds->maxX(), crds->minY(), crds->maxY(), crds->minZ(), crds->maxZ()),
     coordsContained(crds->n(), -1), maxAspectRatio(maxRatio), level(0), 
-    parent(NULL), children(std::vector<std::shared_ptr<Treenode>>()) {
+    parent(std::weak_ptr<Treenode>()), children(std::vector<std::shared_ptr<Treenode>>()) {
     for (index_type i = 0; i < crds->n(); ++i) {
         coordsContained[i] = i;
     }
@@ -159,7 +159,7 @@ std::string Treenode::infoString() const {
     ss << "\tbox: " << box.infoString();
     ss << "\tmaxAspectRatio = " << maxAspectRatio << std::endl;
     ss << "\tlevel = " << level << std::endl;
-    ss << "\tparent = " << (parent.use_count() > 0 ? parent.get() : 0) << std::endl;
+    ss << "\tparent = " << (parent.use_count() > 0 ? parent.lock().get() : 0) << std::endl;
     ss << "\thasChildren = " << (hasChildren() ? "true" : "false") << ", children.size() = " << children.size() << std::endl;
     ss << "\tcoordsContained.size() = " << coordsContained.size() << std::endl;
     if (!coordsContained.empty()) {
