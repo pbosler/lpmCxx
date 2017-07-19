@@ -176,10 +176,7 @@ void generateTree(std::shared_ptr<Treenode> node, std::shared_ptr<Coords> crds, 
     //
     //  if node has less than maximum allowed points, we're done
     //
-//     OutputMessage trcMsg("Entering generateTree", OutputMessage::tracePriority, "LpmOctree::generateTree");
-//     node->log->logMessage(trcMsg);
     if (node->coordsContained.size() <= maxCoordsPerNode) {
-//         std::cout << "box contains " << node->coordsContained.size() << ", at level " << node->level << "; returning." << std::endl;
         return;
     }
     else { 
@@ -198,11 +195,11 @@ void generateTree(std::shared_ptr<Treenode> node, std::shared_ptr<Coords> crds, 
                 splitDims[i] = false;
             }
         }
-//         std::cout << "splitting box along " << dimcount << " dimensions" << std::endl;
         //
         //  define child boxes
         //
         std::vector<Box3d> kids = node->box.bisectAlongDims(splitDims);
+        //std::vector<Box3d> kids = node->box.bisectAll();
         for (int i = 0; i < kids.size(); ++i) {
             std::vector<index_type> kidcoords;
             //
@@ -217,11 +214,6 @@ void generateTree(std::shared_ptr<Treenode> node, std::shared_ptr<Coords> crds, 
             //  only add non-empty children
             //
             if (!kidcoords.empty()) {
-//                 std::cout << "adding child " << i << " : " << kids[i].infoString() << std::endl;
-//                 std::cout << "\tcoordsContained: ";
-//                 for (index_type j = 0; j < kidcoords.size(); ++j) 
-//                     std::cout << kidcoords[j] << " ";
-//                 std::cout << std::endl;
                 node->children.push_back(std::shared_ptr<Treenode>(new Treenode(kids[i], node, kidcoords, node->maxAspectRatio)));
             }
         }
