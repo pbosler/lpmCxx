@@ -66,14 +66,14 @@ struct Treenode {
     /// ptr to parent
     std::weak_ptr<Treenode> parent;
     /// ptrs to child boxes
-    std::vector<std::shared_ptr<Treenode>> children;
+    std::vector<std::shared_ptr<Treenode>> kids;
     std::vector<index_type> coordsContained;
     
     inline index_type nCoords() const {return coordsContained.size();}
     
     void shrinkBox(const std::shared_ptr<Coords>& crds);
     
-    bool hasChildren() const {return (!children.empty());}
+    bool hasKids() const {return (!kids.empty());}
     
     void writePoints(std::ofstream& os) const;
     

@@ -142,12 +142,12 @@ std::string Box3d::infoString() const {
 }
 
 Treenode::Treenode() : box(Box3d()), maxAspectRatio(1.0), level(-1), coordsContained(std::vector<index_type>()), 
-    parent(std::weak_ptr<Treenode>()), children(std::vector<std::shared_ptr<Treenode>>()) {}
+    parent(std::weak_ptr<Treenode>()), kids(std::vector<std::shared_ptr<Treenode>>()) {}
 
 Treenode::Treenode(const std::shared_ptr<Coords> crds, const scalar_type maxRatio) : 
     box(crds->minX(), crds->maxX(), crds->minY(), crds->maxY(), crds->minZ(), crds->maxZ()),
     coordsContained(crds->n(), -1), maxAspectRatio(maxRatio), level(0), 
-    parent(std::weak_ptr<Treenode>()), children(std::vector<std::shared_ptr<Treenode>>()) {
+    parent(std::weak_ptr<Treenode>()), kids(std::vector<std::shared_ptr<Treenode>>()) {
     for (index_type i = 0; i < crds->n(); ++i) {
         coordsContained[i] = i;
     }
@@ -160,7 +160,7 @@ std::string Treenode::infoString() const {
     ss << "\tmaxAspectRatio = " << maxAspectRatio << std::endl;
     ss << "\tlevel = " << level << std::endl;
     ss << "\tparent = " << (parent.use_count() > 0 ? parent.lock().get() : 0) << std::endl;
-    ss << "\thasChildren = " << (hasChildren() ? "true" : "false") << ", children.size() = " << children.size() << std::endl;
+    ss << "\thasKids = " << (hasKids() ? "true" : "false") << ", kids.size() = " << kids.size() << std::endl;
     ss << "\tcoordsContained.size() = " << coordsContained.size() << std::endl;
     if (!coordsContained.empty()) {
         ss << "\tmin coord ind = " << *std::min_element(coordsContained.begin(), coordsContained.end())
@@ -214,19 +214,19 @@ void generateTree(std::shared_ptr<Treenode> node, std::shared_ptr<Coords> crds, 
             //  only add non-empty children
             //
             if (!kidcoords.empty()) {
-                node->children.push_back(std::shared_ptr<Treenode>(new Treenode(kids[i], node, kidcoords, node->maxAspectRatio)));
+                node->kids.push_back(std::shared_ptr<Treenode>(new Treenode(kids[i], node, kidcoords, node->maxAspectRatio)));
             }
         }
         
-        if (node->children.empty()) {
-            OutputMessage errMsg("All children are empty, this shouldn't happen.", OutputMessage::errorPriority, "Treenode::generateTree");
+        if (node->kids.empty()) {
+            OutputMessage errMsg("All kids are empty, this shouldn't happen.", OutputMessage::errorPriority, "Treenode::generateTree");
             node->log->logMessage(errMsg);
             return;
         }
         else {
-            for (int i = 0; i < node->children.size(); ++i) {
-                node->children[i]->shrinkBox(crds);
-                generateTree(node->children[i], crds, maxCoordsPerNode);
+            for (int i = 0; i < node->kids.size(); ++i) {
+                node->kids[i]->shrinkBox(crds);
+                generateTree(node->kids[i], crds, maxCoordsPerNode);
             }
         }
     }
@@ -259,9 +259,9 @@ void writeTreeToVtk(const std::string& filename, const std::string& desc, const 
 
 void writeVTKPoints(std::ofstream& os, const std::shared_ptr<Treenode> node) {
     node->writePoints(os);
-    if (node->hasChildren()) {
-        for (int i = 0; i < node->children.size(); ++i) {
-            writeVTKPoints(os, node->children[i]);
+    if (node->hasKids()) {
+        for (int i = 0; i < node->kids.size(); ++i) {
+            writeVTKPoints(os, node->kids[i]);
         }
     }
 }
@@ -273,27 +273,27 @@ void writeVtkCells(std::ofstream& os, const std::shared_ptr<Treenode> node, inde
     }
     os << std::endl;
     vertIndex += 8;
-    if (node->hasChildren()) {
-        for (int i = 0; i < node->children.size(); ++i) {
-             writeVtkCells(os, node->children[i], vertIndex);
+    if (node->hasKids()) {
+        for (int i = 0; i < node->kids.size(); ++i) {
+             writeVtkCells(os, node->kids[i], vertIndex);
         }
     }
 }
 
 void writeVtkCellType(std::ofstream& os, const std::shared_ptr<Treenode> node) {
     os << "12" << std::endl;
-    if (node->hasChildren()) {
-        for (int i = 0; i < node->children.size(); ++i) {
-            writeVtkCellType(os, node->children[i]);
+    if (node->hasKids()) {
+        for (int i = 0; i < node->kids.size(); ++i) {
+            writeVtkCellType(os, node->kids[i]);
         }
     }
 }
 
 void writeVtkLevelData(std::ofstream& os, const std::shared_ptr<Treenode> node) {
     os << node->level << std::endl;
-    if (node->hasChildren()) {
-        for (int i = 0; i < node->children.size(); ++i) {
-            writeVtkLevelData(os, node->children[i]);
+    if (node->hasKids()) {
+        for (int i = 0; i < node->kids.size(); ++i) {
+            writeVtkLevelData(os, node->kids[i]);
         }
     }
 }
@@ -311,9 +311,9 @@ void Treenode::writePoints(std::ofstream& os) const {
 
 index_type nTreenodes(const std::shared_ptr<Treenode> node) {
     index_type result = 1;
-    if (node->hasChildren()) {
-        for (int i = 0; i < node->children.size(); ++i) {
-            result += nTreenodes(node->children[i]);
+    if (node->hasKids()) {
+        for (int i = 0; i < node->kids.size(); ++i) {
+            result += nTreenodes(node->kids[i]);
         }
     }
     return result;

@@ -54,9 +54,9 @@ int main (int argc, char* argv[]) {
         std::cout << nullnode->infoString();
         std::vector<index_type> inds = {0,1,2,3};
         std::vector<std::shared_ptr<Treenode>> pvec;
-        nullnode->children.push_back(std::shared_ptr<Treenode>(new Treenode(kids[1], nullnode, inds, 1.0)));
+        nullnode->kids.push_back(std::shared_ptr<Treenode>(new Treenode(kids[1], nullnode, inds, 1.0)));
         std::cout << "nullnode child 0: " ;
-        std::cout << nullnode->children[0]->infoString();
+        std::cout << nullnode->kids[0]->infoString();
     
     }
     {
