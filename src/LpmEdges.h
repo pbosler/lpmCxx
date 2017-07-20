@@ -76,8 +76,8 @@ class Edges {
         
         index_type _nMax;
         
-        std::shared_ptr<Coords> crds;
-        std::shared_ptr<Coords> lagCrds;
+        std::weak_ptr<Coords> crds;
+        std::weak_ptr<Coords> lagCrds;
         
         static std::unique_ptr<Logger> log;
 };

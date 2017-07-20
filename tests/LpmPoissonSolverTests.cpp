@@ -107,7 +107,7 @@ int main (int argc, char* argv[]) {
     { // planar tests
     const exact2dpotential exactPotential;
     const radial2dsource source;
-    const PlanarGreensFnFreeBoundaries kernel;
+    std::shared_ptr<ScalarKernel> kernel(new PlanarGreensFnFreeBoundaries);
 
     const scalar_type dradius = 3.0;
     std::vector<scalar_type> triHexTimes(maxRecursion, 0.0);
@@ -159,7 +159,7 @@ int main (int argc, char* argv[]) {
 //             }
             
             PoissonSolverDirectSum solver(pmesh.meshPtr(), pmesh.getFaceFieldPtr("source"), 
-                pmesh.getVertexFieldPtr("potential"), pmesh.getFaceFieldPtr("potential"), &kernel);
+                pmesh.getVertexFieldPtr("potential"), pmesh.getFaceFieldPtr("potential"), kernel);
             solver.solve(mpiVerts, mpiFaces);
             solver.broadcastSolution(mpiVerts, mpiFaces);
             
@@ -223,7 +223,7 @@ int main (int argc, char* argv[]) {
 //             }
             
             PoissonSolverDirectSum solver(pmesh.meshPtr(), pmesh.getFaceFieldPtr("source"), 
-                pmesh.getVertexFieldPtr("potential"), pmesh.getFaceFieldPtr("potential"), &kernel);;
+                pmesh.getVertexFieldPtr("potential"), pmesh.getFaceFieldPtr("potential"), kernel);;
             solver.solve(mpiVerts, mpiFaces);
             solver.broadcastSolution(mpiVerts, mpiFaces);
             
@@ -326,7 +326,7 @@ int main (int argc, char* argv[]) {
     {// spherical tests
         const scalar_type sradius = 1.0;
         sphereHarmonic54 sphHarm;
-        const SphereGreensFn kernel(sradius);
+        std::shared_ptr<ScalarKernel> kernel(new SphereGreensFn(sradius));
         
         std::vector<scalar_type> icosTriTimes(maxRecursion, 0.0);
         std::vector<scalar_type> icosTriLinfFaces(maxRecursion, 0.0);
@@ -380,7 +380,7 @@ int main (int argc, char* argv[]) {
     //             }
             
                 PoissonSolverDirectSum solver(pmesh.meshPtr(), pmesh.getFaceFieldPtr("source"), 
-                    pmesh.getVertexFieldPtr("potential"), pmesh.getFaceFieldPtr("potential"), &kernel);
+                    pmesh.getVertexFieldPtr("potential"), pmesh.getFaceFieldPtr("potential"), kernel);
                 solver.solve(mpiVerts, mpiFaces);
                 solver.broadcastSolution(mpiVerts, mpiFaces);
             
@@ -446,7 +446,7 @@ int main (int argc, char* argv[]) {
     //             }
             
                 PoissonSolverDirectSum solver(pmesh.meshPtr(), pmesh.getFaceFieldPtr("source"), 
-                    pmesh.getVertexFieldPtr("potential"), pmesh.getFaceFieldPtr("potential"), &kernel);
+                    pmesh.getVertexFieldPtr("potential"), pmesh.getFaceFieldPtr("potential"), kernel);
                 solver.solve(mpiVerts, mpiFaces);
                 solver.broadcastSolution(mpiVerts, mpiFaces);
             

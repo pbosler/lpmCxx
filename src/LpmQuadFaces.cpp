@@ -26,6 +26,9 @@ void QuadFaces::divide(const index_type i) {
         log->logMessage(errMsg);
         throw std::runtime_error("mesh logic error");
     }
+    std::shared_ptr<Edges> edge_ptr = edges.lock();
+    std::shared_ptr<Coords> crd_ptr = crds.lock();
+    
     std::vector<std::vector<index_type>> newFaceEdgeInds(4, std::vector<index_type>(4,-1));
     std::vector<std::vector<index_type>> newFaceVertInds(4, std::vector<index_type>(4,-1));
     const std::vector<index_type> newFaceInds = {n(), n() + 1, n() + 2, n() + 3};
@@ -40,32 +43,32 @@ void QuadFaces::divide(const index_type i) {
     for (int j = 0; j < 4; ++j) {
         const index_type parentEdge = _edgeInds[i][j];
         std::pair<index_type, index_type> edgeChildren;
-        if (edges->isDivided(parentEdge)) {
-            edgeChildren = edges->children(parentEdge);
+        if (edge_ptr->isDivided(parentEdge)) {
+            edgeChildren = edge_ptr->children(parentEdge);
         }
         else {
-            edgeChildren.first = edges->n();
-            edgeChildren.second = edges->n() + 1;
+            edgeChildren.first = edge_ptr->n();
+            edgeChildren.second = edge_ptr->n() + 1;
             
-            edges->divide(parentEdge);
+            edge_ptr->divide(parentEdge);
         }
         
         if (edgeIsPositive(i, parentEdge)) {
             newFaceEdgeInds[j][j] = edgeChildren.first;
-            edges->setLeftFace(edgeChildren.first, newFaceInds[j]);
+            edge_ptr->setLeftFace(edgeChildren.first, newFaceInds[j]);
             
             newFaceEdgeInds[(j+1)%4][j] = edgeChildren.second;
-            edges->setLeftFace(edgeChildren.second, newFaceInds[(j+1)%4]);
+            edge_ptr->setLeftFace(edgeChildren.second, newFaceInds[(j+1)%4]);
         }
         else {
             newFaceEdgeInds[j][j] = edgeChildren.second;
-            edges->setRightFace(edgeChildren.second, newFaceInds[j]);
+            edge_ptr->setRightFace(edgeChildren.second, newFaceInds[j]);
             
             newFaceEdgeInds[(j+1)%4][j] = edgeChildren.first;
-            edges->setRightFace(edgeChildren.first, newFaceInds[(j+1)%4]);
+            edge_ptr->setRightFace(edgeChildren.first, newFaceInds[(j+1)%4]);
         }
         
-        const index_type vertInd = edges->dest(edgeChildren.first);
+        const index_type vertInd = edge_ptr->dest(edgeChildren.first);
         newFaceVertInds[j][(j+1)%4] = vertInd;
         newFaceVertInds[(j+1)%4][j] = vertInd; 
     }
@@ -73,13 +76,13 @@ void QuadFaces::divide(const index_type i) {
     //
     //  new interior edges
     //
-    const index_type edgeInsertPoint = edges->n();
-    const index_type crdInsertPoint = crds->n();
+    const index_type edgeInsertPoint = edge_ptr->n();
+    const index_type crdInsertPoint = crd_ptr->n();
     const XyzVector cntd = centroid(i);
-    crds->insert(cntd);
-    if (lagCrds){
+    crd_ptr->insert(cntd);
+    if (!lagCrds.expired()){
         const XyzVector lagCntd = centroid(i, true);
-        lagCrds->insert(lagCntd);
+        lagCrds.lock()->insert(lagCntd);
     }
     for (int j = 0; j < 4; ++j)
         newFaceVertInds[j][(j+2)%4] = crdInsertPoint;
@@ -93,10 +96,10 @@ void QuadFaces::divide(const index_type i) {
     newFaceEdgeInds[3][1] = edgeInsertPoint + 1;
     newFaceEdgeInds[3][0] = edgeInsertPoint + 3;
     
-    edges->insert(newFaceVertInds[0][1], newFaceVertInds[0][2], newFaceInds[0], newFaceInds[1]);
-    edges->insert(newFaceVertInds[3][1], newFaceVertInds[3][2], newFaceInds[3], newFaceInds[2]);
-    edges->insert(newFaceVertInds[1][2], newFaceVertInds[1][3], newFaceInds[1], newFaceInds[2]);
-    edges->insert(newFaceVertInds[0][2], newFaceVertInds[0][3], newFaceInds[0], newFaceInds[3]);
+    edge_ptr->insert(newFaceVertInds[0][1], newFaceVertInds[0][2], newFaceInds[0], newFaceInds[1]);
+    edge_ptr->insert(newFaceVertInds[3][1], newFaceVertInds[3][2], newFaceInds[3], newFaceInds[2]);
+    edge_ptr->insert(newFaceVertInds[1][2], newFaceVertInds[1][3], newFaceInds[1], newFaceInds[2]);
+    edge_ptr->insert(newFaceVertInds[0][2], newFaceVertInds[0][3], newFaceInds[0], newFaceInds[3]);
     
     //
     //  new interior faces
@@ -139,6 +142,7 @@ void QuadFaces::divide(const index_type i) {
             throw std::runtime_error("mesh connectivity error");
         }
     }
+    edge_ptr.reset();
 }
 
 }

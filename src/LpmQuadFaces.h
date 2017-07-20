@@ -13,8 +13,6 @@ namespace Lpm {
 
 class QuadFaces : public Faces {
     public:
-        typedef std::tuple<index_type, index_type, index_type, index_type> quad_index_type;
-        
         QuadFaces(const index_type nMax, const std::shared_ptr<Edges> edge_ptr, const std::shared_ptr<Coords> crd_ptr,
             const std::shared_ptr<Coords> lag_crd_ptr = 0, const bool sim3d = false);
             

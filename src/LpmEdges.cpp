@@ -30,7 +30,7 @@ std::string Edges::edgeRecord(const index_type i) const {
     else {
         ss << ", undivided." << std::endl;
     }
-    ss << "\t\torigCoord = " << crds->getVec(_orig[i]) << ", destCoord = " << crds->getVec(_dest[i]) << std::endl;
+    ss << "\t\torigCoord = " << crds.lock()->getVec(_orig[i]) << ", destCoord = " << crds.lock()->getVec(_dest[i]) << std::endl;
     return ss.str();
 }
 
@@ -43,7 +43,7 @@ index_type Edges::nLeaves() const {
 }
 
 scalar_type Edges::length(const index_type i, const bool lagrangian) const {
-    return (lagrangian ? lagCrds->distance(_orig[i], _dest[i]) : crds->distance(_orig[i], _dest[i]));
+    return (lagrangian ? lagCrds.lock()->distance(_orig[i], _dest[i]) : crds.lock()->distance(_orig[i], _dest[i]));
 }
 
 scalar_type Edges::minLength(const bool lagrangian) const {
@@ -71,37 +71,37 @@ scalar_type Edges::maxLength(const bool lagrangian) const {
 }
 
 XyzVector Edges::midpoint(const index_type i, const bool lagrangian) const {
-    return (lagrangian ? lagCrds->midpoint(_orig[i], _dest[i]) : crds->midpoint(_orig[i], _dest[i]));
+    return (lagrangian ? lagCrds.lock()->midpoint(_orig[i], _dest[i]) : crds.lock()->midpoint(_orig[i], _dest[i]));
 }
 
 XyzVector Edges::origCoord(const index_type i, const bool lagrangian) const {
-    return (lagrangian ? lagCrds->getVec(_orig[i]) : crds->getVec(_orig[i]));
+    return (lagrangian ? lagCrds.lock()->getVec(_orig[i]) : crds.lock()->getVec(_orig[i]));
 }
 
 XyzVector Edges::destCoord(const index_type i, const bool lagrangian) const {
-    return (lagrangian ? lagCrds->getVec(_dest[i]) : crds->getVec(_dest[i]));
+    return (lagrangian ? lagCrds.lock()->getVec(_dest[i]) : crds.lock()->getVec(_dest[i]));
 }
 
 XyzVector Edges::edgeVector(const index_type i, const bool lagrangian) const {
     XyzVector origVec;
     XyzVector destVec;
     if (lagrangian) {
-        origVec = lagCrds->getVec(_orig[i]);
-        destVec = lagCrds->getVec(_dest[i]);
+        origVec = lagCrds.lock()->getVec(_orig[i]);
+        destVec = lagCrds.lock()->getVec(_dest[i]);
     }
     else {
-        origVec = crds->getVec(_orig[i]);
-        destVec = crds->getVec(_dest[i]);
+        origVec = crds.lock()->getVec(_orig[i]);
+        destVec = crds.lock()->getVec(_dest[i]);
     }
     return destVec - origVec;
 }
 
 void Edges::divide(const index_type i) {
     const XyzVector midpt = midpoint(i);
-    const index_type crdInsertPoint = crds->n();
+    const index_type crdInsertPoint = crds.lock()->n();
     const index_type edgeInsertPoint = _orig.size();
     
-    crds->insert(midpt);
+    crds.lock()->insert(midpt);
     
     _child0[i] = edgeInsertPoint;
     _child1[i] = edgeInsertPoint + 1;
@@ -113,9 +113,9 @@ void Edges::divide(const index_type i) {
     insert(crdInsertPoint, _dest[i], _leftFace[i], _rightFace[i]);
     _parent[edgeInsertPoint+1] = i;
     
-    if (lagCrds) {
+    if (!lagCrds.expired()) {
         const XyzVector lagMidpt = this->midpoint(i, true);
-        lagCrds->insert(lagMidpt);
+        lagCrds.lock()->insert(lagMidpt);
     }
 }
 

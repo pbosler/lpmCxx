@@ -66,7 +66,7 @@ class Faces {
         std::string faceRecord(const index_type ind) const;
         
         inline bool edgeIsPositive(const index_type faceInd, const index_type edgeInd) const {
-            return (edges->leftFace(edgeInd) == faceInd); }
+            return (edges.lock()->leftFace(edgeInd) == faceInd); }
             
         bool verifyConnectivity(const index_type i) const;
             
@@ -84,9 +84,9 @@ class Faces {
         std::vector<index_type> _positiveCell;
         std::vector<index_type> _negativeCell;
         
-        std::shared_ptr<Edges> edges;
-        std::shared_ptr<Coords> crds;
-        std::shared_ptr<Coords> lagCrds;
+        std::weak_ptr<Edges> edges;
+        std::weak_ptr<Coords> crds;
+        std::weak_ptr<Coords> lagCrds;
         
         index_type _nMax;
         index_type _nMaxEdges;

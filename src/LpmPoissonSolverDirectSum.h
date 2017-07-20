@@ -18,7 +18,7 @@ class PoissonSolverDirectSum {
     public:
         PoissonSolverDirectSum(const std::shared_ptr<PolyMesh2d>& mesh, const std::shared_ptr<Field>& src, 
             const std::shared_ptr<Field>& vertexPotential, const std::shared_ptr<Field>& facePotential, 
-            const ScalarKernel* kernel) : 
+            const std::shared_ptr<ScalarKernel> kernel) : 
             _faces(mesh->getFaces()), _verts(mesh->getPhysCoords()), _src(src), _vertpot(vertexPotential), 
             _facepot(facePotential), _kernel(kernel) {};
 
@@ -27,12 +27,12 @@ class PoissonSolverDirectSum {
         void broadcastSolution(const MPIReplicatedData& mpiVerts, const MPIReplicatedData& mpiFaces) const;
             
     protected:
-        std::shared_ptr<Coords> _verts;
-        std::shared_ptr<Faces> _faces;
-        std::shared_ptr<Field> _src;
-        std::shared_ptr<Field> _facepot;
-        std::shared_ptr<Field> _vertpot;
-        const ScalarKernel* _kernel;
+        std::weak_ptr<Coords> _verts;
+        std::weak_ptr<Faces> _faces;
+        std::weak_ptr<Field> _src;
+        std::weak_ptr<Field> _facepot;
+        std::weak_ptr<Field> _vertpot;
+        std::shared_ptr<ScalarKernel> _kernel;
 };
 
 }

@@ -45,10 +45,10 @@ std::vector<index_type> Faces::ccwAdjacentFaces(const index_type ind) const {
     std::vector<index_type> edgeList = _edgeInds[ind];
     for (index_type i = 0; i < edgeList.size(); ++i) {
         if (edgeIsPositive(ind, edgeList[i])) {
-            result.push_back(edges->rightFace(edgeList[i]));
+            result.push_back(edges.lock()->rightFace(edgeList[i]));
         }
         else {
-            result.push_back(edges->leftFace(edgeList[i]));
+            result.push_back(edges.lock()->leftFace(edgeList[i]));
         }
     }
     return result;
@@ -61,9 +61,9 @@ scalar_type Faces::surfaceArea() const {
 XyzVector Faces::centroid(const index_type i, const bool lagrangian) const {
     const std::vector<index_type> verts = vertexIndices(i);
     if (lagrangian)
-        return lagCrds->centroid(verts);
+        return lagCrds.lock()->centroid(verts);
     else
-        return crds->centroid(verts);    
+        return crds.lock()->centroid(verts);    
 }
 
 scalar_type Faces::computeArea(const index_type i) {
@@ -71,7 +71,7 @@ scalar_type Faces::computeArea(const index_type i) {
     const std::vector<index_type> verts = vertexIndices(i);
     scalar_type area = 0.0;
     for (index_type j = 0; j < verts.size(); ++j) {
-        area += crds->triArea(cntd, verts[j], verts[(j+1)%verts.size()]);
+        area += crds.lock()->triArea(cntd, verts[j], verts[(j+1)%verts.size()]);
     }
     _area[i] = area;
     return area;
@@ -100,7 +100,7 @@ bool Faces::verifyConnectivity(const index_type i) const {
 //     ss << "Face " << i << ":\n";
     const std::vector<index_type> edgeList = _edgeInds[i];
     for (index_type j = 0; j < edgeList.size(); ++j) {
-        if (!(edges->rightFace(edgeList[j]) == i || edges->leftFace(edgeList[j]) == i) ) {
+        if (!(edges.lock()->rightFace(edgeList[j]) == i || edges.lock()->leftFace(edgeList[j]) == i) ) {
 //             ss << "\tdoes not connect to edge " << edgeList[j] << ", face-relative index " << j << std::endl;
             edgesConnect = false;
         }
@@ -109,12 +109,12 @@ bool Faces::verifyConnectivity(const index_type i) const {
     index_type vert2;
     for (index_type j = 0; j < _edgeInds[i].size(); ++j) {
         if (edgeIsPositive(i, edgeList[j]) ) {
-            verts.push_back(edges->orig(edgeList[j]));
-            vert2 = edges->dest(edgeList[j]);
+            verts.push_back(edges.lock()->orig(edgeList[j]));
+            vert2 = edges.lock()->dest(edgeList[j]);
         }
         else {
-            verts.push_back(edges->dest(edgeList[j]));
-            vert2 = edges->orig(edgeList[j]);
+            verts.push_back(edges.lock()->dest(edgeList[j]));
+            vert2 = edges.lock()->orig(edgeList[j]);
         }
     }
     bool isClosed = (verts[0] == vert2);
@@ -136,7 +136,7 @@ std::string Faces::faceRecord(const index_type ind) const {
     ss << "face record " << ind << ":" << std::endl;
     log->startSection();
     for (index_type j = 0; j < edgeList.size(); ++j)
-        ss << edges->edgeRecord(_edgeInds[ind][j]) << std::endl;
+        ss << edges.lock()->edgeRecord(_edgeInds[ind][j]) << std::endl;
     ss << std::endl;
     log->endSection();
     return ss.str();
@@ -155,10 +155,10 @@ std::vector<index_type> Faces::vertexIndices(const index_type i) const {
     const std::vector<index_type> edgeList(_edgeInds[i]);
     for (index_type j = 0; j < edgeList.size(); ++j) {
         if (edgeIsPositive(i, edgeList[j]) ) {
-            verts.push_back(edges->orig(edgeList[j]));
+            verts.push_back(edges.lock()->orig(edgeList[j]));
         }
         else {
-            verts.push_back(edges->dest(edgeList[j]));
+            verts.push_back(edges.lock()->dest(edgeList[j]));
         }
     }
     return verts;

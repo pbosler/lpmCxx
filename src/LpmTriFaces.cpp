@@ -26,6 +26,9 @@ void TriFaces::divide(const index_type i) {
         log->logMessage(errMsg);
         throw std::runtime_error("mesh logic error");
     }
+    
+    std::shared_ptr<Edges> edge_ptr = edges.lock();
+
     std::vector<std::vector<index_type>> newFaceEdgeInds(4, std::vector<index_type>(3, -1));
     std::vector<std::vector<index_type>> newFaceVertInds(4, std::vector<index_type>(3, -1));
     const std::vector<index_type> newFaceInds = {n(), n() + 1, n() + 2, n() + 3};
@@ -40,32 +43,32 @@ void TriFaces::divide(const index_type i) {
     for (int j = 0; j < 3; ++j) {
         const index_type parentEdge = _edgeInds[i][j];
         std::pair<index_type, index_type> edgeChildren;
-        if (edges->isDivided(parentEdge)) {
-            edgeChildren = edges->children(parentEdge);
+        if (edge_ptr->isDivided(parentEdge)) {
+            edgeChildren = edge_ptr->children(parentEdge);
         }
         else {
-            edgeChildren.first = edges->n();
-            edgeChildren.second = edges->n() + 1;
+            edgeChildren.first = edge_ptr->n();
+            edgeChildren.second = edge_ptr->n() + 1;
             
-            edges->divide(parentEdge);
+            edge_ptr->divide(parentEdge);
         }
         
         if (edgeIsPositive(i, parentEdge) ) {
             newFaceEdgeInds[j][j] = edgeChildren.first;
-            edges->setLeftFace(edgeChildren.first, newFaceInds[j]);
+            edge_ptr->setLeftFace(edgeChildren.first, newFaceInds[j]);
             
             newFaceEdgeInds[(j+1)%3][j] = edgeChildren.second;
-            edges->setLeftFace(edgeChildren.second, newFaceInds[(j+1)%3]);
+            edge_ptr->setLeftFace(edgeChildren.second, newFaceInds[(j+1)%3]);
         }
         else {
             newFaceEdgeInds[j][j] = edgeChildren.second;
-            edges->setRightFace(edgeChildren.second, newFaceInds[j]);
+            edge_ptr->setRightFace(edgeChildren.second, newFaceInds[j]);
             
             newFaceEdgeInds[(j+1)%3][j] = edgeChildren.first;
-            edges->setRightFace(edgeChildren.first, newFaceInds[(j+1)%3]);
+            edge_ptr->setRightFace(edgeChildren.first, newFaceInds[(j+1)%3]);
         }
         
-        const index_type vertInd = edges->dest(edgeChildren.first);
+        const index_type vertInd = edge_ptr->dest(edgeChildren.first);
         if (j == 0) {
             newFaceVertInds[0][1] = vertInd;
             newFaceVertInds[1][0] = vertInd;
@@ -86,14 +89,14 @@ void TriFaces::divide(const index_type i) {
     //
     //  new interior edges
     //
-    const index_type edgeInsertPoint = edges->n();
+    const index_type edgeInsertPoint = edge_ptr->n();
     newFaceEdgeInds[3] = {edgeInsertPoint, edgeInsertPoint + 1, edgeInsertPoint + 2};
     newFaceEdgeInds[0][1] = edgeInsertPoint + 1;
     newFaceEdgeInds[1][2] = edgeInsertPoint + 2;
     newFaceEdgeInds[2][0] = edgeInsertPoint;
-    edges->insert(newFaceVertInds[2][1], newFaceVertInds[2][0], newFaceInds[3], newFaceInds[2]);
-    edges->insert(newFaceVertInds[0][2], newFaceVertInds[0][1], newFaceInds[3], newFaceInds[0]);
-    edges->insert(newFaceVertInds[1][0], newFaceVertInds[1][2], newFaceInds[3], newFaceInds[1]);
+    edge_ptr->insert(newFaceVertInds[2][1], newFaceVertInds[2][0], newFaceInds[3], newFaceInds[2]);
+    edge_ptr->insert(newFaceVertInds[0][2], newFaceVertInds[0][1], newFaceInds[3], newFaceInds[0]);
+    edge_ptr->insert(newFaceVertInds[1][0], newFaceVertInds[1][2], newFaceInds[3], newFaceInds[1]);
     //
     //  new child faces
     //
@@ -135,6 +138,7 @@ void TriFaces::divide(const index_type i) {
             throw std::runtime_error("mesh connectivity error");
         }
     }
+    edge_ptr.reset();
 }
 
 
