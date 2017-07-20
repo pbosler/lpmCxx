@@ -52,3 +52,7 @@ SET_TESTS_PROPERTIES(poissonSolver PROPERTIES TIMEOUT 300)
 ADD_EXECUTABLE(lpmOctreeUnitTest.exe LpmOctreeUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmOctreeUnitTest.exe lpm)
 ADD_TEST(octreeUnitTest COMMAND mpirun -np 1 lpmOctreeUnitTest.exe)
+
+ADD_EXECUTABLE(lpmTaylorSeries3dUnitTest.exe LpmTaylorSeries3dUnitTests.cpp)
+TARGET_LINK_LIBRARIES(lpmTaylorSeries3dUnitTest.exe lpm)
+ADD_TEST(taylorSeries3dTest COMMAND mpirun -np 1 lpmTaylorSeries3dUnitTest.exe)

@@ -1,76 +1,71 @@
 #include "LpmTreeSum.h"
+#include "LpmMultiIndex.h"
+#include "LpmTaylorSeries3d.h"
+#include "LpmOutputMessage.h"
 #include <cmath>
+#include <typeinfo>
+#include <limits>
+#include <exception>
 
 namespace Lpm {
 
-TaylorCoeffs::TaylorCoeffs(const int maxSeriesOrder, const XyzVector& tgtVec, const XyzVector& centroid) {
-    for (int k1 = 0; k1 <= maxSeriesOrder; ++k1) {
-        for (int k2 = 0; k2 <= maxSeriesOrder; ++k2) {
-            for (int k3 = 0; k3 <= maxSeriesOrder; ++k3) {
-                const MultiIndex kInd(k1, k2, k3);
-                if (kInd.magnitude() <= maxSeriesOrder) {
-                    vals.emplace(kInd, 0.0);
+TreeSumNode::TreeSumNode(const std::shared_ptr<Coords> crds, const scalar_type maxAspectRatio, 
+    const std::shared_ptr<ScalarKernel> kernel, const int maxSeriesOrder) :
+    Treenode(crds, maxAspectRatio) {
+    
+    const scalar_type fill_num = std::numeric_limits<scalar_type>::max();
+    
+    if (typeid(*kernel) == typeid(SphereGreensFn) ) {
+        coeffs = std::unique_ptr<TaylorCoeffs>(new SphereGreensCoeffs(maxSeriesOrder));
+        
+        scalarMoments.emplace(MultiIndex(0, 0, 0), fill_num);
+        
+        for (int k1 = 1; k1 <= maxSeriesOrder; ++k1) {
+            scalarMoments.emplace(MultiIndex(k1, 0, 0), fill_num);
+        }
+        for (int k2 = 1; k2 <= maxSeriesOrder; ++k2) {
+            scalarMoments.emplace(MultiIndex(0, k2, 0), fill_num);
+        }
+        for (int k1 = 1; k1 <= maxSeriesOrder; ++k1) {
+            for(int k2 = 1; k2 <= maxSeriesOrder - k1; ++k2) {
+                scalarMoments.emplace(MultiIndex(k1, k2, 0), fill_num);
+            }
+        }
+        
+        for (int k3 = 1; k3 <= maxSeriesOrder; ++k3) {
+            scalarMoments.emplace(MultiIndex(0, 0, k3), fill_num);
+            for (int k1 = 1; k1 <= maxSeriesOrder - k3; ++k1) {
+                scalarMoments.emplace(MultiIndex(k1, 0, k3), fill_num);
+            }
+            for (int k2 = 1; k2 <= maxSeriesOrder - k3; ++k2) {
+                scalarMoments.emplace(MultiIndex(0, k2, k3), fill_num);
+            }
+            for (int k1 = 1; k1 <= maxSeriesOrder - k3; ++k1) {
+                for (int k2 = 1; k2 <= maxSeriesOrder - k3 - k1; ++k2) {
+                    scalarMoments.emplace(MultiIndex(k1, k2, k3), fill_num);
                 }
             }
         }
     }
+    else {
+        OutputMessage errMsg("Unrecognized kernel type.", OutputMessage::errorPriority, "TreeSumNode::TreeSumNode");
+        log->logMessage(errMsg);
+        throw std::invalid_argument("unrecognized kernel type.");
+    }
 };
 
-MultiIndex::vectorPower(const XyzVector& vec) const {
-    return XyzVector(std::pow(vec.x, k1), std::pow(vec.y, k2), std::pow(vec.z, k3));
+void TreeSumNode::computeCoeffs(const XyzVector& tgtVec, const scalar_type param) {
+    const XyzVector cntd = box.centroid();
+    coeffs->computeCoeffs(tgtVec, cntd, param);
 }
 
-TreeSumNode::TreeSumNode(const std::shared_ptr<Coords> crds, const scalar_type maxAspectRatio, const int maxSeriesOrder):
-    Treenode(crds, maxAspectRatio), coeffs(maxSeriesOrder) {
-    for (auto& elem : coeffs.vals) {
-        momentsA.emplace(elem.first, 0.0);
-        momentsB.emplace(elem.first, 0.0);
-        momentsC.emplace(elem.first, 0.0);
+void TreeSumNode::computeMoments(const std::shared_ptr<Coords> crds, const std::shared_ptr<Field> srcStrength) {
+    const XyzVector cntd = box.centroid();
+    const scalar_type moment = 0.0;
+    for (index_type i = 0; i < nCoords(); ++i) {
+        const XyzVector dVec = crds->getVec(coordsContained[i]) - cntd;
     }
 }
 
-TreeSumNode::computeMoments(const std::shared_ptr<Coords> crds, const std::shared_ptr<Field> srcStrength) {
-    const XyzVector cntd = centroid();
-    for (auto& elem : coeffs.vals) {
-        for (index_type j = 0; j < coordsContained.size(); ++j) {
-            const XyzVector srcVec = crds->getVec(coordsContained[j]);
-            const XyzVector momVec = elem.first.vectorPower(srcVec - cntd);
-            
-            momentsA.at(elem.first) += srcStrength->getScalar(coordsContained[j]) * srcVec.x * 
-        }
-    }
-}
-
-
-bool operator < (const MultiIndex& left, const MultiIndex& right) {
-    if (left.k1 != right.k1) 
-        return left.k1 < right.k1;
-    else {
-        if (left.k2 != right.k2)
-            return left.k2 < right.k2;
-        else
-            return left.k3 < right.k3;
-    }
-}
-
-bool operator > (const MultiIndex& left, const MultiIndex& right) {
-    return right < left;
-}
-
-bool operator >= (const MultiIndex& left, const MultiIndex& right) {
-    return !(left < right);
-}
-
-bool operator <= (const MultiIndex& left, const MultiIndex& right) {
-    return !(right < left);
-}
-
-bool operator == (const MultiIndex& left, const MultiIndex& right) {
-    return (left.k1 == right.k1 && left.k2 == right.k2) && left.k3 == right.k3;
-}
-
-bool operator != (const MultiIndex& left, const MultiIndex& right) {
-    return !(left == right);
-}
 
 }
