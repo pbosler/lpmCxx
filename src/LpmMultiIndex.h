@@ -22,8 +22,8 @@ struct MultiIndex {
     
     inline index_type magnitude() const {return k1 + k2 + k3;}
     
-    inline XyzVector vectorPower(const XyzVector& vec) const {
-        return XyzVector(std::pow(vec.x, k1), std::pow(vec.y, k2), std::pow(vec.z, k3));
+    inline scalar_type vectorPower(const XyzVector& vec) const {
+        return std::pow(vec.x, k1) * std::pow(vec.y, k2) * std::pow(vec.z, k3);
     };
     
     inline index_type factorial() const {

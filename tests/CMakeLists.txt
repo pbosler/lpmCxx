@@ -56,3 +56,11 @@ ADD_TEST(octreeUnitTest COMMAND mpirun -np 1 lpmOctreeUnitTest.exe)
 ADD_EXECUTABLE(lpmTaylorSeries3dUnitTest.exe LpmTaylorSeries3dUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmTaylorSeries3dUnitTest.exe lpm)
 ADD_TEST(taylorSeries3dTest COMMAND mpirun -np 1 lpmTaylorSeries3dUnitTest.exe)
+
+ADD_EXECUTABLE(lpmMultiIndexUnitTest.exe LpmMultiIndexUnitTests.cpp)
+TARGET_LINK_LIBRARIES(lpmMultiIndexUnitTest.exe lpm)
+ADD_TEST(multiIndexTest COMMAND mpirun -np 1 lpmMultiIndexUnitTest.exe)
+
+ADD_EXECUTABLE(lpmTreeSumUnitTest.exe LpmTreeSumUnitTests.cpp)
+TARGET_LINK_LIBRARIES(lpmTreeSumUnitTest.exe lpm)
+ADD_TEST(treeSumTest COMMAND mpirun -np 1 lpmTreeSumUnitTest.exe)

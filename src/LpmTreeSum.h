@@ -18,9 +18,9 @@ namespace Lpm {
 
 struct TreeSumNode : public Treenode {
     TreeSumNode(const std::shared_ptr<Coords> crds, const scalar_type maxAspectRatio, 
-        const std::shared_ptr<ScalarKernel> kernel, const int maxSeriesOrder);
+        const ScalarKernel& kernel, const int maxSeriesOrder);
         
-    void computCoeffs(const XyzVector& tgtVec, const scalar_type param = 0.0);
+    void computeCoeffs(const XyzVector& tgtVec, const scalar_type param = 0.0);
     
     void computeMoments(const std::shared_ptr<Coords> crds, const std::shared_ptr<Field> srcStrength);
     void computeMoments(const std::shared_ptr<Coords> crds, const std::shared_ptr<Field> srcVals, 

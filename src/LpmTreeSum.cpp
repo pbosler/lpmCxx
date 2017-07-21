@@ -10,12 +10,12 @@
 namespace Lpm {
 
 TreeSumNode::TreeSumNode(const std::shared_ptr<Coords> crds, const scalar_type maxAspectRatio, 
-    const std::shared_ptr<ScalarKernel> kernel, const int maxSeriesOrder) :
+    const ScalarKernel& kernel, const int maxSeriesOrder) :
     Treenode(crds, maxAspectRatio) {
     
     const scalar_type fill_num = std::numeric_limits<scalar_type>::max();
     
-    if (typeid(*kernel) == typeid(SphereGreensFn) ) {
+    if (typeid(kernel) == typeid(SphereGreensFn) ) {
         coeffs = std::unique_ptr<TaylorCoeffs>(new SphereGreensCoeffs(maxSeriesOrder));
         
         scalarMoments.emplace(MultiIndex(0, 0, 0), fill_num);

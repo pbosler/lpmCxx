@@ -17,11 +17,8 @@
 
 namespace Lpm {
 
-class Particles;
-
 class PolyMesh2d {
     public:
-        typedef std::tuple<index_type, index_type, index_type, index_type> quad_index_type;
         friend class MeshedParticles;
     
         PolyMesh2d(MeshSeed& seed, const int maxRecursionLevel, const bool isLagrangian = false, const scalar_type domainRadius = 1.0,
