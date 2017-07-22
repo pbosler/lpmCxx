@@ -9,49 +9,7 @@
 
 using namespace Lpm;
 
-class SineWave3D : public AnalyticFunction {
-    public:
-        SineWave3D(const int kk, const int ll, const int mm) : k(kk), l(ll), m(mm) {};
-    
-        scalar_type evaluateScalar(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const {
-            return std::sin(2.0 * PI * k * x) * std::sin(2.0 * PI * l * y) * std::sin(2.0 * PI * m * z);
-        };
-        scalar_type evaluateScalar(const XyzVector& crdVec) const {
-            return evaluateScalar(crdVec.x, crdVec.y, crdVec.z);
-        };
-        XyzVector evaluateVector(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const {
-            return XyzVector(0.0, 0.0, 0.0);
-        }
-        XyzVector evaluateVector(const XyzVector& crdVec) const {
-            return XyzVector(0.0, 0.0, 0.0);
-        }
-    protected:
-        
-        int k;
-        int l;
-        int m;
-};
 
-class Gaussian3D : public AnalyticFunction {
-    public:
-        Gaussian3D(const scalar_type b = 1.0) : _b(b) {};
-    
-        scalar_type evaluateScalar(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const {
-            return std::exp(-_b * _b * ( x * x + y* y + z*z ));;
-        };
-        scalar_type evaluateScalar(const XyzVector& crdVec) const {
-            return evaluateScalar(crdVec.x, crdVec.y, crdVec.z);
-        };
-        XyzVector evaluateVector(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const {
-            return XyzVector(0.0, 0.0, 0.0);
-        }
-        XyzVector evaluateVector(const XyzVector& crdVec) const {
-            return XyzVector(0.0, 0.0, 0.0);
-        }
-    protected:
-        
-        scalar_type _b;
-};
 
 int main (int argc, char* argv[] ) {
 

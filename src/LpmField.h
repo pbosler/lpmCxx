@@ -72,6 +72,8 @@ class Field {
         scalar_type minScalarVal() const;
         
         inline void setLogProc(const int rank) {log->setProcRank(rank);}
+        
+        std::string listFieldValues() const;
     
     protected:
         std::vector<scalar_type> comp0;

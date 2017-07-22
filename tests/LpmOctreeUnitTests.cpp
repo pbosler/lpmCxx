@@ -24,7 +24,10 @@ int main (int argc, char* argv[]) {
         std::stringstream ss;
         ss << "Test info: \n \t title: " << "Octree unit tests" << std::endl;
         ss << "\t objectives: " << std::endl;
-        ss << "\t 1. Generate 3d octree for Cartesian points" << std::endl;
+        ss << "\t 1. Verify Box3d class functions" << std::endl;
+        ss << "\t 2. Verify basic Treenode class functions" << std::endl;
+        ss << "\t 3. Generate 3d octree for Cartesian points" << std::endl;
+        ss << "\t 4. Generate 3d octree for spherical points" << std::endl;
         OutputMessage introMsg(ss.str(), OutputMessage::tracePriority, "main");
         log->logMessage(introMsg);
     }
@@ -97,7 +100,9 @@ int main (int argc, char* argv[]) {
         const int nCoordsPerNode = 10;
         std::cout << "calling generateTree..." << std::endl;
         generateTree(tree, ec, nCoordsPerNode);
-        std::cout << "returned from generateTree; nNodes = " << nTreenodes(tree) << std::endl;
+        std::cout << "returned from generateTree:" << std::endl;
+        std::cout << "\t nNodes = " << nTreenodes(tree) << std::endl;
+        std::cout << "\t treeDepth = " << treeDepth(tree) << std::endl;
         
 
         
@@ -110,6 +115,23 @@ int main (int argc, char* argv[]) {
     {
         const int nMax = 5000;
         std::shared_ptr<SphericalCoords> sc(new SphericalCoords(nMax));
+        GeometryType geom = sc->geometry();
+        std::cout << "geometry: " << geom << std::endl;
+        switch (geom) {
+            case PLANAR_GEOMETRY : {
+                std::cout << "planar geometry";
+                break;
+            }
+            case SPHERICAL_SURFACE_GEOMETRY : {
+                std::cout << "spherical surface geometry";
+                break;
+            }
+            case CARTESIAN_3D_GEOMETRY : {
+                std::cout << "Cartesian 3D geometry";
+            }
+        }
+        std::cout << std::endl;
+        
         
         sc->initRandom();
         
@@ -120,10 +142,17 @@ int main (int argc, char* argv[]) {
         const scalar_type maxAspectRatio = 2.0;
         
         std::shared_ptr<Treenode> tree(new Treenode(sc, maxAspectRatio));
+        std::cout << "Root node info: " << tree->infoString();
+        
         
         const int nCoordsPerNode = 20;
         
         generateTree(tree, sc, nCoordsPerNode);
+        std::cout << "returned from generateTree:" << std::endl;
+        std::cout << "\t nNodes = " << nTreenodes(tree) << std::endl;
+        std::cout << "\t treeDepth = " << treeDepth(tree) << std::endl;
+        
+        std::cout << "Root node info: " << tree->infoString();
         
         const std::string fname("sphereOctreeUnitTest.vtk");
         std::stringstream ss;

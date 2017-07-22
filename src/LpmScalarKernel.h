@@ -40,6 +40,22 @@ class SphereGreensFn : public ScalarKernel {
     
 };
 
+class SecondOrderDelta3d : public ScalarKernel {
+    public:
+        SecondOrderDelta3d(const scalar_type eps) : _eps(eps) {};
+        
+        inline scalar_type evaluate(const XyzVector& tgtVec, const XyzVector& srcVec) const {
+            const XyzVector dvec = tgtVec - srcVec;
+            const scalar_type r = dvec.magnitude();
+            const scalar_type expfactor = std::exp(-std::pow(r/_eps, 3));
+            const scalar_type eps3 = std::pow(_eps, 3);
+            return 3.0 * expfactor / (4.0 * PI * eps3);
+        }
+        
+    protected:
+        scalar_type _eps;
+};
+
 }
 
 #endif

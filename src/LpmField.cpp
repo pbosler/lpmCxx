@@ -43,6 +43,32 @@ scalar_type Field::minScalarVal() const {
     return *std::min_element(comp0.begin(), comp0.end());
 }
 
+std::string Field::listFieldValues() const {
+    std::stringstream ss;
+    switch (_nDim) {
+        case (1) : {
+            for (index_type i = 0; i < comp0.size(); ++i) {
+                ss << comp0[i] << std::endl;
+            }
+            break;
+        }
+        case (2) : {
+            for (index_type i = 0; i < comp0.size(); ++i) {
+                const XyzVector vec = XyzVector(comp0[i], comp1[i]);
+                ss << vec << std::endl;
+            }
+            break;
+        }
+        case (3) : {
+            for (index_type i = 0; i < comp0.size(); ++i) {
+                const XyzVector vec = XyzVector(comp0[i], comp1[i], comp2[i]);
+                ss << vec << std::endl;
+            }
+            break;
+        }
+    }
+    return ss.str();
+}
 
 void Field::abs() {
     switch (_nDim) {

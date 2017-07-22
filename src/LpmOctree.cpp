@@ -6,6 +6,9 @@
 #include <sstream>
 #include <algorithm>
 #include <numeric>
+#include <cmath>
+
+#define BOX_PADDING_FACTOR 0.00001
 
 namespace Lpm {
 
@@ -145,7 +148,12 @@ Treenode::Treenode() : box(Box3d()), maxAspectRatio(1.0), level(-1), coordsConta
     parent(std::weak_ptr<Treenode>()), kids(std::vector<std::shared_ptr<Treenode>>()) {}
 
 Treenode::Treenode(const std::shared_ptr<Coords> crds, const scalar_type maxRatio) : 
-    box(crds->minX(), crds->maxX(), crds->minY(), crds->maxY(), crds->minZ(), crds->maxZ()),
+    box(crds->minX() - BOX_PADDING_FACTOR * crds->minX(), 
+        crds->maxX() + BOX_PADDING_FACTOR * crds->maxX(),
+        crds->minY() - BOX_PADDING_FACTOR * crds->minY(), 
+        crds->maxY() + BOX_PADDING_FACTOR * crds->maxY(), 
+        crds->minZ() - BOX_PADDING_FACTOR * crds->minZ(), 
+        crds->maxZ() + BOX_PADDING_FACTOR * crds->maxZ()),
     coordsContained(crds->n(), -1), maxAspectRatio(maxRatio), level(0), 
     parent(std::weak_ptr<Treenode>()), kids(std::vector<std::shared_ptr<Treenode>>()) {
     for (index_type i = 0; i < crds->n(); ++i) {
@@ -296,6 +304,18 @@ void writeVtkLevelData(std::ofstream& os, const std::shared_ptr<Treenode> node) 
             writeVtkLevelData(os, node->kids[i]);
         }
     }
+}
+
+int treeDepth(const std::shared_ptr<Treenode> node) {
+    int result = 0; 
+    if (node->level > result)
+        result = node->level;
+    if (node->hasKids()) {
+        for (int i = 0; i < node->kids.size(); ++i) {
+            result = treeDepth(node->kids[i]);
+        }
+    }
+    return result;
 }
 
 void Treenode::writePoints(std::ofstream& os) const {

@@ -83,6 +83,8 @@ struct Treenode {
     std::string infoString() const;
 };
 
+int treeDepth(const std::shared_ptr<Treenode> node);
+
 index_type nTreenodes(const std::shared_ptr<Treenode> node);
 
 void generateTree(std::shared_ptr<Treenode> node, std::shared_ptr<Coords> crds, const index_type maxCoordsPerNode);
