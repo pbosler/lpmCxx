@@ -13,10 +13,12 @@
 
 namespace Lpm {
 
-class Octree {
+class Tree {
+    Tree(const Coords* crds, const scalar_type maxAspectRatio = 1.0);
+
     struct Node {
         Node();
-        Node(const Coords* crds, const scalar_type maxAspectRatio = 1.0);
+        
         Node(const Box3d& bbox, const Node* pparent = NULL, 
                  const std::vector<index_type>& crdInds = std::vector<index_type>(), const scalar_type maxAspectRatio = 1.0);
 
@@ -40,6 +42,7 @@ class Octree {
     
         std::string infoString() const;
     };
+    
     std::unique_ptr<Node> root;
     static std::unique_ptr<Logger> log;
     inline void setLogProc(const int prank) {log->setProcRank(prank);}
