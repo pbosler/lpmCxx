@@ -24,8 +24,8 @@ class Tree {
 
         index_type nTreenodes(const std::shared_ptr<Treenode> node);
 
-        
-
+        void buildTree(std::unique_ptr<Node> node, const index_type maxCoordsPerNode);
+    
         void writeTreeToVtk(const std::string& filename, const std::string& desc = "", const std::shared_ptr<Treenode> node = NULL);
         void writeVTKPoints(std::ofstream& os, const std::shared_ptr<Treenode> node);
         void writeVtkCells(std::ofstream& os, const std::shared_ptr<Treenode> node, index_type& vertIndex);
@@ -38,9 +38,6 @@ class Tree {
                  const std::vector<index_type>& crdInds = std::vector<index_type>());
             
             inline index_type nCoords() const {return coordsContained.size();}
-    
-            void shrinkBox(const Coords* crds);
-    
             bool hasKids() const {return (!kids.empty());}
     
             void writePoints(std::ofstream& os) const;
@@ -58,7 +55,8 @@ class Tree {
             std::vector<index_type> coordsContained;
         };
         
-        void buildTree(std::unique_ptr<Node> node, const index_type maxCoordsPerNode);
+        void shrinkBox(std::unique_ptr<Node> node);
+        
         
 //         void generate(std::shared_ptr<Treenode> node, std::shared_ptr<Coords> crds, const index_type maxCoordsPerNode);
 

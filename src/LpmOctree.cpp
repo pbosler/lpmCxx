@@ -70,66 +70,6 @@ Tree::Node::Node(const Box3d& bbox, const Node* pparent, const std::vector<index
     }
 }
 
-void generateTree(std::shared_ptr<Treenode> node, std::shared_ptr<Coords> crds, const index_type maxCoordsPerNode) {
-    //
-    //  if node has less than maximum allowed points, we're done
-    //
-    if (node->coordsContained.size() <= maxCoordsPerNode) {
-        return;
-    }
-    else { 
-        // 
-        //   divide node
-        // 
-        bool splitDims[3];
-        int dimcount = 0;
-        const scalar_type edgeThreshold = node->box.longestEdge() / node->maxAspectRatio;
-        for (int i = 0; i < 3; ++i) {
-            if ( node->box.edgeLength(i) >= edgeThreshold ) {
-                splitDims[i] = true;
-                dimcount += 1;
-            }   
-            else {
-                splitDims[i] = false;
-            }
-        }
-        //
-        //  define child boxes
-        //
-        std::vector<Box3d> kids = node->box.bisectAlongDims(splitDims);
-        //std::vector<Box3d> kids = node->box.bisectAll();
-        for (int i = 0; i < kids.size(); ++i) {
-            std::vector<index_type> kidcoords;
-            //
-            //  find coordinates contained by each child
-            //
-            for (index_type j = 0; j < node->coordsContained.size(); ++j) {
-                if (kids[i].containsPoint(crds->getVec(node->coordsContained[j]))) {
-                    kidcoords.push_back(node->coordsContained[j]);
-                }
-            }
-            //
-            //  only add non-empty children
-            //
-            if (!kidcoords.empty()) {
-                node->kids.push_back(std::shared_ptr<Treenode>(new Treenode(kids[i], node, kidcoords)));
-            }
-        }
-        
-        if (node->kids.empty()) {
-            OutputMessage errMsg("All kids are empty, this shouldn't happen.", OutputMessage::errorPriority, "Treenode::generateTree");
-            node->log->logMessage(errMsg);
-            return;
-        }
-        else {
-            for (int i = 0; i < node->kids.size(); ++i) {
-                node->kids[i]->shrinkBox(crds);
-                generateTree(node->kids[i], crds, maxCoordsPerNode);
-            }
-        }
-    }
-}
-
 void Tree::buildTree(std::unique_ptr<Tree::Node> node, const index_type maxCoordsPerNode) {
     if (node->coordsContained.size() <= maxCoordsPerNode) {
         return;
@@ -165,13 +105,13 @@ void Tree::buildTree(std::unique_ptr<Tree::Node> node, const index_type maxCoord
                     kidcoords.push_back(node->coordsContained[j]);
                 }
             }
-            kidcoords.shrink_to_fit();
             if (!kidcoords.empty()) {
+                kidcoords.shrink_to_fit();
                 node->kids.push_back(std::unique_ptr<Node>(new Node(kidboxes[i], node.get(), kidcoords)));
             }
         }
         if (node->kids.empty()) {
-            OutputMessage errMsg("All kids are empty, this shouldn't happen.", OutputMessage::errorPriority, "Treenode::generateTree");
+            OutputMessage errMsg("All kids are empty, this shouldn't happen.", OutputMessage::errorPriority, "Treee::buildTree");
             node->log->logMessage(errMsg);
             return;
         }
@@ -309,12 +249,12 @@ void Tree::shrinkBox(std::unique_ptr<Node> node) {
         if (crdVec.z > zmax)
             zmax = crdVec.z;
     }
-    node->box.xmin = xmin;
-    node->box.xmax = xmax;
-    node->box.ymin = ymin;
-    node->box.ymax = ymax;
-    node->box.zmin = zmin;
-    node->box.zmax = zmax;
+    box.xmin = xmin;
+    box.xmax = xmax;
+    box.ymin = ymin;
+    box.ymax = ymax;
+    box.zmin = zmin;
+    box.zmax = zmax;
 }
 
 }
