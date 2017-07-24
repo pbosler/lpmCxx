@@ -54,32 +54,36 @@ struct Box3d {
     scalar_type zmax;
 };
 
-struct Treenode {
-    Treenode();
-    Treenode(const std::shared_ptr<Coords> crds, const scalar_type maxAspectRatio = 1.0);
-    Treenode(const Box3d& bbox, const std::shared_ptr<Treenode> pparent = NULL, 
-             const std::vector<index_type>& crdInds = std::vector<index_type>(), const scalar_type maxAspectRatio = 1.0);
+class Octree {
+    struct Node {
+        Node();
+        Node(const Coords* crds, const scalar_type maxAspectRatio = 1.0);
+        Node(const Box3d& bbox, const Node* pparent = NULL, 
+                 const std::vector<index_type>& crdInds = std::vector<index_type>(), const scalar_type maxAspectRatio = 1.0);
 
-    Box3d box;
-    scalar_type maxAspectRatio;
-    int level;
-    /// ptr to parent
-    std::weak_ptr<Treenode> parent;
-    /// ptrs to child boxes
-    std::vector<std::shared_ptr<Treenode>> kids;
-    std::vector<index_type> coordsContained;
+        Box3d box;
+        scalar_type maxAspectRatio;
+        int level;
+        /// ptr to parent
+        Node* parent;
+        /// ptrs to child boxes
+        std::vector<std::unique_ptr_ptr<Node>> kids;
+        std::vector<index_type> coordsContained;
     
-    inline index_type nCoords() const {return coordsContained.size();}
+        inline index_type nCoords() const {return coordsContained.size();}
     
-    void shrinkBox(const std::shared_ptr<Coords>& crds);
+        void shrinkBox(const Coords* crds);
     
-    bool hasKids() const {return (!kids.empty());}
+        bool hasKids() const {return (!kids.empty());}
     
-    void writePoints(std::ofstream& os) const;
+        void writePoints(std::ofstream& os) const;
+        inline void setLogProc(const int prank) {log->setProcRank(prank);}
     
+        std::string infoString() const;
+    };
+    std::unique_ptr<Node> root;
     static std::unique_ptr<Logger> log;
     inline void setLogProc(const int prank) {log->setProcRank(prank);}
-    
     std::string infoString() const;
 };
 
