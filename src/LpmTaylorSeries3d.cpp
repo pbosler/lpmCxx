@@ -180,6 +180,41 @@ void SecondOrderDelta3dSeries::computeCoeffs(const XyzVector& tgtVec, const XyzV
         3.0 * baseval * dvec.y * dvec.z / (r * param3);
 }
 
+void SphereDeltaSeries::computeCoeffs(const XyzVector& tgtVec, const XyzVector& srcVec, const scalar_type param) {
+    const scalar_type bkgrnd = 1.0 / (4.0 * PI);
+    const scalar_type dotProd = tgtVec.dotProduct(srcVec);
+    const scalar_type distsq = 1.0 - dotProd;
+    const scalar_type eps2 = param * param;
+    const scalar_type epsdistsq = distsq + eps2;
+    const scalar_type baseval = (2.0 * eps2 * dotProd - distsq * distsq ) / (4.0 * PI * epsdistsq * epsdistsq);
+    
+    coeffs.at(MultiIndex(0,0,0)) = baseval - bkgrnd;
+    coeffs.at(MultiIndex(1,0,0)) = 2.0 * tgtVec.x * (eps2 + distsq) / (4.0 * PI * epsdistsq * epsdistsq) +
+        tgtVec.x * (-distsq * distsq + 2.0 * eps2 * dotProd) / (2.0 * PI * epsdistsq * epsdistsq * epsdistsq);
+    coeffs.at(MultiIndex(0,1,0)) = 2.0 * tgtVec.y * (eps2 + distsq) / (4.0 * PI * epsdistsq * epsdistsq) +
+        tgtVec.y * (-distsq * distsq + 2.0 * eps2 * dotProd) / (2.0 * PI * epsdistsq * epsdistsq * epsdistsq);
+    coeffs.at(MultiIndex(0,0,1)) = 2.0 * tgtVec.z * (eps2 + distsq) / (4.0 * PI * epsdistsq * epsdistsq) +
+        tgtVec.z * (-distsq * distsq + 2.0 * eps2 * dotProd) / (2.0 * PI * epsdistsq * epsdistsq * epsdistsq);
+    coeffs.at(MultiIndex(2,0,0)) = (-2.0 * tgtVec.x * tgtVec.x / epsdistsq / epsdistsq + 8.0 * tgtVec.x * tgtVec.x * 
+        (eps2 + distsq) / (epsdistsq * epsdistsq * epsdistsq) + 6.0 * tgtVec.x * tgtVec.x * (2.0 * eps2 * dotProd -
+        distsq * distsq) / std::pow(epsdistsq, 4)) / (8.0 * PI);
+    coeffs.at(MultiIndex(0,2,0)) = (-2.0 * tgtVec.y * tgtVec.y / epsdistsq / epsdistsq + 8.0 * tgtVec.y * tgtVec.y * 
+        (eps2 + distsq) / (epsdistsq * epsdistsq * epsdistsq) + 6.0 * tgtVec.y * tgtVec.y * (2.0 * eps2 * dotProd -
+        distsq * distsq) / std::pow(epsdistsq, 4)) / (8.0 * PI);
+    coeffs.at(MultiIndex(0,0,2)) = (-2.0 * tgtVec.z * tgtVec.z / epsdistsq / epsdistsq + 8.0 * tgtVec.z * tgtVec.z * 
+        (eps2 + distsq) / (epsdistsq * epsdistsq * epsdistsq) + 6.0 * tgtVec.z * tgtVec.z * (2.0 * eps2 * dotProd -
+        distsq * distsq) / std::pow(epsdistsq, 4)) / (8.0 * PI);
+    coeffs.at(MultiIndex(1,1,0)) = - tgtVec.x * tgtVec.y / (2.0 * PI * epsdistsq * epsdistsq) +
+        2.0 * tgtVec.y * tgtVec.x * (eps2 + distsq) / (PI * epsdistsq * epsdistsq * epsdistsq) +
+        3.0 * tgtVec.x * tgtVec.y * (2.0 * eps2 * dotProd - distsq * distsq) / (2.0 * PI * std::pow(epsdistsq, 4));
+    coeffs.at(MultiIndex(1,0,1)) = - tgtVec.x * tgtVec.z / (2.0 * PI * epsdistsq * epsdistsq) +
+        2.0 * tgtVec.z * tgtVec.x * (eps2 + distsq) / (PI * epsdistsq * epsdistsq * epsdistsq) +
+        3.0 * tgtVec.x * tgtVec.z * (2.0 * eps2 * dotProd - distsq * distsq) / (2.0 * PI * std::pow(epsdistsq, 4));
+    coeffs.at(MultiIndex(0,1,1)) = - tgtVec.y * tgtVec.z / (2.0 * PI * epsdistsq * epsdistsq) +
+        2.0 * tgtVec.z * tgtVec.y * (eps2 + distsq) / (PI * epsdistsq * epsdistsq * epsdistsq) +
+        3.0 * tgtVec.y * tgtVec.z * (2.0 * eps2 * dotProd - distsq * distsq) / (2.0 * PI * std::pow(epsdistsq, 4));
+    
+}
 
 }
 

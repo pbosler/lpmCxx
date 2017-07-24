@@ -12,8 +12,8 @@ class ScalarKernel {
     public:
         virtual ~ScalarKernel() {};
         virtual scalar_type evaluate(const XyzVector& tgtLoc, const XyzVector& srcLoc) const = 0;
+        virtual bool isSingular() const = 0;
     
-    protected:
 };
 
 class PlanarGreensFnFreeBoundaries : public ScalarKernel {
@@ -24,6 +24,8 @@ class PlanarGreensFnFreeBoundaries : public ScalarKernel {
             const XyzVector interactionVector = tgtLoc - srcLoc;
             return std::log( interactionVector.magnitudeSquared()) / (4.0 * PI);
         }
+        
+        inline bool isSingular() const {return true;}
 };
 
 class SphereGreensFn : public ScalarKernel {
@@ -34,6 +36,8 @@ class SphereGreensFn : public ScalarKernel {
             const scalar_type inarg = _radius * _radius - srcLoc.dotProduct(tgtLoc);
             return -std::log(inarg) / (4.0 * PI * _radius);
         }
+        
+        inline bool isSingular() const {return true;}
         
     protected:
         scalar_type _radius;
@@ -52,6 +56,25 @@ class SecondOrderDelta3d : public ScalarKernel {
             return 3.0 * expfactor / (4.0 * PI * eps3);
         }
         
+        inline bool isSingular() const {return false;}
+        
+    protected:
+        scalar_type _eps;
+};
+
+class SphereDelta : public ScalarKernel {
+    public:
+        SphereDelta(const scalar_type eps) : _eps(eps) {};
+    
+        inline scalar_type evaluate(const XyzVector& tgtVec, const XyzVector& srcVec) const {
+            static const scalar_type bkgrnd = 1.0 / (4.0 * PI);
+            const scalar_type dotProd = tgtVec.dotProduct(srcVec);
+            const scalar_type numer = 2.0 * _eps * _eps * dotProd - (1.0 - dotProd) * (1.0 - dotProd);
+            const scalar_type denom = 4.0 * PI * (1.0 - dotProd + _eps * _eps) * (1.0 - dotProd + _eps * _eps);
+            return numer / denom - bkgrnd;
+        }    
+        
+        inline bool isSingular() const {return false;}
     protected:
         scalar_type _eps;
 };

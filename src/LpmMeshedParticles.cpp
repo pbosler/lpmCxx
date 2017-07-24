@@ -79,45 +79,51 @@ void MeshedParticles::initializeFaceFieldWithFunction(const std::string& fieldNa
 
 std::shared_ptr<Field> MeshedParticles::getVertexFieldPtr(const std::string& fieldName){
     std::shared_ptr<Field> result;
-    try {
-        result = _vertexFieldMap.at(fieldName);
-    }
-    catch (std::out_of_range& oor) {
-        std::stringstream ss;
-        ss << "vertex field '" << fieldName << "' not registered, caught std::out_of_range() exception.";
+    if (!fieldName.empty()) {
+        try {
+            result = _vertexFieldMap.at(fieldName);
+        }
+        catch (std::out_of_range& oor) {
+            std::stringstream ss;
+            ss << "vertex field '" << fieldName << "' not registered, caught std::out_of_range() exception.";
         
-        OutputMessage warnMsg(ss.str(), OutputMessage::warningPriority, "MeshedParticles::getVertexFieldPtr");
-        log->logMessage(warnMsg);
+            OutputMessage warnMsg(ss.str(), OutputMessage::warningPriority, "MeshedParticles::getVertexFieldPtr");
+            log->logMessage(warnMsg);
+        }
     }
     return result;
 }
 
 std::shared_ptr<Field> MeshedParticles::getEdgeFieldPtr(const std::string& fieldName){
     std::shared_ptr<Field> result;
-    try {
-        result = _edgeFieldMap.at(fieldName);
-    }
-    catch (std::out_of_range& oor) {
-        std::stringstream ss;
-        ss << "edge field '" << fieldName << "' not registered, caught std::out_of_range() exception.";
+    if (!fieldName.empty()) {
+        try {
+            result = _edgeFieldMap.at(fieldName);
+        }
+        catch (std::out_of_range& oor) {
+            std::stringstream ss;
+            ss << "edge field '" << fieldName << "' not registered, caught std::out_of_range() exception.";
         
-        OutputMessage warnMsg(ss.str(), OutputMessage::warningPriority, "MeshedParticles::getEdgeFieldPtr");
-        log->logMessage(warnMsg);
+            OutputMessage warnMsg(ss.str(), OutputMessage::warningPriority, "MeshedParticles::getEdgeFieldPtr");
+            log->logMessage(warnMsg);
+        }
     }
     return result;
 }
 
 std::shared_ptr<Field> MeshedParticles::getFaceFieldPtr(const std::string& fieldName){
     std::shared_ptr<Field> result;
-    try {
-        result = _faceFieldMap.at(fieldName);
-    }
-    catch (std::out_of_range& oor) {
-        std::stringstream ss;
-        ss << "face field '" << fieldName << "' not registered, caught std::out_of_range() exception.";
+    if (!fieldName.empty()) {
+        try {
+            result = _faceFieldMap.at(fieldName);
+        }
+        catch (std::out_of_range& oor) {
+            std::stringstream ss;
+            ss << "face field '" << fieldName << "' not registered, caught std::out_of_range() exception.";
         
-        OutputMessage warnMsg(ss.str(), OutputMessage::warningPriority, "MeshedParticles::getFaceFieldPtr");
-        log->logMessage(warnMsg);
+            OutputMessage warnMsg(ss.str(), OutputMessage::warningPriority, "MeshedParticles::getFaceFieldPtr");
+            log->logMessage(warnMsg);
+        }
     }
     return result;
 }

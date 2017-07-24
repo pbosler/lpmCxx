@@ -2,11 +2,12 @@
 #include "LpmTypeDefs.h"
 #include "LpmOutputMessage.h"
 #include "LpmLogger.h"
+#include "LpmAnalyticFunctions.h"
 #include "LpmParticles.h"
 #include "LpmMeshedParticles.h"
 #include "LpmPolyMesh2d.h"
 #include "LpmMPIReplicatedData.h"
-#include "LpmPoissonSolverDirectSum.h"
+#include "LpmDirectSum.h"
 #include "LpmTimer.h"
 #include "LpmScalarKernel.h"
 #include <iostream>
@@ -19,69 +20,6 @@
 using namespace Lpm;
 
 scalar_type appxConvergenceRate(const scalar_type dx1, const scalar_type err1, const scalar_type dx2, const scalar_type err2);
-
-class radial2dsource : public AnalyticFunction {
-    public:
-        radial2dsource() {};
-    
-        scalar_type evaluateScalar(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const {
-            const scalar_type rr = std::sqrt(x*x + y*y);
-            const scalar_type rrdenom = rr / (ZERO_TOL * ZERO_TOL + rr * rr);
-            return (std::abs(rr) <= 1.0 ? -0.5 * PI * (std::sin(PI * rr) * rrdenom + PI * std::cos(PI * rr)) : 0.0);
-        };
-        scalar_type evaluateScalar(const XyzVector& crdVec) const {
-            return evaluateScalar(crdVec.x, crdVec.y);
-        };
-        XyzVector evaluateVector(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const {
-            return XyzVector(0.0, 0.0, 0.0);
-        }
-        XyzVector evaluateVector(const XyzVector& crdVec) const {
-            return XyzVector(0.0, 0.0, 0.0);
-        }
-}; 
-
-class exact2dpotential : public AnalyticFunction {
-    public:
-        exact2dpotential() {};
-        
-        scalar_type evaluateScalar(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const {
-            const scalar_type rr = std::sqrt(x*x + y*y);
-            return (std::abs(rr) <= 1.0 ? 0.5 * (1.0 + std::cos(PI * rr)) : 0.0);
-        };
-        scalar_type evaluateScalar(const XyzVector& crdVec) const {
-            return evaluateScalar(crdVec.x, crdVec.y);
-        };
-        XyzVector evaluateVector(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const {
-            return XyzVector(0.0, 0.0, 0.0);
-        }
-        XyzVector evaluateVector(const XyzVector& crdVec) const {
-            return XyzVector(0.0, 0.0, 0.0);
-        }
-};
-
-class sphereHarmonic54 : public AnalyticFunction {
-    public:
-        sphereHarmonic54() {}
-        
-        scalar_type evaluateScalar(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const {
-            const scalar_type lon = longitude(x, y);
-            return 30.0 * std::cos(4.0 * lon) * legendre54(z);
-        }
-        
-        scalar_type evaluateScalar(const XyzVector& crdVec) const {
-            return evaluateScalar(crdVec.x, crdVec.y, crdVec.z);
-        };
-        XyzVector evaluateVector(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const {
-            return XyzVector(0.0, 0.0, 0.0);
-        }
-        XyzVector evaluateVector(const XyzVector& crdVec) const {
-            return XyzVector(0.0, 0.0, 0.0);
-        }
-        
-        inline scalar_type legendre54(const scalar_type& z) const {
-            return z * (z * z - 1.0) * (z * z - 1.0);
-        }
-};
 
 int main (int argc, char* argv[]) {
     int mpiErrCode;
@@ -103,7 +41,7 @@ int main (int argc, char* argv[]) {
     OutputMessage statusMsg(ss.str(), OutputMessage::tracePriority, "main");
     log->logMessage(statusMsg);
     
-    const int maxRecursion = 3;
+    const int maxRecursion = 6;
     { // planar tests
     const exact2dpotential exactPotential;
     const radial2dsource source;
@@ -133,56 +71,51 @@ int main (int argc, char* argv[]) {
             Timer timer(ss.str());
             timer.start();
             
-            MeshedParticles pmesh(*mSeed, k, false, dradius, procRank);
+            std::shared_ptr<MeshedParticles> pmesh(new MeshedParticles(*mSeed, k, false, dradius, procRank));
             
-            pmesh.createVertexField("source", "n/a", 1);
-            pmesh.createVertexField("potential", "n/a", 1);
-            pmesh.createVertexField("exactPotential", "n/a", 1);
-            pmesh.createVertexField("vertexError", "n/a", 1);
+            pmesh->createVertexField("source", "n/a", 1);
+            pmesh->createVertexField("potential", "n/a", 1);
+            pmesh->createVertexField("exactPotential", "n/a", 1);
+            pmesh->createVertexField("vertexError", "n/a", 1);
             
-            pmesh.initializeVertexFieldWithFunction("source", &source);
-            pmesh.initializeVertexFieldWithFunction("exactPotential", &exactPotential);
+            pmesh->initializeVertexFieldWithFunction("source", &source);
+            pmesh->initializeVertexFieldWithFunction("exactPotential", &exactPotential);
             
-            pmesh.createFaceField("source", "n/a", 1);
-            pmesh.createFaceField("potential", "n/a", 1);
-            pmesh.createFaceField("exactPotential", "n/a", 1);
-            pmesh.createFaceField("faceError", "n/a", 1);
+            pmesh->createFaceField("source", "n/a", 1);
+            pmesh->createFaceField("potential", "n/a", 1);
+            pmesh->createFaceField("exactPotential", "n/a", 1);
+            pmesh->createFaceField("faceError", "n/a", 1);
             
-            pmesh.initializeFaceFieldWithFunction("source", &source);
-            pmesh.initializeFaceFieldWithFunction("exactPotential", &exactPotential);
+            pmesh->initializeFaceFieldWithFunction("source", &source);
+            pmesh->initializeFaceFieldWithFunction("exactPotential", &exactPotential);
             
-            MPIReplicatedData mpiVerts(pmesh.nVertices(), procRank, numProcs);
-            MPIReplicatedData mpiFaces(pmesh.nFaces(), procRank, numProcs);
-//             if (procRank == 0) {
-//                 OutputMessage mpiMsg(mpiFaces.infoString(), OutputMessage::tracePriority, "main");
-//                 log->logMessage(mpiMsg);
-//             }
+            MPIReplicatedData mpiVerts(pmesh->nVertices(), procRank, numProcs);
+            MPIReplicatedData mpiFaces(pmesh->nFaces(), procRank, numProcs);
             
-            PoissonSolverDirectSum solver(pmesh.meshPtr(), pmesh.getFaceFieldPtr("source"), 
-                pmesh.getVertexFieldPtr("potential"), pmesh.getFaceFieldPtr("potential"), kernel);
-            solver.solve(mpiVerts, mpiFaces);
-            solver.broadcastSolution(mpiVerts, mpiFaces);
+            DirectSum solver(pmesh, kernel, "potential", "source");
+            solver.meshSolve(mpiVerts, mpiFaces);
+            solver.meshBroadcast(mpiVerts, mpiFaces);
             
-            pmesh.getVertexFieldPtr("vertexError")->update(1.0, pmesh.getVertexFieldPtr("potential"), 
-                                                          -1.0, pmesh.getVertexFieldPtr("exactPotential"));
-            pmesh.getVertexFieldPtr("vertexError")->abs();
+            pmesh->getVertexFieldPtr("vertexError")->update(1.0, pmesh->getVertexFieldPtr("potential"), 
+                                                          -1.0, pmesh->getVertexFieldPtr("exactPotential"));
+            pmesh->getVertexFieldPtr("vertexError")->abs();
             
-            pmesh.getFaceFieldPtr("faceError")->update(1.0, pmesh.getFaceFieldPtr("potential"),
-                                                      -1.0, pmesh.getFaceFieldPtr("exactPotential"));
-            pmesh.getFaceFieldPtr("faceError")->abs();
+            pmesh->getFaceFieldPtr("faceError")->update(1.0, pmesh->getFaceFieldPtr("potential"),
+                                                      -1.0, pmesh->getFaceFieldPtr("exactPotential"));
+            pmesh->getFaceFieldPtr("faceError")->abs();
             
             if (procRank == 0 ) {
                 ss.str(std::string());
                 ss << "poissonTest_triHex" << k << ".vtk";
-                pmesh.writeToVtkFile(ss.str(), "2d Poisson sovler test, free boundaries");
+                pmesh->writeToVtkFile(ss.str(), "2d Poisson sovler test, free boundaries");
             }
             timer.end();
             OutputMessage timerMsg(timer.infoString(), OutputMessage::tracePriority, "main");
             log->logMessage(timerMsg);
             triHexTimes[k] = timer.elapsed();
-            triHexLinfVerts[k] = pmesh.getVertexFieldPtr("vertexError")->maxScalarVal();
-            triHexLinfFaces[k] = pmesh.getFaceFieldPtr("faceError")->maxScalarVal();
-            triHexAvgMeshSize[k] = pmesh.meshPtr()->avgMeshSize();  
+            triHexLinfVerts[k] = pmesh->getVertexFieldPtr("vertexError")->maxScalarVal();
+            triHexLinfFaces[k] = pmesh->getFaceFieldPtr("faceError")->maxScalarVal();
+            triHexAvgMeshSize[k] = pmesh->meshPtr()->avgMeshSize();  
         }
 
     }
@@ -197,57 +130,52 @@ int main (int argc, char* argv[]) {
             Timer timer(ss.str());
             timer.start();
             
-            MeshedParticles pmesh(mSeed, k, false, dradius, procRank);
+            std::shared_ptr<MeshedParticles> pmesh(new MeshedParticles(mSeed, k, false, dradius, procRank));
             
-            pmesh.createVertexField("source", "n/a", 1);
-            pmesh.createVertexField("potential", "n/a", 1);
-            pmesh.createVertexField("exactPotential", "n/a", 1);
-            pmesh.createVertexField("vertexError", "n/a", 1);
+            pmesh->createVertexField("source", "n/a", 1);
+            pmesh->createVertexField("potential", "n/a", 1);
+            pmesh->createVertexField("exactPotential", "n/a", 1);
+            pmesh->createVertexField("vertexError", "n/a", 1);
             
-            pmesh.initializeVertexFieldWithFunction("source", &source);
-            pmesh.initializeVertexFieldWithFunction("exactPotential", &exactPotential);
+            pmesh->initializeVertexFieldWithFunction("source", &source);
+            pmesh->initializeVertexFieldWithFunction("exactPotential", &exactPotential);
             
-            pmesh.createFaceField("source", "n/a", 1);
-            pmesh.createFaceField("potential", "n/a", 1);
-            pmesh.createFaceField("exactPotential", "n/a", 1);
-            pmesh.createFaceField("faceError", "n/a", 1);
+            pmesh->createFaceField("source", "n/a", 1);
+            pmesh->createFaceField("potential", "n/a", 1);
+            pmesh->createFaceField("exactPotential", "n/a", 1);
+            pmesh->createFaceField("faceError", "n/a", 1);
             
-            pmesh.initializeFaceFieldWithFunction("source", &source);
-            pmesh.initializeFaceFieldWithFunction("exactPotential", &exactPotential);
+            pmesh->initializeFaceFieldWithFunction("source", &source);
+            pmesh->initializeFaceFieldWithFunction("exactPotential", &exactPotential);
             
-            MPIReplicatedData mpiVerts(pmesh.nVertices(), procRank, numProcs);
-            MPIReplicatedData mpiFaces(pmesh.nFaces(), procRank, numProcs);
-//             if (procRank == 0) {
-//                 OutputMessage mpiMsg(mpiFaces.infoString(), OutputMessage::tracePriority, "main");
-//                 log->logMessage(mpiMsg);
-//             }
+            MPIReplicatedData mpiVerts(pmesh->nVertices(), procRank, numProcs);
+            MPIReplicatedData mpiFaces(pmesh->nFaces(), procRank, numProcs);
             
-            PoissonSolverDirectSum solver(pmesh.meshPtr(), pmesh.getFaceFieldPtr("source"), 
-                pmesh.getVertexFieldPtr("potential"), pmesh.getFaceFieldPtr("potential"), kernel);;
-            solver.solve(mpiVerts, mpiFaces);
-            solver.broadcastSolution(mpiVerts, mpiFaces);
+            DirectSum solver(pmesh, kernel, "potential", "source");
+            solver.meshSolve(mpiVerts, mpiFaces);
+            solver.meshBroadcast(mpiVerts, mpiFaces);
             
-            pmesh.getVertexFieldPtr("vertexError")->update(1.0, pmesh.getVertexFieldPtr("potential"), 
-                                                          -1.0, pmesh.getVertexFieldPtr("exactPotential"));
-            pmesh.getVertexFieldPtr("vertexError")->abs();
+            pmesh->getVertexFieldPtr("vertexError")->update(1.0, pmesh->getVertexFieldPtr("potential"), 
+                                                          -1.0, pmesh->getVertexFieldPtr("exactPotential"));
+            pmesh->getVertexFieldPtr("vertexError")->abs();
             
-            pmesh.getFaceFieldPtr("faceError")->update(1.0, pmesh.getFaceFieldPtr("potential"),
-                                                      -1.0, pmesh.getFaceFieldPtr("exactPotential"));
-            pmesh.getFaceFieldPtr("faceError")->abs();
+            pmesh->getFaceFieldPtr("faceError")->update(1.0, pmesh->getFaceFieldPtr("potential"),
+                                                      -1.0, pmesh->getFaceFieldPtr("exactPotential"));
+            pmesh->getFaceFieldPtr("faceError")->abs();
             
             if (procRank == 0) {
                 ss.str(std::string());
                 ss << "poissonTest_quadRect" << k << ".vtk";
-                pmesh.writeToVtkFile(ss.str(), "2d Poisson sovler test, free boundaries");
+                pmesh->writeToVtkFile(ss.str(), "2d Poisson sovler test, free boundaries");
             }
             
             timer.end();
             OutputMessage timerMsg(timer.infoString(), OutputMessage::tracePriority, "main");
             log->logMessage(timerMsg);
             quadRectTimes[k] = timer.elapsed();
-            quadRectLinfVerts[k] = pmesh.getVertexFieldPtr("vertexError")->maxScalarVal();
-            quadRectLinfFaces[k] = pmesh.getFaceFieldPtr("faceError")->maxScalarVal();
-            quadRectAvgMeshSize[k] = pmesh.meshPtr()->avgMeshSize();
+            quadRectLinfVerts[k] = pmesh->getVertexFieldPtr("vertexError")->maxScalarVal();
+            quadRectLinfFaces[k] = pmesh->getFaceFieldPtr("faceError")->maxScalarVal();
+            quadRectAvgMeshSize[k] = pmesh->meshPtr()->avgMeshSize();
         }
     }
     
@@ -352,58 +280,57 @@ int main (int argc, char* argv[]) {
                 Timer timer(ss.str());
                 timer.start();
             
-                MeshedParticles pmesh(*mSeed, k, false, sradius);
+                std::shared_ptr<MeshedParticles> pmesh(new MeshedParticles(*mSeed, k, false, sradius, procRank));
             
-                pmesh.createVertexField("source", "n/a", 1);
-                pmesh.createVertexField("potential", "n/a", 1);
-                pmesh.createVertexField("exactPotential", "n/a", 1);
-                pmesh.createVertexField("vertexError", "n/a", 1);
+                pmesh->createVertexField("source", "n/a", 1);
+                pmesh->createVertexField("potential", "n/a", 1);
+                pmesh->createVertexField("exactPotential", "n/a", 1);
+                pmesh->createVertexField("vertexError", "n/a", 1);
             
-                pmesh.initializeVertexFieldWithFunction("source", &sphHarm);
-                pmesh.initializeVertexFieldWithFunction("exactPotential", &sphHarm);
-                pmesh.getVertexFieldPtr("exactPotential")->scale(1.0 / 30.0);
+                pmesh->initializeVertexFieldWithFunction("source", &sphHarm);
+                pmesh->initializeVertexFieldWithFunction("exactPotential", &sphHarm);
+                pmesh->getVertexFieldPtr("exactPotential")->scale(1.0 / 30.0);
             
-                pmesh.createFaceField("source", "n/a", 1);
-                pmesh.createFaceField("potential", "n/a", 1);
-                pmesh.createFaceField("exactPotential", "n/a", 1);
-                pmesh.createFaceField("faceError", "n/a", 1);
+                pmesh->createFaceField("source", "n/a", 1);
+                pmesh->createFaceField("potential", "n/a", 1);
+                pmesh->createFaceField("exactPotential", "n/a", 1);
+                pmesh->createFaceField("faceError", "n/a", 1);
             
-                pmesh.initializeFaceFieldWithFunction("source", &sphHarm);
-                pmesh.initializeFaceFieldWithFunction("exactPotential", &sphHarm);
-                pmesh.getFaceFieldPtr("exactPotential")->scale(1.0 / 30.0);
+                pmesh->initializeFaceFieldWithFunction("source", &sphHarm);
+                pmesh->initializeFaceFieldWithFunction("exactPotential", &sphHarm);
+                pmesh->getFaceFieldPtr("exactPotential")->scale(1.0 / 30.0);
             
-                MPIReplicatedData mpiVerts(pmesh.nVertices(), procRank, numProcs);
-                MPIReplicatedData mpiFaces(pmesh.nFaces(), procRank, numProcs);
+                MPIReplicatedData mpiVerts(pmesh->nVertices(), procRank, numProcs);
+                MPIReplicatedData mpiFaces(pmesh->nFaces(), procRank, numProcs);
     //             if (procRank == 0) {
     //                 OutputMessage mpiMsg(mpiFaces.infoString(), OutputMessage::tracePriority, "main");
     //                 log->logMessage(mpiMsg);
     //             }
             
-                PoissonSolverDirectSum solver(pmesh.meshPtr(), pmesh.getFaceFieldPtr("source"), 
-                    pmesh.getVertexFieldPtr("potential"), pmesh.getFaceFieldPtr("potential"), kernel);
-                solver.solve(mpiVerts, mpiFaces);
-                solver.broadcastSolution(mpiVerts, mpiFaces);
+                DirectSum solver(pmesh, kernel, "potential", "source");
+                solver.meshSolve(mpiVerts, mpiFaces);
+                solver.meshBroadcast(mpiVerts, mpiFaces);
             
-                pmesh.getVertexFieldPtr("vertexError")->update(1.0, pmesh.getVertexFieldPtr("potential"), 
-                                                              -1.0, pmesh.getVertexFieldPtr("exactPotential"));
-                pmesh.getVertexFieldPtr("vertexError")->abs();
+                pmesh->getVertexFieldPtr("vertexError")->update(1.0, pmesh->getVertexFieldPtr("potential"), 
+                                                              -1.0, pmesh->getVertexFieldPtr("exactPotential"));
+                pmesh->getVertexFieldPtr("vertexError")->abs();
             
-                pmesh.getFaceFieldPtr("faceError")->update(1.0, pmesh.getFaceFieldPtr("potential"),
-                                                          -1.0, pmesh.getFaceFieldPtr("exactPotential"));
-                pmesh.getFaceFieldPtr("faceError")->abs();
+                pmesh->getFaceFieldPtr("faceError")->update(1.0, pmesh->getFaceFieldPtr("potential"),
+                                                          -1.0, pmesh->getFaceFieldPtr("exactPotential"));
+                pmesh->getFaceFieldPtr("faceError")->abs();
             
                 if (procRank == 0 ) {
                     ss.str(std::string());
                     ss << "poissonTest_icosTriSphere" << k << ".vtk";
-                    pmesh.writeToVtkFile(ss.str(), "2d Poisson sovler test, free boundaries");
+                    pmesh->writeToVtkFile(ss.str(), "2d Poisson sovler test, free boundaries");
                 }
                 timer.end();
                 OutputMessage timerMsg(timer.infoString(), OutputMessage::tracePriority, "main");
                 log->logMessage(timerMsg);
                 icosTriTimes[k] = timer.elapsed();
-                icosTriLinfVerts[k] = pmesh.getVertexFieldPtr("vertexError")->maxScalarVal();
-                icosTriLinfFaces[k] = pmesh.getFaceFieldPtr("faceError")->maxScalarVal();
-                icosTriAvgMeshSize[k] = pmesh.meshPtr()->avgMeshSize();  
+                icosTriLinfVerts[k] = pmesh->getVertexFieldPtr("vertexError")->maxScalarVal();
+                icosTriLinfFaces[k] = pmesh->getFaceFieldPtr("faceError")->maxScalarVal();
+                icosTriAvgMeshSize[k] = pmesh->meshPtr()->avgMeshSize();  
             
             }
         } // end icos tri section
@@ -418,58 +345,57 @@ int main (int argc, char* argv[]) {
                 Timer timer(ss.str());
                 timer.start();
             
-                MeshedParticles pmesh(*mSeed, k, false, sradius);
+                std::shared_ptr<MeshedParticles> pmesh(new MeshedParticles(*mSeed, k, false, sradius, procRank));
             
-                pmesh.createVertexField("source", "n/a", 1);
-                pmesh.createVertexField("potential", "n/a", 1);
-                pmesh.createVertexField("exactPotential", "n/a", 1);
-                pmesh.createVertexField("vertexError", "n/a", 1);
+                pmesh->createVertexField("source", "n/a", 1);
+                pmesh->createVertexField("potential", "n/a", 1);
+                pmesh->createVertexField("exactPotential", "n/a", 1);
+                pmesh->createVertexField("vertexError", "n/a", 1);
             
-                pmesh.initializeVertexFieldWithFunction("source", &sphHarm);
-                pmesh.initializeVertexFieldWithFunction("exactPotential", &sphHarm);
-                pmesh.getVertexFieldPtr("exactPotential")->scale(1.0 / 30.0);
+                pmesh->initializeVertexFieldWithFunction("source", &sphHarm);
+                pmesh->initializeVertexFieldWithFunction("exactPotential", &sphHarm);
+                pmesh->getVertexFieldPtr("exactPotential")->scale(1.0 / 30.0);
             
-                pmesh.createFaceField("source", "n/a", 1);
-                pmesh.createFaceField("potential", "n/a", 1);
-                pmesh.createFaceField("exactPotential", "n/a", 1);
-                pmesh.createFaceField("faceError", "n/a", 1);
+                pmesh->createFaceField("source", "n/a", 1);
+                pmesh->createFaceField("potential", "n/a", 1);
+                pmesh->createFaceField("exactPotential", "n/a", 1);
+                pmesh->createFaceField("faceError", "n/a", 1);
             
-                pmesh.initializeFaceFieldWithFunction("source", &sphHarm);
-                pmesh.initializeFaceFieldWithFunction("exactPotential", &sphHarm);
-                pmesh.getFaceFieldPtr("exactPotential")->scale(1.0 / 30.0);
+                pmesh->initializeFaceFieldWithFunction("source", &sphHarm);
+                pmesh->initializeFaceFieldWithFunction("exactPotential", &sphHarm);
+                pmesh->getFaceFieldPtr("exactPotential")->scale(1.0 / 30.0);
             
-                MPIReplicatedData mpiVerts(pmesh.nVertices(), procRank, numProcs);
-                MPIReplicatedData mpiFaces(pmesh.nFaces(), procRank, numProcs);
+                MPIReplicatedData mpiVerts(pmesh->nVertices(), procRank, numProcs);
+                MPIReplicatedData mpiFaces(pmesh->nFaces(), procRank, numProcs);
     //             if (procRank == 0) {
     //                 OutputMessage mpiMsg(mpiFaces.infoString(), OutputMessage::tracePriority, "main");
     //                 log->logMessage(mpiMsg);
     //             }
             
-                PoissonSolverDirectSum solver(pmesh.meshPtr(), pmesh.getFaceFieldPtr("source"), 
-                    pmesh.getVertexFieldPtr("potential"), pmesh.getFaceFieldPtr("potential"), kernel);
-                solver.solve(mpiVerts, mpiFaces);
-                solver.broadcastSolution(mpiVerts, mpiFaces);
+                DirectSum solver(pmesh, kernel, "potential", "source");
+                solver.meshSolve(mpiVerts, mpiFaces);
+                solver.meshBroadcast(mpiVerts, mpiFaces);
             
-                pmesh.getVertexFieldPtr("vertexError")->update(1.0, pmesh.getVertexFieldPtr("potential"), 
-                                                              -1.0, pmesh.getVertexFieldPtr("exactPotential"));
-                pmesh.getVertexFieldPtr("vertexError")->abs();
+                pmesh->getVertexFieldPtr("vertexError")->update(1.0, pmesh->getVertexFieldPtr("potential"), 
+                                                              -1.0, pmesh->getVertexFieldPtr("exactPotential"));
+                pmesh->getVertexFieldPtr("vertexError")->abs();
             
-                pmesh.getFaceFieldPtr("faceError")->update(1.0, pmesh.getFaceFieldPtr("potential"),
-                                                          -1.0, pmesh.getFaceFieldPtr("exactPotential"));
-                pmesh.getFaceFieldPtr("faceError")->abs();
+                pmesh->getFaceFieldPtr("faceError")->update(1.0, pmesh->getFaceFieldPtr("potential"),
+                                                          -1.0, pmesh->getFaceFieldPtr("exactPotential"));
+                pmesh->getFaceFieldPtr("faceError")->abs();
             
                 if (procRank == 0 ) {
                     ss.str(std::string());
                     ss << "poissonTest_cubedSphere" << k << ".vtk";
-                    pmesh.writeToVtkFile(ss.str(), "2d Poisson sovler test, free boundaries");
+                    pmesh->writeToVtkFile(ss.str(), "2d Poisson sovler test, free boundaries");
                 }
                 timer.end();
                 OutputMessage timerMsg(timer.infoString(), OutputMessage::tracePriority, "main");
                 log->logMessage(timerMsg);
                 cubedSphereTimes[k] = timer.elapsed();
-                cubedSphereLinfVerts[k] = pmesh.getVertexFieldPtr("vertexError")->maxScalarVal();
-                cubedSphereLinfFaces[k] = pmesh.getFaceFieldPtr("faceError")->maxScalarVal();
-                cubedSphereAvgMeshSize[k] = pmesh.meshPtr()->avgMeshSize();  
+                cubedSphereLinfVerts[k] = pmesh->getVertexFieldPtr("vertexError")->maxScalarVal();
+                cubedSphereLinfFaces[k] = pmesh->getFaceFieldPtr("faceError")->maxScalarVal();
+                cubedSphereAvgMeshSize[k] = pmesh->meshPtr()->avgMeshSize();  
             
             }
         } // end cubed sphere section

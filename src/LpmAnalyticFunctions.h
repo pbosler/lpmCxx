@@ -51,6 +51,57 @@ class Gaussian3D : public AnalyticFunction {
         scalar_type _b;
 };
 
+class radial2dsource : public AnalyticFunction {
+    public:
+        radial2dsource() {};
+    
+        scalar_type evaluateScalar(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const {
+            const scalar_type rr = std::sqrt(x*x + y*y);
+            const scalar_type rrdenom = rr / (ZERO_TOL * ZERO_TOL + rr * rr);
+            return (std::abs(rr) <= 1.0 ? -0.5 * PI * (std::sin(PI * rr) * rrdenom + PI * std::cos(PI * rr)) : 0.0);
+        };
+        scalar_type evaluateScalar(const XyzVector& crdVec) const {
+            return evaluateScalar(crdVec.x, crdVec.y);
+        };
+        XyzVector evaluateVector(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const {
+            return XyzVector(0.0, 0.0, 0.0);
+        }
+        XyzVector evaluateVector(const XyzVector& crdVec) const {
+            return XyzVector(0.0, 0.0, 0.0);
+        }
+}; 
+
+class exact2dpotential : public AnalyticFunction {
+    public:
+        exact2dpotential() {};
+        
+        scalar_type evaluateScalar(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const override {
+            const scalar_type rr = std::sqrt(x*x + y*y);
+            return (std::abs(rr) <= 1.0 ? 0.5 * (1.0 + std::cos(PI * rr)) : 0.0);
+        };
+        scalar_type evaluateScalar(const XyzVector& crdVec) const override{
+            return evaluateScalar(crdVec.x, crdVec.y);
+        };
+};
+
+class sphereHarmonic54 : public AnalyticFunction {
+    public:
+        sphereHarmonic54() {}
+        
+        scalar_type evaluateScalar(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const override {
+            const scalar_type lon = longitude(x, y);
+            return 30.0 * std::cos(4.0 * lon) * legendre54(z);
+        }
+        
+        scalar_type evaluateScalar(const XyzVector& crdVec) const override {
+            return evaluateScalar(crdVec.x, crdVec.y, crdVec.z);
+        }
+        
+        inline scalar_type legendre54(const scalar_type& z) const {
+            return z * (z * z - 1.0) * (z * z - 1.0);
+        }
+};
+
 }
 
 #endif

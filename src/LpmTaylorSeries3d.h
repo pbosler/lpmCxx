@@ -65,6 +65,16 @@ class SecondOrderDelta3dSeries : public TaylorSeries3d {
         void computeCoeffs(const XyzVector& tgtVec, const XyzVector& srcVec, const scalar_type param = 0.01);
 };
 
+class SphereDeltaSeries : public TaylorSeries3d {
+    public:
+        SphereDeltaSeries() : TaylorSeries3d(2) {};
+        
+        inline std::unique_ptr<TaylorSeries3d> createEmpty() const {
+            return std::unique_ptr<TaylorSeries3d>(new SphereDeltaSeries());}
+        
+        void computeCoeffs(const XyzVector& tgtVec, const XyzVector& srcVec, const scalar_type param = 0.01);
+};
+
 }
 
 #endif

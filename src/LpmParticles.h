@@ -25,10 +25,11 @@ class Particles {
         
         Particles(MeshSeed& seed, const int maxRecursionLevel, const scalar_type domainRadius = 1.0, 
             const bool lagrangian = false, const int prank = 0);
-        
-        
+
         std::shared_ptr<Field> getFieldPtr(const std::string& fieldname);
-    
+        
+        std::shared_ptr<Coords> getCoordPtr(const bool lagrangian = false);
+        
         void insert(const XyzVector& newCoord);
         void replaceCoordinate(const index_type ind, const XyzVector& newCoord, const bool lagrangian = false);
         void setScalarFieldValues(const index_type pIndex, const std::vector<std::string>& fnames, const std::vector<scalar_type>& vals);

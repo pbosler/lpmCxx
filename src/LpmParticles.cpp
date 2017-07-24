@@ -80,17 +80,23 @@ Particles::Particles(const index_type nMax, const std::vector<std::string>& fnam
 
 std::shared_ptr<Field> Particles::getFieldPtr(const std::string& fieldname) {
     std::shared_ptr<Field> result;
-    try {
-        result = _fieldMap.at(fieldname);
-    }
-    catch ( std::out_of_range& oor) {
-        std::stringstream ss;
-        ss << "field '" << fieldname << "' not registered.";
+    if (!fieldname.empty()) {
+        try {
+            result = _fieldMap.at(fieldname);
+        }
+        catch ( std::out_of_range& oor) {
+            std::stringstream ss;
+            ss << "field '" << fieldname << "' not registered.";
         
-        OutputMessage warnMsg(ss.str(), OutputMessage::warningPriority, "Particles::getFieldPtr");
-        log->logMessage(warnMsg);
+            OutputMessage warnMsg(ss.str(), OutputMessage::warningPriority, "Particles::getFieldPtr");
+            log->logMessage(warnMsg);
+        }
     }
     return result;
+}
+
+std::shared_ptr<Coords> Particles::getCoordPtr(const bool lagrangian) {
+    return (lagrangian ? _lagCoords : _coords);
 }
 
 void Particles::insert(const XyzVector& newCoord) {
