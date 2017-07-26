@@ -1,4 +1,5 @@
 #include "LpmBox3d.h"
+#include <sstream>
 
 namespace Lpm {
 

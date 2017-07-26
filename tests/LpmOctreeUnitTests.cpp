@@ -4,6 +4,7 @@
 #include "LpmLogger.h"
 #include "LpmEuclideanCoords.h"
 #include "LpmSphericalCoords.h"
+#include "LpmBox3d.h"
 #include "LpmOctree.h"
 #include "LpmCoords.h"
 #include "LpmXyzVector.h"
@@ -51,19 +52,10 @@ int main (int argc, char* argv[]) {
         std::cout << "BoxCopy " << boxCopy.infoString();
         Box3d boxAssign = boxCopy;
         std::cout << "BoxAssign " << boxAssign.infoString();
-        
-        std::shared_ptr<Treenode> nullnode(new Treenode());
-        std::cout << "nullnode info: ";
-        std::cout << nullnode->infoString();
-        std::vector<index_type> inds = {0,1,2,3};
-        std::vector<std::shared_ptr<Treenode>> pvec;
-        nullnode->kids.push_back(std::shared_ptr<Treenode>(new Treenode(kids[1], nullnode, inds, 1.0)));
-        std::cout << "nullnode child 0: " ;
-        std::cout << nullnode->kids[0]->infoString();
-    
+            
     }
     {
-        const int nMax = 1000;
+        const int nMax = 8000;
         const scalar_type domainRadius = 2.0;
         
         std::shared_ptr<EuclideanCoords> ec(new EuclideanCoords(nMax, CARTESIAN_3D_GEOMETRY));
@@ -90,30 +82,26 @@ int main (int argc, char* argv[]) {
         cfile.close();
         
         const scalar_type maxAspectRatio = 1.5;
-        std::shared_ptr<Treenode> tree(new Treenode(ec, maxAspectRatio));
+        std::shared_ptr<Tree> tree(new Tree(ec, maxAspectRatio));
         std::cout << "tree info: " << tree->infoString();
-        
-        std::cout << "Root node: " << std::endl;
-        std::cout << "\t" << tree->box.infoString();
-        
-        
+
         const int nCoordsPerNode = 10;
         std::cout << "calling generateTree..." << std::endl;
-        generateTree(tree, ec, nCoordsPerNode);
+        tree->buildTree(nCoordsPerNode);
         std::cout << "returned from generateTree:" << std::endl;
-        std::cout << "\t nNodes = " << nTreenodes(tree) << std::endl;
-        std::cout << "\t treeDepth = " << treeDepth(tree) << std::endl;
+        std::cout << "\t nNodes = " << tree->nNodes() << std::endl;
+        std::cout << "\t treeDepth = " << tree->depth() << std::endl;
         
 
         
         const std::string fname("octreeUnitTest.vtk");
         std::stringstream ss;
         ss << "nCoords = " << nMax << ", nCoordsPerNode = " << nCoordsPerNode;
-        writeTreeToVtk(fname, ss.str(), tree);
+        tree->writeToVtk(fname, ss.str());
     }
     
     {
-        const int nMax = 5000;
+        const int nMax = 25000;
         std::shared_ptr<SphericalCoords> sc(new SphericalCoords(nMax));
         GeometryType geom = sc->geometry();
         std::cout << "geometry: " << geom << std::endl;
@@ -141,23 +129,22 @@ int main (int argc, char* argv[]) {
         
         const scalar_type maxAspectRatio = 2.0;
         
-        std::shared_ptr<Treenode> tree(new Treenode(sc, maxAspectRatio));
-        std::cout << "Root node info: " << tree->infoString();
-        
+        std::shared_ptr<Tree> tree(new Tree(sc, maxAspectRatio));
+        std::cout << tree->infoString();
         
         const int nCoordsPerNode = 20;
         
-        generateTree(tree, sc, nCoordsPerNode);
+        tree->buildTree(nCoordsPerNode);
         std::cout << "returned from generateTree:" << std::endl;
-        std::cout << "\t nNodes = " << nTreenodes(tree) << std::endl;
-        std::cout << "\t treeDepth = " << treeDepth(tree) << std::endl;
+        std::cout << "\t nNodes = " << tree->nNodes() << std::endl;
+        std::cout << "\t treeDepth = " << tree->depth() << std::endl;
         
-        std::cout << "Root node info: " << tree->infoString();
+        std::cout << tree->infoString();
         
         const std::string fname("sphereOctreeUnitTest.vtk");
         std::stringstream ss;
         ss << "nCoords = " << nMax << ", nCoordsPerNode = " << nCoordsPerNode;
-        writeTreeToVtk(fname, ss.str(), tree);
+        tree->writeToVtk(fname, ss.str());
     }
 
 return 0;

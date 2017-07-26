@@ -10,31 +10,14 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <iostream>
 
 namespace Lpm {
 
 class Tree {
-    public:
-        Tree(const Coords* crds, const scalar_type maxAspectRatio = 1.0, const int prank = 0);
-        
-        inline void setLogProc(const int prank) {log->setProcRank(prank);}
-        std::string infoString() const;
-        
-        int treeDepth(const std::shared_ptr<Treenode> node);
-
-        index_type nTreenodes(const std::shared_ptr<Treenode> node);
-
-        void buildTree(std::unique_ptr<Node> node, const index_type maxCoordsPerNode);
-    
-        void writeTreeToVtk(const std::string& filename, const std::string& desc = "", const std::shared_ptr<Treenode> node = NULL);
-        void writeVTKPoints(std::ofstream& os, const std::shared_ptr<Treenode> node);
-        void writeVtkCells(std::ofstream& os, const std::shared_ptr<Treenode> node, index_type& vertIndex);
-        void writeVtkCellType(std::ofstream& os, const std::shared_ptr<Treenode> node);
-        void writeVtkLevelData(std::ofstream& os, const std::shared_ptr<Treenode> node);
-
     protected:
         struct Node {        
-            Node(const Box3d& bbox, const Node* pparent = NULL, 
+            Node(const Box3d& bbox, Node* pparent = NULL, 
                  const std::vector<index_type>& crdInds = std::vector<index_type>());
             
             inline index_type nCoords() const {return coordsContained.size();}
@@ -51,14 +34,43 @@ class Tree {
             /// ptr to parent
             Node* parent;
             /// ptrs to child boxes
-            std::vector<std::unique_ptr_ptr<Node>> kids;
+            std::vector<std::unique_ptr<Node>> kids;
             std::vector<index_type> coordsContained;
+            
+            void writePoints(std::ostream& os) const;
         };
+
+    public:
+        Tree(const std::shared_ptr<Coords> crds, const scalar_type maxAspectRatio = 1.0, const int prank = 0);
         
-        void shrinkBox(std::unique_ptr<Node> node);
+        inline void setLogProc(const int prank) {log->setProcRank(prank);}
+        std::string infoString() const;
+        
+        inline int depth() {return _depth;}
+
+        inline index_type nNodes() {return _nnodes;}
+
+        void buildTree(const index_type maxCoordsPerNode);
+    
+        void writeToVtk(const std::string& filename, const std::string& desc = "") const;
         
         
-//         void generate(std::shared_ptr<Treenode> node, std::shared_ptr<Coords> crds, const index_type maxCoordsPerNode);
+//         void writeVTKPoints(std::ofstream& os, const std::shared_ptr<Treenode> node);
+//         void writeVtkCells(std::ofstream& os, const std::shared_ptr<Treenode> node, index_type& vertIndex);
+//         void writeVtkCellType(std::ofstream& os, const std::shared_ptr<Treenode> node);
+//         void writeVtkLevelData(std::ofstream& os, const std::shared_ptr<Treenode> node);
+
+    protected:
+
+        void shrinkBox(Node* node);
+        
+        void generateTree(Node* node, const index_type maxCoordsPerNode);
+        int computeTreeDepth(Node* node) const;
+        
+        void writeVtkPoints(std::ostream& os, Node* node) const;
+        void writeVtkCells(std::ostream& os, Node* node, index_type& vertIndex) const;
+        void writeVtkCellType(std::ostream& os, Node* node) const;
+        void writeLevelDataToVtk(std::ostream& os, Node* node) const;
 
         int _depth;
         index_type _nnodes;

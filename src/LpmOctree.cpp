@@ -14,7 +14,7 @@ namespace Lpm {
 
 std::unique_ptr<Logger> Tree::log(new Logger(OutputMessage::debugPriority, "Tree_log"));
 
-Tree::Tree(const Coords* crds, const scalar_type maxRatio, const int prank) : _crds(crds), _maxAspectRatio(maxRatio),
+Tree::Tree(const std::shared_ptr<Coords> crds, const scalar_type maxRatio, const int prank) : _crds(crds), _maxAspectRatio(maxRatio),
     _depth(0), _nnodes(1) {
     log->setProcRank(prank);
     
@@ -33,7 +33,7 @@ Tree::Tree(const Coords* crds, const scalar_type maxRatio, const int prank) : _c
     
     Node* rparent = NULL;
     
-    root = std::unique_ptr<Node>(new Node(rbox, rparent, rinds));
+    _root = std::unique_ptr<Node>(new Node(rbox, rparent, rinds));
 }
 
 std::string Tree::infoString() const {
@@ -60,7 +60,7 @@ std::string Tree::Node::infoString() const {
     return ss.str();
 }
 
-Tree::Node::Node(const Box3d& bbox, const Node* pparent, const std::vector<index_type>& crdInds) :
+Tree::Node::Node(const Box3d& bbox, Node* pparent, const std::vector<index_type>& crdInds) :
     box(bbox), parent(pparent), coordsContained(crdInds) {
     if (pparent) {
         level = pparent->level + 1;
@@ -70,7 +70,12 @@ Tree::Node::Node(const Box3d& bbox, const Node* pparent, const std::vector<index
     }
 }
 
-void Tree::buildTree(std::unique_ptr<Tree::Node> node, const index_type maxCoordsPerNode) {
+void Tree::buildTree(const index_type maxCoordsPerNode) {
+    generateTree(_root.get(), maxCoordsPerNode);
+    _depth = computeTreeDepth(_root.get());
+}
+
+void Tree::generateTree(Node* node, const index_type maxCoordsPerNode) {
     if (node->coordsContained.size() <= maxCoordsPerNode) {
         return;
     }
@@ -78,6 +83,7 @@ void Tree::buildTree(std::unique_ptr<Tree::Node> node, const index_type maxCoord
         //
         //  determine box dimensions to split
         //
+        std::shared_ptr<Coords> crd_ptr = _crds.lock();
         bool splitDims[3];
         int splitCount = 0;
         const scalar_type edgeThreshold = node->box.longestEdge() / _maxAspectRatio;
@@ -101,141 +107,40 @@ void Tree::buildTree(std::unique_ptr<Tree::Node> node, const index_type maxCoord
             std::vector<index_type> kidcoords;
             kidcoords.reserve(node->coordsContained.size());
             for (index_type j = 0; j < node->coordsContained.size(); ++j) {
-                if (kidboxes[i].containsPoint(_crds->getVec(node->coordsContained[j]))) {
+                if (kidboxes[i].containsPoint(crd_ptr->getVec(node->coordsContained[j]))) {
                     kidcoords.push_back(node->coordsContained[j]);
                 }
             }
             if (!kidcoords.empty()) {
                 kidcoords.shrink_to_fit();
-                node->kids.push_back(std::unique_ptr<Node>(new Node(kidboxes[i], node.get(), kidcoords)));
+                node->kids.push_back(std::unique_ptr<Node>(new Node(kidboxes[i], node, kidcoords)));
             }
         }
         if (node->kids.empty()) {
             OutputMessage errMsg("All kids are empty, this shouldn't happen.", OutputMessage::errorPriority, "Treee::buildTree");
-            node->log->logMessage(errMsg);
+            log->logMessage(errMsg);
             return;
         }
         else {
-            _depth += 1;
             _nnodes += node->kids.size();
-        }
-        for (int i = 0; i < node->kids.size(); ++i) {
-             shrinkBox(node->kids[i]);  
-             buildTree(node->kids[i], maxCoordsPerNode);
-        }
-    }
-}
-
-
-void writeTreeToVtk(const std::string& filename, const std::string& desc, const std::shared_ptr<Treenode> root) {
-    std::ofstream fs(filename);
-    if (!fs.is_open()) {
-        OutputMessage errMsg("cannot open .vtk file", OutputMessage::errorPriority, "Lpm::writeTreeToVtk");
-        root->log->logMessage(errMsg);
-        throw std::ios_base::failure("file write error");
-    }
-    const index_type nNodes = nTreenodes(root); 
-    fs << "# vtk DataFile Version 2.0" << std::endl;
-    fs << desc << std::endl;
-    fs << "ASCII" << std::endl;
-    fs << "DATASET UNSTRUCTURED_GRID" << std::endl;
-    fs << "POINTS " << 8 * nNodes << " double" << std::endl;
-    writeVTKPoints(fs, root);
-    fs << "CELLS " << nNodes << " " << 9 * nNodes << std::endl;
-    index_type vertIndex = 0;
-    writeVtkCells(fs, root, vertIndex);
-    fs << "CELL_TYPES " << nNodes << std::endl;
-    Lpm::writeVtkCellType(fs, root);
-    fs << "CELL_DATA " << nNodes << std::endl;
-    fs << "SCALARS tree_level int 1" << std::endl;
-    fs << "LOOKUP_TABLE default" << std::endl;
-    writeVtkLevelData(fs, root);
-}
-
-void writeVTKPoints(std::ofstream& os, const std::shared_ptr<Treenode> node) {
-    node->writePoints(os);
-    if (node->hasKids()) {
-        for (int i = 0; i < node->kids.size(); ++i) {
-            writeVTKPoints(os, node->kids[i]);
+             for (int i = 0; i < node->kids.size(); ++i) {
+                shrinkBox(node->kids[i].get());  
+                 generateTree(node->kids[i].get(), maxCoordsPerNode);
+            }
         }
     }
 }
 
-void writeVtkCells(std::ofstream& os, const std::shared_ptr<Treenode> node, index_type& vertIndex) {
-    os << 8 << " ";
-    for (int i = 0; i < 8; ++i) {
-        os << vertIndex + i << " ";
-    }
-    os << std::endl;
-    vertIndex += 8;
-    if (node->hasKids()) {
-        for (int i = 0; i < node->kids.size(); ++i) {
-             writeVtkCells(os, node->kids[i], vertIndex);
-        }
-    }
-}
-
-void writeVtkCellType(std::ofstream& os, const std::shared_ptr<Treenode> node) {
-    os << "12" << std::endl;
-    if (node->hasKids()) {
-        for (int i = 0; i < node->kids.size(); ++i) {
-            writeVtkCellType(os, node->kids[i]);
-        }
-    }
-}
-
-void writeVtkLevelData(std::ofstream& os, const std::shared_ptr<Treenode> node) {
-    os << node->level << std::endl;
-    if (node->hasKids()) {
-        for (int i = 0; i < node->kids.size(); ++i) {
-            writeVtkLevelData(os, node->kids[i]);
-        }
-    }
-}
-
-int treeDepth(const std::shared_ptr<Treenode> node) {
-    int result = 0; 
-    if (node->level > result)
-        result = node->level;
-    if (node->hasKids()) {
-        for (int i = 0; i < node->kids.size(); ++i) {
-            result = treeDepth(node->kids[i]);
-        }
-    }
-    return result;
-}
-
-void Treenode::writePoints(std::ofstream& os) const {
-    os << box.xmin << " " << box.ymin << " " << box.zmin << std::endl;
-    os << box.xmax << " " << box.ymin << " " << box.zmin << std::endl;
-    os << box.xmax << " " << box.ymax << " " << box.zmin << std::endl;
-    os << box.xmin << " " << box.ymax << " " << box.zmin << std::endl;
-    os << box.xmin << " " << box.ymin << " " << box.zmax << std::endl;
-    os << box.xmax << " " << box.ymin << " " << box.zmax << std::endl;
-    os << box.xmax << " " << box.ymax << " " << box.zmax << std::endl;
-    os << box.xmin << " " << box.ymax << " " << box.zmax << std::endl;
-}
-
-index_type nTreenodes(const std::shared_ptr<Treenode> node) {
-    index_type result = 1;
-    if (node->hasKids()) {
-        for (int i = 0; i < node->kids.size(); ++i) {
-            result += nTreenodes(node->kids[i]);
-        }
-    }
-    return result;
-}
-
-
-void Tree::shrinkBox(std::unique_ptr<Node> node) {
+void Tree::shrinkBox(Node* node) {
     scalar_type xmin = std::numeric_limits<scalar_type>::max();
     scalar_type xmax = std::numeric_limits<scalar_type>::lowest();
     scalar_type ymin = xmin;
     scalar_type ymax = xmax;
     scalar_type zmin = xmin;
     scalar_type zmax = xmax;
+    std::shared_ptr<Coords> crd_ptr = _crds.lock();
     for (index_type i = 0; i < node->coordsContained.size(); ++i) {
-        const XyzVector crdVec = _crds->getVec(node->coordsContained[i]);
+        const XyzVector crdVec = crd_ptr->getVec(node->coordsContained[i]);
         if (crdVec.x < xmin)
             xmin = crdVec.x;
         if (crdVec.x > xmax)
@@ -249,12 +154,152 @@ void Tree::shrinkBox(std::unique_ptr<Node> node) {
         if (crdVec.z > zmax)
             zmax = crdVec.z;
     }
-    box.xmin = xmin;
-    box.xmax = xmax;
-    box.ymin = ymin;
-    box.ymax = ymax;
-    box.zmin = zmin;
-    box.zmax = zmax;
+    node->box.xmin = xmin;
+    node->box.xmax = xmax;
+    node->box.ymin = ymin;
+    node->box.ymax = ymax;
+    node->box.zmin = zmin;
+    node->box.zmax = zmax;
 }
+
+void Tree::writeToVtk(const std::string& filename, const std::string& desc) const {
+    std::ofstream fs(filename);
+    if (!fs.is_open()) {
+        OutputMessage errMsg("cannot open .vtk file", OutputMessage::errorPriority, "Lpm::writeTreeToVtk");
+        log->logMessage(errMsg);
+        throw std::ios_base::failure("file write error");    
+    }
+    
+    fs << "# vtk DataFile Version 2.0" << std::endl;
+    fs << desc << std::endl;
+    fs << "ASCII" << std::endl;
+    fs << "DATASET UNSTRUCTURED_GRID" << std::endl;
+    fs << "POINTS " << 8 * _nnodes << " double" << std::endl;
+    writeVtkPoints(fs, _root.get());
+    fs << "CELLS " << _nnodes << " " << 9 * _nnodes << std::endl;
+    index_type vertIndex = 0;
+    writeVtkCells(fs, _root.get(), vertIndex);
+    fs << "CELL_TYPES " << _nnodes << std::endl;
+    writeVtkCellType(fs, _root.get());
+    fs << "CELL_DATA " << _nnodes << std::endl;
+    fs << "SCALARS tree_level int 1" << std::endl;
+    fs << "LOOKUP_TABLE default" << std::endl;
+    writeLevelDataToVtk(fs, _root.get());
+}
+
+// void writeTreeToVtk(const std::string& filename, const std::string& desc, const std::shared_ptr<Treenode> root) {
+//     std::ofstream fs(filename);
+//     if (!fs.is_open()) {
+//         OutputMessage errMsg("cannot open .vtk file", OutputMessage::errorPriority, "Lpm::writeTreeToVtk");
+//         root->log->logMessage(errMsg);
+//         throw std::ios_base::failure("file write error");
+//     }
+//     const index_type nNodes = nTreenodes(root); 
+//     fs << "# vtk DataFile Version 2.0" << std::endl;
+//     fs << desc << std::endl;
+//     fs << "ASCII" << std::endl;
+//     fs << "DATASET UNSTRUCTURED_GRID" << std::endl;
+//     fs << "POINTS " << 8 * nNodes << " double" << std::endl;
+//     writeVTKPoints(fs, root);
+//     fs << "CELLS " << nNodes << " " << 9 * nNodes << std::endl;
+//     index_type vertIndex = 0;
+//     writeVtkCells(fs, root, vertIndex);
+//     fs << "CELL_TYPES " << nNodes << std::endl;
+//     Lpm::writeVtkCellType(fs, root);
+//     fs << "CELL_DATA " << nNodes << std::endl;
+//     fs << "SCALARS tree_level int 1" << std::endl;
+//     fs << "LOOKUP_TABLE default" << std::endl;
+//     writeVtkLevelData(fs, root);
+// }
+// 
+
+void Tree::writeVtkPoints(std::ostream& os, Node* node) const {
+    node->writePoints(os);
+    if (node->hasKids()) {
+        for (int i = 0; i < node->kids.size(); ++i) {
+            writeVtkPoints(os, node->kids[i].get());
+        }
+    }
+}
+
+void Tree::Node::writePoints(std::ostream& os) const {
+    os << box.xmin << " " << box.ymin << " " << box.zmin << std::endl;
+    os << box.xmax << " " << box.ymin << " " << box.zmin << std::endl;
+    os << box.xmax << " " << box.ymax << " " << box.zmin << std::endl;
+    os << box.xmin << " " << box.ymax << " " << box.zmin << std::endl;
+    os << box.xmin << " " << box.ymin << " " << box.zmax << std::endl;
+    os << box.xmax << " " << box.ymin << " " << box.zmax << std::endl;
+    os << box.xmax << " " << box.ymax << " " << box.zmax << std::endl;
+    os << box.xmin << " " << box.ymax << " " << box.zmax << std::endl;
+}
+
+
+void Tree::writeVtkCells(std::ostream& os, Node* node, index_type& vertIndex) const {
+    os << 8 << " ";
+    for (int i = 0; i < 8; ++i) {
+        os << vertIndex + i << " ";
+    }
+    os << std::endl;
+    vertIndex += 8;
+    if (node->hasKids()) {
+        for (int i = 0; i < node->kids.size(); ++i) {
+             writeVtkCells(os, node->kids[i].get(), vertIndex);
+        }
+    }
+}
+
+void Tree::writeVtkCellType(std::ostream& os, Node* node) const {
+    os << "12" << std::endl;
+    if (node->hasKids()) {
+        for (int i = 0; i < node->kids.size(); ++i) {
+            writeVtkCellType(os, node->kids[i].get());
+        }
+    }
+}
+
+void Tree::writeLevelDataToVtk(std::ostream& os, Node* node) const {
+    os << node->level << std::endl;
+    if (node->hasKids()) {
+        for (int i = 0; i < node->kids.size(); ++i) {
+            writeLevelDataToVtk(os, node->kids[i].get());
+        }
+    }
+}
+
+int Tree::computeTreeDepth(Node* node) const {
+    int result = 0;
+    if (node->level > result)
+        result = node->level;
+    if (node->hasKids()) {
+        for (int i = 0; i < node->kids.size(); ++i) {
+            result = computeTreeDepth(node->kids[i].get());
+        }
+    }
+    return result;
+}
+// 
+// void Treenode::writePoints(std::ofstream& os) const {
+//     os << box.xmin << " " << box.ymin << " " << box.zmin << std::endl;
+//     os << box.xmax << " " << box.ymin << " " << box.zmin << std::endl;
+//     os << box.xmax << " " << box.ymax << " " << box.zmin << std::endl;
+//     os << box.xmin << " " << box.ymax << " " << box.zmin << std::endl;
+//     os << box.xmin << " " << box.ymin << " " << box.zmax << std::endl;
+//     os << box.xmax << " " << box.ymin << " " << box.zmax << std::endl;
+//     os << box.xmax << " " << box.ymax << " " << box.zmax << std::endl;
+//     os << box.xmin << " " << box.ymax << " " << box.zmax << std::endl;
+// }
+// 
+// index_type nTreenodes(const std::shared_ptr<Treenode> node) {
+//     index_type result = 1;
+//     if (node->hasKids()) {
+//         for (int i = 0; i < node->kids.size(); ++i) {
+//             result += nTreenodes(node->kids[i]);
+//         }
+//     }
+//     return result;
+// }
+// 
+// 
+
 
 }
