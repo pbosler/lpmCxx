@@ -9,7 +9,7 @@
 namespace Lpm {
 
 SumNode::SumNode(const Box3d& bbox, Node* pparent, const std::vector<index_type>& crdInds, const int maxSeriesOrder,
-    ScalarKernel* kernel) : Node(bbox, pparent, crdInds) {
+    ScalarKernel* kernel) : Node(bbox, pparent, crdInds), momentsReady(false) {
     
     PlanarGreensFnFreeBoundaries* plane_ptr = dynamic_cast<PlanarGreensFnFreeBoundaries*>(kernel);
     SphereGreensFn* sphere_green_ptr = dynamic_cast<SphereGreensFn*>(kernel);
@@ -40,11 +40,13 @@ SumNode::SumNode(const Box3d& bbox, Node* pparent, const std::vector<index_type>
 
 void SumNode::computeMoments(const std::shared_ptr<Coords> crds, const std::shared_ptr<Field> srcStrength) {
     series->computeMoments(crds, coordsContained, box.centroid(), srcStrength);
+    momentsReady = true;
 }
 
 void SumNode::computeMoments(const std::shared_ptr<Coords> crds, const std::shared_ptr<Field> srcVals, 
     const std::shared_ptr<Field> srcWeights) {
     series->computeMoments(crds, coordsContained, box.centroid(), srcVals, srcWeights);
+    momentsReady = true;
 }
 
 void SumNode::computeCoeffs(const XyzVector& tgtVec, const scalar_type param){
@@ -53,8 +55,8 @@ void SumNode::computeCoeffs(const XyzVector& tgtVec, const scalar_type param){
     
 TreeSum::TreeSum(const std::shared_ptr<Coords> crds, const scalar_type maxAspectRatio, 
     const std::shared_ptr<ScalarKernel> kernel, const int maxSeriesOrder, const scalar_type seriesParam,
-    const int prank) : Tree(crds, maxAspectRatio, prank), _maxP(maxSeriesOrder), _kernel(kernel), 
-    _seriesParam(seriesParam) 
+    const int prank, const scalar_type farFieldParam) : Tree(crds, maxAspectRatio, prank), _maxP(maxSeriesOrder), _kernel(kernel), 
+    _seriesParam(seriesParam), _nuParam(farFieldParam)
 {
     std::unique_ptr<Node> new_root(new SumNode(_root->box, NULL, _root->coordsContained, _maxP, _kernel.lock().get()));
     _root = std::move(new_root);
@@ -120,5 +122,78 @@ void TreeSum::generateTree(Node* node, const index_type maxCoordsPerNode) {
         }
     }
 }
+
+void TreeSum::setRecomputeMomentsTrue(Node* node) {
+    SumNode* sum_ptr = dynamic_cast<SumNode*>(node);
+    if (sum_ptr) {
+        sum_ptr->momentsReady = false;
+        if (sum_ptr->hasKids()) {
+            for (int i = 0; i < sum_ptr->kids.size(); ++i) {
+                setRecomputeMomentsTrue(sum_ptr->kids[i].get());
+            }
+        }
+    }
+    else {
+        OutputMessage errMsg("failed to cast Node* to SumNode*", OutputMessage::errorPriority, "Tree::setRecomputeMomentsTrue");
+        log->logMessage(errMsg);
+        throw std::logic_error("");
+    }
+}
+
+scalar_type TreeSum::computeSum(const XyzVector& tgtLoc, const std::shared_ptr<Field> srcStrength) {
+
+}
+
+scalar_type TreeSum::computeSum(const XyzVector& tgtLoc, const std::shared_ptr<Field> srcVals, 
+    const std::shared_ptr<Field> srcWeights) {
+    SumNode* root_ptr = dynamic_cast<SumNode*>(_root.get());
+    scalar_type result = 0.0;
+    recursiveSum(result, tgtLoc, srcVals, srcWeights, root_ptr, _depth);
+    return result;
+}
+
+void TreeSum::recursiveSum(scalar_type& sum, const XyzVector& tgtLoc, const std::shared_ptr<Field> srcVals, 
+    const std::shared_ptr<Field> srcWeights, SumNode* node, const index_type& tree_depth) {
+    if (node->isFar(tgtLoc, tree_depth, _nuParam)) {
+        //
+        //  add Taylor series approximation
+        //
+        if (!node->momentsReady) {
+            node->computeMoments(_crds.lock(), srcVals, srcWeights);
+        }
+        node->computeCoeffs(tgtLoc, _seriesParam);
+        sum += node->seriesSum();
+    }
+    else {
+        if (node->isLeaf()) {
+            //
+            //  add direct sum 
+            //
+            std::shared_ptr<ScalarKernel> kernel_ptr = _kernel.lock();
+            if (kernel_ptr->isSingular()) {
+                for (index_type i = 0; i < node->coordsContained.size(); ++i) {
+                    const XyzVector srcVec = _crds.lock()->getVec(node->coordsContained[i]);
+                    if (_crds.lock()->distance(tgtLoc, srcVec) > ZERO_TOL) {
+                        sum += kernel_ptr->evaluate(tgtLoc, srcVec) * srcVals->getScalar(node->coordsContained[i]) *
+                            srcWeights->getScalar(node->coordsContained[i]);
+                    }
+                }
+            }
+            else {
+                for (index_type i = 0; i < node->coordsContained.size(); ++i) {
+                    const XyzVector srcVec = _crds.lock()->getVec(node->coordsContained[i]);
+                    sum += kernel_ptr->evaluate(tgtLoc, srcVec) * srcVals->getScalar(node->coordsContained[i]) *
+                        srcWeights->getScalar(node->coordsContained[i]);
+                }
+            }
+        }
+        else {
+            for (int i = 0; i < node->kids.size(); ++i) {
+                return result + recursiveSum(tgtLoc, srcVals, srcWeights, node->kids[i], tree_depth)
+            }
+        }
+    }
+}
+
 
 }

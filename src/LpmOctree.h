@@ -17,9 +17,11 @@ namespace Lpm {
 struct Node {        
     Node(const Box3d& bbox, Node* pparent = NULL, 
          const std::vector<index_type>& crdInds = std::vector<index_type>());
+    virtual ~Node() {};
     
     inline index_type nCoords() const {return coordsContained.size();}
-    bool hasKids() const {return (!kids.empty());}
+    bool hasKids() const {return !kids.empty();}
+    bool isLeaf() const {return kids.empty();}
 
     void writePoints(std::ofstream& os) const;
     
@@ -43,6 +45,7 @@ struct Node {
 class Tree {
     public:
         Tree(const std::shared_ptr<Coords> crds, const scalar_type maxAspectRatio = 1.0, const int prank = 0);
+        virtual ~Tree() {};
         
         inline void setLogProc(const int prank) {log->setProcRank(prank); _root->log->setProcRank(prank);}
         

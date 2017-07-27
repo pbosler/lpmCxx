@@ -30,6 +30,8 @@ struct SumNode : public Node {
         const std::shared_ptr<Field> srcWeights);
     void computeCoeffs(const XyzVector& tgtVec, const scalar_type param = 0.0);
     
+    scalar_type seriesSum() const {return series->sum();}
+    
     inline bool isFar(const XyzVector& tgtVec, const int maxTreeDepth, const scalar_type nuParam = 1.0) const {
         const scalar_type hnu = std::pow(std::pow(2.0, -maxTreeDepth), nuParam);
         const XyzVector vec = tgtVec - box.centroid();
@@ -40,20 +42,36 @@ struct SumNode : public Node {
         return !isFar(tgtVec, maxTreeDepth, nuParam);
     }
     
+    bool momentsReady;
 };
 
 class TreeSum : public Tree {
     public:
         TreeSum(const std::shared_ptr<Coords> crds, const scalar_type maxAspectRatio, 
             const std::shared_ptr<ScalarKernel> kernel, const int maxSeriesOrder, const scalar_type seriesParam = 0.0,
-            const int prank = 0);
+            const int prank = 0, const scalar_type farFieldParam = 1.0);
+
+        inline void resetMoments() {setRecomputeMomentsTrue(_root.get());}
 
         void buildTree(const index_type maxCoordsPerNode) override;
+        
+        scalar_type computeSum(const XyzVector& tgtLoc, const std::shared_ptr<Field> srcStrength);
+        scalar_type computeSum(const XyzVector& tgtLoc, const std::shared_ptr<Field> srcVals, 
+            const std::shared_ptr<Field> srcWeights);
 
     protected:
         std::weak_ptr<ScalarKernel> _kernel;
+        scalar_type _nuParam;
         int _maxP;
         scalar_type _seriesParam;
+        
+        scalar_type recursiveSum(const XyzVector& tgtLoc, const std::shared_ptr<Field> srcVals, 
+            const std::shared_ptr<Field> srcWeights, SumNode* node, const index_type& tree_depth);
+            
+        scalar_type recursiveSum(const index_type& tgtInd, const std::shared_ptr<Field> srcVals, 
+            const std::shared_ptr<Field> srcWeights, SumNode* node, const index_type& tree_depth);
+        
+        void setRecomputeMomentsTrue(Node* node);
     
         void generateTree(Node* node, const index_type maxCoordsPerNode) override;
 };
