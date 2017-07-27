@@ -3,6 +3,7 @@
 
 #include "LpmConfig.h"
 #include "LpmTypeDefs.h"
+#include "LpmLogger.h"
 #include "LpmOctree.h"
 #include "LpmXyzVector.h"
 #include "LpmCoords.h"
@@ -16,18 +17,18 @@
 
 namespace Lpm {
 
-struct TreeSumNode : public Treenode {
-    TreeSumNode(const std::shared_ptr<Coords> crds, const scalar_type maxAspectRatio, 
-        const ScalarKernel& kernel, const int maxSeriesOrder, const scalar_type seriesParam = 0.0);
-        
-    TreeSumNode(const Box3d& bbox, const std::shared_ptr<TreeSumNode> pparent = NULL, 
-        const std::vector<index_type>& crdInds = std::vector<index_type>(), const scalar_type maxAspectRatio = 1.0);
-        
-    void computeCoeffs(const XyzVector& tgtVec, const scalar_type param = 0.0);
+struct SumNode : public Node {
+    typedef std::unique_ptr<TaylorSeries3d> series_ptr_type;
+
+    SumNode(const Box3d& bbox, Node* pparent = NULL, const std::vector<index_type>& crdInds = std::vector<index_type>(),
+         const int maxSeriesOrder = 0, ScalarKernel* kernel = NULL);
+
+    series_ptr_type series;
     
     void computeMoments(const std::shared_ptr<Coords> crds, const std::shared_ptr<Field> srcStrength);
     void computeMoments(const std::shared_ptr<Coords> crds, const std::shared_ptr<Field> srcVals, 
         const std::shared_ptr<Field> srcWeights);
+    void computeCoeffs(const XyzVector& tgtVec, const scalar_type param = 0.0);
     
     inline bool isFar(const XyzVector& tgtVec, const int maxTreeDepth, const scalar_type nuParam = 1.0) const {
         const scalar_type hnu = std::pow(std::pow(2.0, -maxTreeDepth), nuParam);
@@ -38,17 +39,25 @@ struct TreeSumNode : public Treenode {
     inline bool isNear(const XyzVector& tgtVec, const int maxTreeDepth, const scalar_type nuParam) const {
         return !isFar(tgtVec, maxTreeDepth, nuParam);
     }
-
-    std::unique_ptr<TaylorSeries3d> series;
+    
 };
 
-void generateTree(std::shared_ptr<TreeSumNode> node, std::shared_ptr<Coords> crds, const index_type maxCoordsPerNode);
+class TreeSum : public Tree {
+    public:
+        TreeSum(const std::shared_ptr<Coords> crds, const scalar_type maxAspectRatio, 
+            const std::shared_ptr<ScalarKernel> kernel, const int maxSeriesOrder, const scalar_type seriesParam = 0.0,
+            const int prank = 0);
 
-void computeAllMoments(std::shared_ptr<TreeSumNode> tree, const std::shared_ptr<Coords> crds, 
-    const std::shared_ptr<Field> srcStrength);
+        void buildTree(const index_type maxCoordsPerNode) override;
 
-void computeAllMoments(std::shared_ptr<TreeSumNode> tree, const std::shared_ptr<Coords> crds, 
-    const std::shared_ptr<Field> srcVals, const std::shared_ptr<Field> srcWeights);
+    protected:
+        std::weak_ptr<ScalarKernel> _kernel;
+        int _maxP;
+        scalar_type _seriesParam;
+    
+        void generateTree(Node* node, const index_type maxCoordsPerNode) override;
+};
+
 
 }
 

@@ -13,6 +13,7 @@
 namespace Lpm {
 
 std::unique_ptr<Logger> Tree::log(new Logger(OutputMessage::debugPriority, "Tree_log"));
+std::unique_ptr<Logger> Node::log(new Logger(OutputMessage::debugPriority, "Node_log"));
 
 Tree::Tree(const std::shared_ptr<Coords> crds, const scalar_type maxRatio, const int prank) : _crds(crds), _maxAspectRatio(maxRatio),
     _depth(0), _nnodes(1) {
@@ -45,7 +46,7 @@ std::string Tree::infoString() const {
     return ss.str();
 }
 
-std::string Tree::Node::infoString() const {
+std::string Node::infoString() const {
     std::stringstream ss;
     ss << "Treenode info: " << std::endl;
     ss << "\tbox: " << box.infoString();
@@ -60,7 +61,7 @@ std::string Tree::Node::infoString() const {
     return ss.str();
 }
 
-Tree::Node::Node(const Box3d& bbox, Node* pparent, const std::vector<index_type>& crdInds) :
+Node::Node(const Box3d& bbox, Node* pparent, const std::vector<index_type>& crdInds) :
     box(bbox), parent(pparent), coordsContained(crdInds) {
     if (pparent) {
         level = pparent->level + 1;
@@ -196,7 +197,7 @@ void Tree::writeVtkPoints(std::ostream& os, Node* node) const {
     }
 }
 
-void Tree::Node::writePoints(std::ostream& os) const {
+void Node::writePoints(std::ostream& os) const {
     os << box.xmin << " " << box.ymin << " " << box.zmin << std::endl;
     os << box.xmax << " " << box.ymin << " " << box.zmin << std::endl;
     os << box.xmax << " " << box.ymax << " " << box.zmin << std::endl;

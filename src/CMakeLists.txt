@@ -9,7 +9,7 @@ add_library( lpm LpmXyzVector.cpp LpmOutputMessage.cpp LpmLogger.cpp LpmCoords.c
              LpmVtkFileIO.cpp LpmParticles.cpp LpmMeshedParticles.cpp LpmMPIReplicatedData.cpp
              LpmTimer.cpp LpmDirectSum.cpp
              LpmBox3d.cpp LpmOctree.cpp LpmTaylorSeries3d.cpp
-             #LpmTreeSum.cpp 
+             LpmTreeSum.cpp 
 )
 
 
