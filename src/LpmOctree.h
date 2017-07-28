@@ -7,12 +7,15 @@
 #include "LpmCoords.h"
 #include "LpmLogger.h"
 #include "LpmBox3d.h"
+#include "LpmFaces.h"
 #include <memory>
 #include <vector>
 #include <string>
 #include <iostream>
 
 namespace Lpm {
+
+#define BOX_PADDING_FACTOR 0.00001
 
 struct Node {        
     Node(const Box3d& bbox, Node* pparent = NULL, 
@@ -54,17 +57,23 @@ class Tree {
         inline int depth() {return _depth;}
 
         inline index_type nNodes() {return _nnodes;}
+        
+        index_type recursiveNNodes() const {return recursiveNodeCount(_root.get());}
 
         virtual void buildTree(const index_type maxCoordsPerNode);
     
         void writeToVtk(const std::string& filename, const std::string& desc = "") const;
 
     protected:
+        Tree() : _depth(0), _nnodes(0), _maxAspectRatio(1.0) {};
 
         void shrinkBox(Node* node);
+        void shrinkBox(Node* node, std::shared_ptr<Faces> faces);
         
         virtual void generateTree(Node* node, const index_type maxCoordsPerNode);
         int computeTreeDepth(Node* node) const;
+        
+        index_type recursiveNodeCount(Node* node) const;
         
         void writeVtkPoints(std::ostream& os, Node* node) const;
         void writeVtkCells(std::ostream& os, Node* node, index_type& vertIndex) const;

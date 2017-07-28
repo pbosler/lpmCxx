@@ -7,6 +7,7 @@
 #include "LpmEdges.h"
 #include "LpmXyzVector.h"
 #include "LpmLogger.h"
+#include "LpmField.h"
 #include <vector>
 #include <tuple>
 #include <map>
@@ -21,7 +22,7 @@ class Faces {
         
         XyzVector centroid(const index_type i, const bool lagrangian = false) const;
         
-        inline bool isDivded(const index_type i) const {return _hasChildren[i];}
+        inline bool isDivided(const index_type i) const {return _hasChildren[i];}
         inline bool hasChildren(const index_type i) const {return _hasChildren[i];}
         inline bool isLeaf(const index_type i) const {return !_hasChildren[i];}
         
@@ -60,6 +61,10 @@ class Faces {
         scalar_type surfaceArea() const;
         
         void resetAreas();
+        
+        std::shared_ptr<Coords> makeCoordsFromCentroids() const;
+        std::shared_ptr<Field> centroidAreas() const;
+        std::shared_ptr<Field> convertAreasToScalarField() const;
         
         inline void setLogProc(const int rank) {log->setProcRank(rank);}
         

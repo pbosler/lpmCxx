@@ -30,6 +30,8 @@ class PolyMesh2d {
         inline std::shared_ptr<Coords> getLagCoords() const {return _lagCoords;}
         
         inline std::shared_ptr<Faces> getFaces() const {return _faces;}
+        inline std::shared_ptr<Coords> makeCoordsFromFaces() const {return _faces->makeCoordsFromCentroids();}
+        inline std::shared_ptr<Field> areaWeightField() const {return _faces->centroidAreas();}
     
         inline index_type nVertices() const {return _coords->n();}
         inline index_type nEdges() const {return _edges->n();}

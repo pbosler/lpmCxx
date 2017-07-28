@@ -1,5 +1,7 @@
 #include "LpmFaces.h"
 #include "LpmOutputMessage.h"
+#include "LpmEuclideanCoords.h"
+#include "LpmSphericalCoords.h"
 #include <iostream>
 #include <sstream>
 #include <numeric>
@@ -164,5 +166,39 @@ std::vector<index_type> Faces::vertexIndices(const index_type i) const {
     return verts;
 }
 
+std::shared_ptr<Field> Faces::convertAreasToScalarField() const {
+    std::shared_ptr<Field> result(new Field(n(), 1, "area", "length^2"));
+    for (index_type i = 0; i < n(); ++i) {
+        result->insert( (isDivided(i) ? 0.0 : _area[i]) );
+    }
+    return result;
+}
+
+std::shared_ptr<Coords> Faces::makeCoordsFromCentroids() const {
+    std::shared_ptr<Coords> crd_ptr = crds.lock();
+    std::shared_ptr<Coords> result;
+    if (dynamic_cast<EuclideanCoords*>(crd_ptr.get())) {
+        result = std::shared_ptr<Coords>(new EuclideanCoords(nLeaves(), crd_ptr->geometry()));
+    }
+    else if (dynamic_cast<SphericalCoords*>(crd_ptr.get())) {
+        result = std::shared_ptr<Coords>(new SphericalCoords(nLeaves(), dynamic_cast<SphericalCoords*>(crd_ptr.get())->radius()));
+    }
+    for (index_type i = 0; i < n(); ++i) {
+        if (isLeaf(i)) {
+            result->insert(centroid(i));
+        }
+    }
+    return result;
+}
+
+std::shared_ptr<Field> Faces::centroidAreas() const {
+    std::shared_ptr<Field> result(new Field(nLeaves(), 1, "area", "length^2"));
+    for (index_type i = 0; i < n(); ++i) {
+        if (isLeaf(i)) {
+            result->insert(_area[i]);
+        }
+    }
+    return result;
+}
 
 }

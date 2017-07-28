@@ -8,8 +8,6 @@
 #include <numeric>
 #include <cmath>
 
-#define BOX_PADDING_FACTOR 0.00001
-
 namespace Lpm {
 
 std::unique_ptr<Logger> Tree::log(new Logger(OutputMessage::debugPriority, "Tree_log"));
@@ -43,6 +41,7 @@ std::string Tree::infoString() const {
     ss << "\tnNodes = " << _nnodes << std::endl;
     ss << "\tdepth = " << _depth << std::endl;
     ss << "\tmaxAspectRatio = " << _maxAspectRatio << std::endl;
+    ss << _root->infoString();
     return ss.str();
 }
 
@@ -163,6 +162,37 @@ void Tree::shrinkBox(Node* node) {
     node->box.zmax = zmax;
 }
 
+void Tree::shrinkBox(Node* node, std::shared_ptr<Faces> faces) {
+    scalar_type xmin = std::numeric_limits<scalar_type>::max();
+    scalar_type xmax = std::numeric_limits<scalar_type>::lowest();
+    scalar_type ymin = xmin;
+    scalar_type ymax = xmax;
+    scalar_type zmin = xmin;
+    scalar_type zmax = xmax;
+    for (index_type i = 0; i < node->coordsContained.size(); ++i) {
+        const XyzVector cntd = faces->centroid(node->coordsContained[i]);
+        if (cntd.x < xmin)
+            xmin = cntd.x;
+        if (cntd.x > xmax)
+            xmax = cntd.x;
+        if (cntd.y < ymin)
+            ymin = cntd.y;
+        if (cntd.y > ymax)
+            ymax = cntd.y;
+        if (cntd.z < zmin)
+            zmin = cntd.z;
+        if (cntd.z > zmax)
+            zmax = cntd.z;
+    }
+    node->box.xmin = xmin;
+    node->box.xmax = xmax;
+    node->box.ymin = ymin;
+    node->box.ymax = ymax;
+    node->box.zmin = zmin;
+    node->box.zmax = zmax;
+}
+
+
 void Tree::writeToVtk(const std::string& filename, const std::string& desc) const {
     std::ofstream fs(filename);
     if (!fs.is_open()) {
@@ -239,6 +269,17 @@ void Tree::writeLevelDataToVtk(std::ostream& os, Node* node) const {
             writeLevelDataToVtk(os, node->kids[i].get());
         }
     }
+}
+
+index_type Tree::recursiveNodeCount(Node* node) const {
+    index_type result = 1;
+    result += node->kids.size();
+    if (node->hasKids()) {
+        for (int i = 0; i < node->kids.size(); ++i) {
+            result += recursiveNodeCount(node->kids[i].get());
+        }
+    }
+    return result;
 }
 
 int Tree::computeTreeDepth(Node* node) const {

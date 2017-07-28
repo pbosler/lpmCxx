@@ -141,6 +141,18 @@ void TaylorSeries3d::computeMoments(const std::shared_ptr<Coords> crds, const st
     }
 }
 
+void TaylorSeries3d::computeMoments(const std::shared_ptr<Faces> faces, const std::vector<index_type>& crdInds, 
+    const XyzVector& cntd, const std::shared_ptr<Field> srcVals) {
+    for (auto& elem : moments) {
+        const MultiIndex k = elem.first;
+        elem.second = 0.0;
+        for (index_type i = 0; i < crdInds.size(); ++i) {
+            const XyzVector dvec = faces->centroid(crdInds[i]) - cntd;
+            elem.second += k.vectorPower(dvec) * srcVals->getScalar(crdInds[i]) * faces->area(crdInds[i]);
+        }
+    }
+}
+
 
 std::string TaylorSeries3d::infoString() const {
     std::stringstream ss;

@@ -4,9 +4,13 @@
 #include "LpmConfig.h"
 #include "LpmTypeDefs.h"
 #include "LpmXyzVector.h"
+#include "LpmConfig.h"
+#include "LpmTypeDefs.h"
+#include "LpmXyzVector.h"
 #include "LpmMultiIndex.h"
 #include "LpmCoords.h"
 #include "LpmField.h"
+#include "LpmFaces.h"
 #include <map>
 #include <vector>
 #include <string>
@@ -34,6 +38,9 @@ class TaylorSeries3d {
             
         void computeMoments(const std::shared_ptr<Coords> crds, const std::vector<index_type>& crdInds, 
             const XyzVector& cntd, const std::shared_ptr<Field> srcVals, const std::shared_ptr<Field> srcWeights);
+        
+        void computeMoments(const std::shared_ptr<Faces> faces, const std::vector<index_type>& crdInds, 
+            const XyzVector& cntd, const std::shared_ptr<Field> srcVals);
         
     protected:    
         TaylorSeries3d(const int maxSeriesOrder);

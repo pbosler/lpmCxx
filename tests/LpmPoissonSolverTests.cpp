@@ -322,7 +322,7 @@ int main (int argc, char* argv[]) {
                 if (procRank == 0 ) {
                     ss.str(std::string());
                     ss << "poissonTest_icosTriSphere" << k << ".vtk";
-                    pmesh->writeToVtkFile(ss.str(), "2d Poisson sovler test, free boundaries");
+                    pmesh->writeToVtkFile(ss.str(), "Spherical Poisson sovler test");
                 }
                 timer.end();
                 OutputMessage timerMsg(timer.infoString(), OutputMessage::tracePriority, "main");
@@ -387,7 +387,7 @@ int main (int argc, char* argv[]) {
                 if (procRank == 0 ) {
                     ss.str(std::string());
                     ss << "poissonTest_cubedSphere" << k << ".vtk";
-                    pmesh->writeToVtkFile(ss.str(), "2d Poisson sovler test, free boundaries");
+                    pmesh->writeToVtkFile(ss.str(), "Spherical sovler test, free boundaries");
                 }
                 timer.end();
                 OutputMessage timerMsg(timer.infoString(), OutputMessage::tracePriority, "main");

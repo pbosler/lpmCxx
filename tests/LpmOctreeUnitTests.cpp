@@ -137,6 +137,7 @@ int main (int argc, char* argv[]) {
         tree->buildTree(nCoordsPerNode);
         std::cout << "returned from generateTree:" << std::endl;
         std::cout << "\t nNodes = " << tree->nNodes() << std::endl;
+        std::cout << "\t nRecursiveNodes " << tree->recursiveNNodes() << std::endl;
         std::cout << "\t treeDepth = " << tree->depth() << std::endl;
         
         std::cout << tree->infoString();
