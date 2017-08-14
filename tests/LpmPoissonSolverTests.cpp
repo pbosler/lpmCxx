@@ -41,7 +41,7 @@ int main (int argc, char* argv[]) {
     OutputMessage statusMsg(ss.str(), OutputMessage::tracePriority, "main");
     log->logMessage(statusMsg);
     
-    const int maxRecursion = 3;
+    const int maxRecursion = 6;
     { // planar tests
     const exact2dpotential exactPotential;
     const radial2dsource source;

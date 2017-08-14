@@ -62,6 +62,8 @@ class Faces {
         
         void resetAreas();
         
+        inline scalar_type* getPtrToArea() {return &_area[0];}
+        
         std::shared_ptr<Coords> makeCoordsFromCentroids() const;
         std::shared_ptr<Field> centroidAreas() const;
         std::shared_ptr<Field> convertAreasToScalarField() const;

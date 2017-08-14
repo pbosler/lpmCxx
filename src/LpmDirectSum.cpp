@@ -24,6 +24,9 @@ void DirectSum::meshSolve(const MPIReplicatedData& mpiVerts, const MPIReplicated
     std::shared_ptr<Field> vert_tgt_ptr = _vertTgt.lock();
     std::shared_ptr<Field> face_tgt_ptr = _faceTgt.lock();
     std::shared_ptr<ScalarKernel> kernel = _kernel.lock();
+    
+    scalar_type* srcFieldPtr = src_ptr->getPtrToData();
+    scalar_type* areaPtr = face_ptr->getPtrToArea();
 
     for (index_type i = mpiVerts.startIndex(myRank); i <= mpiVerts.endIndex(myRank); ++i) {
         scalar_type tgtVal = 0.0;
@@ -31,7 +34,7 @@ void DirectSum::meshSolve(const MPIReplicatedData& mpiVerts, const MPIReplicated
         for (index_type j = 0; j < face_ptr->n(); ++j) {
             if (!face_ptr->hasChildren(j)) {
                 const XyzVector srcLoc = face_ptr->centroid(j);
-                const scalar_type strength = src_ptr->getScalar(j) * face_ptr->area(j);
+                const scalar_type strength = *(srcFieldPtr + j) * *(areaPtr + j);
                 const scalar_type kval = kernel->evaluate(tgtLoc, srcLoc);
                 tgtVal += kval * strength;
             }
@@ -47,7 +50,7 @@ void DirectSum::meshSolve(const MPIReplicatedData& mpiVerts, const MPIReplicated
                 for (index_type j = 0; j < i; ++j) {
                     if (!face_ptr->hasChildren(j)) {
                         const XyzVector srcLoc = face_ptr->centroid(j);
-                        const scalar_type strength = src_ptr->getScalar(j) * face_ptr->area(j);
+                        const scalar_type strength = *(srcFieldPtr + j) * *(areaPtr + j);
                         const scalar_type kval = kernel->evaluate(tgtLoc, srcLoc);
                         tgtVal += kval * strength;
                     }
@@ -55,7 +58,7 @@ void DirectSum::meshSolve(const MPIReplicatedData& mpiVerts, const MPIReplicated
                 for (index_type j = i+1; j < face_ptr->n(); ++j) {
                     if (!face_ptr->hasChildren(j)) {
                         const XyzVector srcLoc = face_ptr->centroid(j);
-                        const scalar_type strength = src_ptr->getScalar(j) * face_ptr->area(j);
+                        const scalar_type strength = *(srcFieldPtr + j) * *(areaPtr + j);
                         const scalar_type kval = kernel->evaluate(tgtLoc, srcLoc);
                         tgtVal += kval * strength;
                     }
@@ -72,7 +75,7 @@ void DirectSum::meshSolve(const MPIReplicatedData& mpiVerts, const MPIReplicated
                 for (index_type j = 0; j < face_ptr->n(); ++j) {
                     if (!face_ptr->hasChildren(j)) {
                         const XyzVector srcLoc = face_ptr->centroid(j);
-                        const scalar_type strength = src_ptr->getScalar(j) * face_ptr->area(j);
+                        const scalar_type strength = *(srcFieldPtr + j) * *(areaPtr + j);
                         const scalar_type kval = kernel->evaluate(tgtLoc, srcLoc);
                         tgtVal += kval * strength;
                     }
