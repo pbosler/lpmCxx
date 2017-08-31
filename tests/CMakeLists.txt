@@ -64,3 +64,7 @@ ADD_TEST(multiIndexTest COMMAND mpirun -np 1 lpmMultiIndexUnitTest.exe)
 ADD_EXECUTABLE(lpmTreeSumTest.exe LpmTreeSumTests.cpp)
 TARGET_LINK_LIBRARIES(lpmTreeSumTest.exe lpm)
 ADD_TEST(treeSumTest COMMAND mpirun -np 1 lpmTreeSumTest.exe)
+
+ADD_EXECUTABLE(lpmBiotSavartTest.exe LpmBiotSavartRHWaveTests.cpp)
+TARGET_LINK_LIBRARIES(lpmBiotSavartTest.exe lpm)
+ADD_TEST(biotSavartTest COMMAND mpirun -np 4 lpmBiotSavartTest.exe)

@@ -10,6 +10,7 @@
 #include "LpmMeshedParticles.h"
 #include "LpmMPIReplicatedData.h"
 #include "LpmScalarKernel.h"
+#include "LpmVectorKernel.h"
 #include <memory>
 
 namespace Lpm {
@@ -20,6 +21,9 @@ class DirectSum {
             const std::string tgtFieldName, const std::string srcFieldName);
         DirectSum(std::shared_ptr<Particles> particles, const std::shared_ptr<ScalarKernel> kernel, 
             const std::string tgtFieldName, const std::string srcFieldName, const std::string srcWeightName = std::string());
+        
+        DirectSum(std::shared_ptr<MeshedParticles> pmesh, const std::shared_ptr<VectorKernel> kernel, 
+            const std::string tgtFieldName, const std::string srcFieldName);
             
         void meshSolve(const MPIReplicatedData& mpiVerts, const MPIReplicatedData& mpiFaces) const;
         
@@ -28,8 +32,11 @@ class DirectSum {
         void meshBroadcast(const MPIReplicatedData& mpiVerts, const MPIReplicatedData& mpiFaces) const;
         void meshfreeBroadcast(const MPIReplicatedData& mpiParticles) const;
     
+
     protected:
         std::weak_ptr<ScalarKernel> _kernel;
+        
+        std::weak_ptr<VectorKernel> _vecKernel;
         
         bool useWeights;
         std::weak_ptr<Field> _srcWeights;
@@ -44,6 +51,8 @@ class DirectSum {
         std::weak_ptr<Coords> _srcLocs;
         std::weak_ptr<Field> _srcVals;
         std::weak_ptr<Field> _tgtVals;
+    
+        static std::unique_ptr<Logger> log;
 };
 
 }

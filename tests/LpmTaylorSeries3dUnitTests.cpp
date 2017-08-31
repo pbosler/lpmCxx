@@ -55,7 +55,12 @@ int main (int argc, char* argv[]) {
     
     std::cout << "Series sum = " << ts.sum() << std::endl;
     
+    SphereDeltaSeries ds;
+    ds.computeCoeffs(tgtVec, srcVec);
+    ds.computeMoments(sc, crdInds, cntd, one);
     
+    std::cout << ds.infoString();
+    std::cout << "Series sum = " << ds.sum() << std::endl;
 return 0;
 }
 

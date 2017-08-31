@@ -1,5 +1,5 @@
-#ifndef _LPM_HEADER_TEMPLATE_H_
-#define _LPM_HEADER_TEMPLATE_H_
+#ifndef _LPM_SCALAR_KERNEL_H_
+#define _LPM_SCALAR_KERNEL_H_
 
 #include "LpmConfig.h"
 #include "LpmTypeDefs.h"
