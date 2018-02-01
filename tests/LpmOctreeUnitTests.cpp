@@ -87,7 +87,7 @@ int main (int argc, char* argv[]) {
 
         const int nCoordsPerNode = 10;
         std::cout << "calling generateTree..." << std::endl;
-        tree->buildTree(nCoordsPerNode);
+        tree->buildTree(Tree::MAX_COORDS_PER_NODE, nCoordsPerNode, true);
         std::cout << "returned from generateTree:" << std::endl;
         std::cout << "\t nNodes = " << tree->nNodes() << std::endl;
         std::cout << "\t treeDepth = " << tree->depth() << std::endl;
@@ -132,9 +132,9 @@ int main (int argc, char* argv[]) {
         std::shared_ptr<Tree> tree(new Tree(sc, maxAspectRatio));
         std::cout << tree->infoString();
         
-        const int nCoordsPerNode = 20;
+        const int maxTreeDepth = 6;
         
-        tree->buildTree(nCoordsPerNode);
+        tree->buildTree(Tree::MAX_DEPTH, maxTreeDepth, false);
         std::cout << "returned from generateTree:" << std::endl;
         std::cout << "\t nNodes = " << tree->nNodes() << std::endl;
         std::cout << "\t nRecursiveNodes " << tree->recursiveNNodes() << std::endl;
@@ -144,7 +144,7 @@ int main (int argc, char* argv[]) {
         
         const std::string fname("sphereOctreeUnitTest.vtk");
         std::stringstream ss;
-        ss << "nCoords = " << nMax << ", nCoordsPerNode = " << nCoordsPerNode;
+        ss << "max_tree_depth = " << maxTreeDepth;
         tree->writeToVtk(fname, ss.str());
     }
 

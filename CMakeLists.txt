@@ -33,20 +33,25 @@ find_package(MPI REQUIRED)
 set(CMAKE_CXX_COMPILE_FLAGS ${CMAKE_CXX_COMPILE_FLAGS} ${MPI_COMPILE_FLAGS})
 set(CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS} ${MPI_LINK_FLAGS})
 
-include_directories("${PROJECT_SOURCE_DIR}" "${PROJECT_SRC_DIR}/src" "${MPI_INCLUDE_PATH}" "${PROJECT_BINARY_DIR}")
-include_directories("${PROJECT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src" "${MPI_INCLUDE_PATH}" "${PROJECT_BINARY_DIR}")
-
-OPTION(DEBUG_ALL "Include all debug code" OFF)
-
 #
 # Add subdirectories
 #
 add_subdirectory( src )
 add_subdirectory( tests )
 
+message("project binary dir = " ${PROJECT_BINARY_DIR})
+
+include_directories("${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}")
+
+
+OPTION(DEBUG_ALL "Include all debug code" OFF)
+
+
+
 #
 # configure a header file to pass cmake variables to source code
 #
-configure_file ( "${PROJECT_SOURCE_DIR}/LpmConfig.h.in" "${PROJECT_BINARY_DIR}/LpmConfig.h" @ONLY)
+configure_file ( "${CMAKE_SOURCE_DIR}/LpmConfig.h.in" "${PROJECT_BINARY_DIR}/LpmConfig.h" @ONLY)
+
 
 ENABLE_TESTING()

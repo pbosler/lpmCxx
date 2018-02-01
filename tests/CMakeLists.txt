@@ -1,5 +1,7 @@
 include(CTest)
 
+include_directories("${PROJECT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src" "${PROJECT_BINARY_DIR}")
+
 ADD_EXECUTABLE(lpmXyzVectorUnitTest.exe LpmXyzVectorUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmXyzVectorUnitTest.exe lpm)
 add_test( xyzVecTest lpmXyzVectorUnitTest.exe)
@@ -53,17 +55,17 @@ ADD_EXECUTABLE(lpmOctreeUnitTest.exe LpmOctreeUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmOctreeUnitTest.exe lpm)
 ADD_TEST(octreeUnitTest COMMAND mpirun -np 1 lpmOctreeUnitTest.exe)
 
-ADD_EXECUTABLE(lpmTaylorSeries3dUnitTest.exe LpmTaylorSeries3dUnitTests.cpp)
-TARGET_LINK_LIBRARIES(lpmTaylorSeries3dUnitTest.exe lpm)
-ADD_TEST(taylorSeries3dTest COMMAND mpirun -np 1 lpmTaylorSeries3dUnitTest.exe)
+#ADD_EXECUTABLE(lpmTaylorSeries3dUnitTest.exe LpmTaylorSeries3dUnitTests.cpp)
+#TARGET_LINK_LIBRARIES(lpmTaylorSeries3dUnitTest.exe lpm)
+#ADD_TEST(taylorSeries3dTest COMMAND mpirun -np 1 lpmTaylorSeries3dUnitTest.exe)
 
 ADD_EXECUTABLE(lpmMultiIndexUnitTest.exe LpmMultiIndexUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmMultiIndexUnitTest.exe lpm)
 ADD_TEST(multiIndexTest COMMAND mpirun -np 1 lpmMultiIndexUnitTest.exe)
 
-ADD_EXECUTABLE(lpmTreeSumTest.exe LpmTreeSumTests.cpp)
-TARGET_LINK_LIBRARIES(lpmTreeSumTest.exe lpm)
-ADD_TEST(treeSumTest COMMAND mpirun -np 1 lpmTreeSumTest.exe)
+#ADD_EXECUTABLE(lpmTreeSumTest.exe LpmTreeSumTests.cpp)
+#TARGET_LINK_LIBRARIES(lpmTreeSumTest.exe lpm)
+#ADD_TEST(treeSumTest COMMAND mpirun -np 1 lpmTreeSumTest.exe)
 
 ADD_EXECUTABLE(lpmBiotSavartTest.exe LpmBiotSavartRHWaveTests.cpp)
 TARGET_LINK_LIBRARIES(lpmBiotSavartTest.exe lpm)

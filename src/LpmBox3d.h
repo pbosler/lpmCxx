@@ -5,12 +5,17 @@
 #include "LpmTypeDefs.h"
 #include "LpmXyzVector.h"
 
+#define BOX_PADDING_FACTOR 0.00001
+
 namespace Lpm {
 
 struct Box3d {
     Box3d() : xmin(0.0), xmax(0.0), ymin(0.0), ymax(0.0), zmin(0.0), zmax(0.0) {};
     Box3d(const scalar_type x0, const scalar_type x1, const scalar_type y0, const scalar_type y1, const scalar_type z0,
         const scalar_type z1) : xmin(x0), xmax(x1), ymin(y0), ymax(y1), zmin(z0), zmax(z1) {};
+    Box3d(const scalar_type maxr) : xmin(-maxr - BOX_PADDING_FACTOR), xmax(maxr + BOX_PADDING_FACTOR), 
+                                    ymin(-maxr - BOX_PADDING_FACTOR), ymax(maxr + BOX_PADDING_FACTOR), 
+                                    zmin(-maxr - BOX_PADDING_FACTOR), zmax(maxr + BOX_PADDING_FACTOR) {};
     
     inline scalar_type volume() const {return (xmax - xmin) * (ymax - ymin) * (zmax - zmin);}
     inline scalar_type area2d() const {return (xmax - xmin) * (ymax - ymin);}
@@ -20,6 +25,10 @@ struct Box3d {
     inline bool containsPoint(const XyzVector& vec) const {return (xmin <= vec.x && vec.x < xmax) &&
                                                                   (ymin <= vec.y && vec.y < ymax) &&
                                                                   (zmin <= vec.z && vec.z < zmax);}
+    
+    bool intersectsSphere(const scalar_type sphere_radius = 1.0) const;
+    
+    std::vector<XyzVector> corners() const;
     
     scalar_type longestEdge() const;
     scalar_type shortestEdge() const;

@@ -5,6 +5,7 @@
 #include "LpmTypeDefs.h"
 #include "LpmXyzVector.h"
 #include "LpmCoords.h"
+#include "LpmSphericalCoords.h"
 #include "LpmLogger.h"
 #include "LpmBox3d.h"
 #include "LpmFaces.h"
@@ -15,7 +16,7 @@
 
 namespace Lpm {
 
-#define BOX_PADDING_FACTOR 0.00001
+
 
 struct Node {        
     Node(const Box3d& bbox, Node* pparent = NULL, 
@@ -47,7 +48,11 @@ struct Node {
 
 class Tree {
     public:
+        enum TREE_DEPTH_CONTROL {MAX_COORDS_PER_NODE, MAX_DEPTH};
+    
         Tree(const std::shared_ptr<Coords> crds, const scalar_type maxAspectRatio = 1.0, const int prank = 0);
+        
+        
         virtual ~Tree() {};
         
         inline void setLogProc(const int prank) {log->setProcRank(prank); _root->log->setProcRank(prank);}
@@ -60,7 +65,7 @@ class Tree {
         
         index_type recursiveNNodes() const {return recursiveNodeCount(_root.get());}
 
-        virtual void buildTree(const index_type maxCoordsPerNode);
+        virtual void buildTree(const TREE_DEPTH_CONTROL depth_type, const index_type intParam, const bool do_shrink=false);
     
         void writeToVtk(const std::string& filename, const std::string& desc = "") const;
 
@@ -70,7 +75,9 @@ class Tree {
         void shrinkBox(Node* node);
         void shrinkBox(Node* node, std::shared_ptr<Faces> faces);
         
-        virtual void generateTree(Node* node, const index_type maxCoordsPerNode);
+        void generateTreeMaxNodes(Node* node, Coords* crds, const index_type maxCoordsPerNode, const bool do_shrink);
+        void generateTreeMaxDepth(Node* node, Coords* crds, const index_type maxDepth, const bool do_shrink);
+        
         int computeTreeDepth(Node* node) const;
         
         index_type recursiveNodeCount(Node* node) const;

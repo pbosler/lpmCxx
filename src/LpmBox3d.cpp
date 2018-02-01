@@ -30,22 +30,41 @@ scalar_type Box3d::aspectRatio() const {
 
 scalar_type Box3d::radius() const {
     const XyzVector cntd = centroid();
-    std::vector<XyzVector> corners;
-    corners.push_back(XyzVector(xmin, ymin, zmin));
-    corners.push_back(XyzVector(xmin, ymax, zmin));
-    corners.push_back(XyzVector(xmin, ymin, zmax));
-    corners.push_back(XyzVector(xmin, ymax, zmax));
-    corners.push_back(XyzVector(xmax, ymin, zmin));
-    corners.push_back(XyzVector(xmax, ymax, zmin));
-    corners.push_back(XyzVector(xmax, ymin, zmax));
-    corners.push_back(XyzVector(xmax, ymax, zmax));
+    const std::vector<XyzVector> crnrs = corners();
     scalar_type result = 0.0;
     for (int i = 0; i < 8; ++i) {
-        const scalar_type testDist = distance(cntd, corners[i]);
+        const scalar_type testDist = distance(cntd, crnrs[i]);
         if (testDist > result)
             result = testDist;
     }
     return result;
+}
+
+std::vector<XyzVector> Box3d::corners() const {
+    std::vector<XyzVector> result;
+    result.push_back(XyzVector(xmin, ymin, zmin));
+    result.push_back(XyzVector(xmin, ymax, zmin));
+    result.push_back(XyzVector(xmin, ymin, zmax));
+    result.push_back(XyzVector(xmin, ymax, zmax));
+    result.push_back(XyzVector(xmax, ymin, zmin));
+    result.push_back(XyzVector(xmax, ymax, zmin));
+    result.push_back(XyzVector(xmax, ymin, zmax));
+    result.push_back(XyzVector(xmax, ymax, zmax));
+    return result;
+}
+
+
+bool Box3d::intersectsSphere(const scalar_type sphere_radius) const {
+    const std::vector<XyzVector> crnrs = corners();
+    bool point_inside = false;
+    bool point_outside = false;
+    for (int i=0; i<8; ++i) {
+        if (crnrs[i].magnitude() <= sphere_radius)
+            point_inside = true;
+        if (crnrs[i].magnitude() > sphere_radius)
+            point_outside = true;
+    }
+    return point_inside && point_outside;
 }
 
 std::vector<Box3d> Box3d::bisectAll() const {

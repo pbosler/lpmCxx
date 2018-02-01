@@ -70,12 +70,18 @@ Node::Node(const Box3d& bbox, Node* pparent, const std::vector<index_type>& crdI
     }
 }
 
-void Tree::buildTree(const index_type maxCoordsPerNode) {
-    generateTree(_root.get(), maxCoordsPerNode);
+void Tree::buildTree(const TREE_DEPTH_CONTROL tree_depth_type, const index_type intParam, const bool do_shrink) {
+    std::shared_ptr<Coords> crd_ptr = _crds.lock();
+    if (tree_depth_type == MAX_COORDS_PER_NODE) {
+        generateTreeMaxNodes(_root.get(), crd_ptr.get(), intParam, do_shrink);
+    }
+    else if (tree_depth_type == MAX_DEPTH) {
+        generateTreeMaxDepth(_root.get(), crd_ptr.get(), intParam, do_shrink);
+    }
     _depth = computeTreeDepth(_root.get());
 }
 
-void Tree::generateTree(Node* node, const index_type maxCoordsPerNode) {
+void Tree::generateTreeMaxNodes(Node* node, Coords* crd_ptr, const index_type maxCoordsPerNode, const bool do_shrink) {
     if (node->coordsContained.size() <= maxCoordsPerNode) {
         return;
     }
@@ -83,23 +89,25 @@ void Tree::generateTree(Node* node, const index_type maxCoordsPerNode) {
         //
         //  determine box dimensions to split
         //
-        std::shared_ptr<Coords> crd_ptr = _crds.lock();
-        bool splitDims[3];
-        int splitCount = 0;
-        const scalar_type edgeThreshold = node->box.longestEdge() / _maxAspectRatio;
-        for (int i = 0; i < 3; ++i) {
-            if (node->box.edgeLength(i) >= edgeThreshold) {
-                splitDims[i] = true;
-                splitCount += 1;
-            }
-            else {
-                splitDims[i] = false;
-            }
-        }
+//         bool splitDims[3];
+//         int splitCount = 0;
+//         const scalar_type edgeThreshold = node->box.longestEdge() / _maxAspectRatio;
+//         for (int i = 0; i < 3; ++i) {
+//             if (node->box.edgeLength(i) >= edgeThreshold) {
+//                 splitDims[i] = true;
+//                 splitCount += 1;
+//             }
+//             else {
+//                 splitDims[i] = false;
+//             }
+//         }
         //
         //  make child boxes
         //
-        std::vector<Box3d> kidboxes = node->box.bisectAlongDims(splitDims);
+//        std::vector<Box3d> kidboxes = node->box.bisectAlongDims(splitDims);
+
+
+        std::vector<Box3d> kidboxes = node->box.bisectAll();
         for (int i = 0; i < kidboxes.size(); ++i) {
             //
             //  find coordinates contained by child box
@@ -117,19 +125,58 @@ void Tree::generateTree(Node* node, const index_type maxCoordsPerNode) {
             }
         }
         if (node->kids.empty()) {
-            OutputMessage errMsg("All kids are empty, this shouldn't happen.", OutputMessage::errorPriority, "Treee::buildTree");
+            OutputMessage errMsg("All kids are empty, this shouldn't happen.", OutputMessage::errorPriority, "Tree::generateTreeMaxNodes");
             log->logMessage(errMsg);
             return;
         }
         else {
             _nnodes += node->kids.size();
              for (int i = 0; i < node->kids.size(); ++i) {
-                shrinkBox(node->kids[i].get());  
-                 generateTree(node->kids[i].get(), maxCoordsPerNode);
+                if (do_shrink) {
+                    shrinkBox(node->kids[i].get());  
+                }
+                generateTreeMaxNodes(node->kids[i].get(), crd_ptr, maxCoordsPerNode, do_shrink);
             }
         }
     }
 }
+
+void Tree::generateTreeMaxDepth(Node* node, Coords* crd_ptr, const index_type maxDepth, const bool do_shrink) {
+    if (node->level == maxDepth) {
+        return;
+    }
+    else {
+        std::vector<Box3d> kidboxes = node->box.bisectAll();
+        for (int i = 0; i < kidboxes.size(); ++i) {
+            std::vector<index_type> kidcoords;
+            kidcoords.reserve(node->coordsContained.size());
+            for (index_type j = 0; j < node->coordsContained.size(); ++j) {
+                if (kidboxes[i].containsPoint(crd_ptr->getVec(node->coordsContained[j]))) {
+                    kidcoords.push_back(node->coordsContained[j]);
+                }
+            }
+            if (!kidcoords.empty()) {
+                kidcoords.shrink_to_fit();
+                node->kids.push_back(std::unique_ptr<Node>(new Node(kidboxes[i], node, kidcoords)));
+            }
+        }
+        if (node->kids.empty()) {
+            OutputMessage errMsg("All kids are empty, this shouldn't happen.", OutputMessage::errorPriority, "Tree::generateTreeMaxDepth");
+            log->logMessage(errMsg);
+            return;
+        }
+        else {
+            _nnodes += node->kids.size();
+            for (int i=0; i<node->kids.size(); ++i) {
+                if (do_shrink) {
+                    shrinkBox(node->kids[i].get());
+                }
+                generateTreeMaxDepth(node->kids[i].get(), crd_ptr, maxDepth, do_shrink);
+            }
+        }
+    }
+}
+
 
 void Tree::shrinkBox(Node* node) {
     scalar_type xmin = std::numeric_limits<scalar_type>::max();
