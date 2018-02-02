@@ -64,6 +64,10 @@ XyzVector operator * ( const XyzVector& vecA, const XyzVector& vecB );
 
 std::ostream& operator << ( std::ostream& os, const XyzVector& vec );
  
+inline XyzVector crossProduct( const XyzVector& left, const XyzVector& right) {
+    return left.crossProduct(right);
+}
+ 
 scalar_type atan4( const scalar_type y, const scalar_type x );
 
 inline void llToXyz(scalar_type& x, scalar_type& y, scalar_type& z, const scalar_type& lambda, const scalar_type& theta, 

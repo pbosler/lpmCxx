@@ -25,6 +25,7 @@ struct SakajoNode : public Node {
     SakajoNode(const Box3d& bbox, SakajoNode* parent, const int max_series_order);
     
     coeff_type coeffs;
+    coeff_type moments;
 };
 
 class SakajoTree : public Tree {
@@ -33,12 +34,26 @@ class SakajoTree : public Tree {
         
         void buildTree(const TREE_DEPTH_CONTROL depth_type, const index_type intParam, const bool do_shrink=false) override {};
         
-        void computeCoefficients(const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> field);
+        void computeCoefficients(const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> circ);
+        
+        void computeCoefficients(const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> vorticity, const std::shared_ptr<Field> area);
+        
+        XyzVector computeVelocity(const index_type tgt_ind, const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> circ) const;
+        XyzVector computeVelocity(const index_type tgt_ind, const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> vorticity, const std::shared_ptr<Field> area) const;
     
     protected:
+        bool multipoleAcceptance(const SakajoNode* node, const scalar_type meshSize, const scalar_type nuPower, const XyzVector& queryVec) const;
+    
         void generateTree(SakajoNode* node, const int j);
         
-        void nodeCoeffs(SakajoNode* node, const int k, const XyzVector vecy, const index_type yind, const scalar_type Gamma);
+        void nodeCoeffs(SakajoNode* node, const XyzVector& tgtVec);
+        void nodeMoments(SakajoNode* node, const int k, const XyzVector vecy, const index_type yind, const scalar_type Gamma);
+        
+        void velocity(XyzVector& vel, SakajoNode* node, const int k, const XyzVector& tgtVec, 
+            const scalar_type meshSize, const scalar_type nuPower, const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> circ,
+            const scalar_type smooth_param);
+        
+        XyzVector biotSavart(const XyzVector& tgtVec, const XyzVector& srcVec, const scalar_type smooth_param = 0.0) const;
         
         int _maxSeriesOrder;
         int _maxTreeDepth;
