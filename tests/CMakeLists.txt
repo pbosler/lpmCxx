@@ -63,6 +63,10 @@ ADD_EXECUTABLE(lpmMultiIndexUnitTest.exe LpmMultiIndexUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmMultiIndexUnitTest.exe lpm)
 ADD_TEST(multiIndexTest COMMAND mpirun -np 1 lpmMultiIndexUnitTest.exe)
 
+ADD_EXECUTABLE(lpmSakajoUnitTest.exe LpmSakajoUnitTests.cpp)
+TARGET_LINK_LIBRARIES(lpmSakajoUnitTest.exe lpm)
+ADD_TEST(sakajoUnitTest COMMAND mpirun -np 1 lpmSakajoUnitTest.exe)
+
 #ADD_EXECUTABLE(lpmTreeSumTest.exe LpmTreeSumTests.cpp)
 #TARGET_LINK_LIBRARIES(lpmTreeSumTest.exe lpm)
 #ADD_TEST(treeSumTest COMMAND mpirun -np 1 lpmTreeSumTest.exe)

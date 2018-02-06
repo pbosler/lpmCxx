@@ -41,30 +41,59 @@ scalar_type Box3d::radius() const {
 }
 
 std::vector<XyzVector> Box3d::corners() const {
-    std::vector<XyzVector> result;
-    result.push_back(XyzVector(xmin, ymin, zmin));
-    result.push_back(XyzVector(xmin, ymax, zmin));
-    result.push_back(XyzVector(xmin, ymin, zmax));
-    result.push_back(XyzVector(xmin, ymax, zmax));
-    result.push_back(XyzVector(xmax, ymin, zmin));
-    result.push_back(XyzVector(xmax, ymax, zmin));
-    result.push_back(XyzVector(xmax, ymin, zmax));
-    result.push_back(XyzVector(xmax, ymax, zmax));
+    std::vector<XyzVector> result(8)
+    result[0] = XyzVector(xmin, ymin, zmin);
+    result[1] = XyzVector(xmin, ymax, zmin);
+    result[2] = XyzVector(xmin, ymin, zmax);
+    result[3] = XyzVector(xmin, ymax, zmax);
+    result[4] = XyzVector(xmax, ymin, zmin);
+    result[5] = XyzVector(xmax, ymax, zmin);
+    result[6] = XyzVector(xmax, ymin, zmax);
+    result[7] = XyzVector(xmax, ymax, zmax);
     return result;
 }
 
 
-bool Box3d::intersectsSphere(const scalar_type sphere_radius) const {
-    const std::vector<XyzVector> crnrs = corners();
-    bool point_inside = false;
-    bool point_outside = false;
+bool Box3d::containsOrIntersectsSphere(const XyzVector& sphCtr, const scalar_type sphRadius) const {
+    const XyzVector boxc = centroid();
+    const XyzVector box2sph = sphCtr - boxc;
+    const std::vector<XyzVector> cnrs = corners();
+    std::vector<int> inside_corners;
+    std::vector<int> outside_corners;
+    int closest_corner = -1;
+    scalar_type cdist = std::numeric_limits<scalar_type>::max();
     for (int i=0; i<8; ++i) {
-        if (crnrs[i].magnitude() <= sphere_radius)
-            point_inside = true;
-        if (crnrs[i].magnitude() > sphere_radius)
-            point_outside = true;
+        const XyzVector c2sph = cnrs[i] - sphCtr;
+        const scalar_type test_dist = c2sph.magnitude();
+        if (test_dist < cdist) {
+            closest_corner = i;
+            cdist = test_dist;
+        }
+        if ( test_dist <= sphRadius) {
+            inside_corners.push_back(i);
+        }
+        else {
+            outside_corners.push_back(i);
+        }
     }
-    return point_inside && point_outside;
+    
+    result = false;
+    if ( !inside_corners.empty() && !outside_corners.empty()) {
+        result = true;
+    }
+    else {
+        if (box2sph.magnitude() <= sphRadius) {
+            // box center is inside sphere
+            if (outside_corners.size() == 8) {
+                // box contains sphere
+                result = true;
+            }        
+        }
+        else {
+            // box center is outside sphere
+        }
+    }
+    return result;
 }
 
 std::vector<Box3d> Box3d::bisectAll() const {

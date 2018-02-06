@@ -26,7 +26,7 @@ struct Box3d {
                                                                   (ymin <= vec.y && vec.y < ymax) &&
                                                                   (zmin <= vec.z && vec.z < zmax);}
     
-    bool intersectsSphere(const scalar_type sphere_radius = 1.0) const;
+    bool containsOrIntersectsSphere(const XyzVector& sph_ctr = XyzVector(), const scalar_type sphere_radius = 1.0) const;
     
     std::vector<XyzVector> corners() const;
     

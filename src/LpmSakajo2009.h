@@ -30,7 +30,8 @@ struct SakajoNode : public Node {
 
 class SakajoTree : public Tree {
     public :
-        SakajoTree(const int max_series_order, const int max_tree_depth, const scalar_type sphere_radius = 1.0, const int prank = 0);
+        SakajoTree(const int max_series_order, const int max_tree_depth, const scalar_type sphere_radius = 1.0, 
+            const scalar_type smooth_param = 0.0, const int prank = 0);
         
         void buildTree(const TREE_DEPTH_CONTROL depth_type, const index_type intParam, const bool do_shrink=false) override {};
         
@@ -38,9 +39,11 @@ class SakajoTree : public Tree {
         
         void computeCoefficients(const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> vorticity, const std::shared_ptr<Field> area);
         
-        XyzVector computeVelocity(const index_type tgt_ind, const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> circ) const;
-        XyzVector computeVelocity(const index_type tgt_ind, const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> vorticity, const std::shared_ptr<Field> area) const;
-    
+//         XyzVector computeVelocity(const index_type tgt_ind, const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> circ);
+//         XyzVector computeVelocity(const index_type tgt_ind, const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> vorticity, const std::shared_ptr<Field> area);
+//         
+//         scalar_type computeStreamFunction(const index_type tgt_ind, const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> circ);
+        
     protected:
         bool multipoleAcceptance(const SakajoNode* node, const scalar_type meshSize, const scalar_type nuPower, const XyzVector& queryVec) const;
     
@@ -50,14 +53,19 @@ class SakajoTree : public Tree {
         void nodeMoments(SakajoNode* node, const int k, const XyzVector vecy, const index_type yind, const scalar_type Gamma);
         
         void velocity(XyzVector& vel, SakajoNode* node, const int k, const XyzVector& tgtVec, 
-            const scalar_type meshSize, const scalar_type nuPower, const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> circ,
-            const scalar_type smooth_param);
+            const scalar_type meshSize, const scalar_type nuPower, const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> circ);
+        
+        void streamFn(scalar_type& psi, SakajoNode* node, const int k, const XyzVector& tgtVec, 
+            const scalar_type meshSize, const scalar_type nuPower, const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> circ);
         
         XyzVector biotSavart(const XyzVector& tgtVec, const XyzVector& srcVec, const scalar_type smooth_param = 0.0) const;
         
+        scalar_type greens(const XyzVector& tgtVec, const XyzVector& srcVec, const scalar_type smooth_param = 0.0) const;
+        
         int _maxSeriesOrder;
         int _maxTreeDepth;
-        int _sphRadius;
+        scalar_type _sphRadius;
+        scalar_type _smooth;
 
 };
 

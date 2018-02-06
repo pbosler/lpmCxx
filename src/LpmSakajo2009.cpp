@@ -1,4 +1,5 @@
 #include "LpmSakajo2009.h"
+#include <cmath>
 
 namespace Lpm {
 
@@ -18,8 +19,9 @@ SakajoNode::SakajoNode(const Box3d& bbox, SakajoNode* parent, const int max_seri
 }
 
 
-SakajoTree::SakajoTree(const int max_series_order, const int max_tree_depth, const scalar_type sphere_radius, const int prank) : 
-Tree(), _maxSeriesOrder(max_series_order), _maxTreeDepth(max_tree_depth), _sphRadius(sphere_radius)
+SakajoTree::SakajoTree(const int max_series_order, const int max_tree_depth, const scalar_type sphere_radius, 
+    const scalar_type smooth_param, const int prank) : Tree(), _maxSeriesOrder(max_series_order), 
+        _maxTreeDepth(max_tree_depth), _sphRadius(sphere_radius), _smooth(smooth_param)
 {
     _nnodes = 1;
     log->setProcRank(prank);
@@ -71,7 +73,11 @@ void SakajoTree::computeCoefficients(const std::shared_ptr<SphericalCoords> crds
 }
 
 void SakajoTree::nodeCoeffs(SakajoNode* node, const XyzVector& tgtVec){
-    const scalar_type dxy = 1.0 / (_sphRadius*_sphRadius - tgtVec.dotProduct(node->box.centroid()));
+    const scalar_type dxy = 1.0 / (square(_sphRadius) + square(_smooth) - tgtVec.dotProduct(node->box.centroid()));
+    for (int ii=0; ii<3; ++ii) {
+        node->coeffs[MultiIndex(0,0,0)][ii] = dxy;
+    }
+
     for (int k1=0; k1 < _maxSeriesOrder-1; ++k1) {
         for (int k2=0; k2 < _maxSeriesOrder-1; ++k2) {
             for (int k3=0; k3 < _maxSeriesOrder-1; ++k3) {
@@ -110,20 +116,24 @@ void SakajoTree::nodeMoments(SakajoNode* node, const int k, const XyzVector vecy
 }
 
 bool SakajoTree::multipoleAcceptance(const SakajoNode* node, const scalar_type meshSize, const scalar_type nuPower, const XyzVector& queryVec) const {
-    const scalar_type dist = std::abs(_sphRadius*_sphRadius - queryVec.dotProduct(node->box.centroid()));
+    const scalar_type dist = std::abs(square(_sphRadius) - queryVec.dotProduct(node->box.centroid()));
     return node->box.radius() <= std::pow(meshSize, nuPower) * dist;
 }
 
 XyzVector SakajoTree::biotSavart(const XyzVector& tgtVec, const XyzVector& srcVec, const scalar_type smooth_param) const {
     XyzVector cp = tgtVec.crossProduct(srcVec);
-    const scalar_type denom = (_sphRadius*_sphRadius + smooth_param*smooth_param - tgtVec.dotProduct(srcVec));
-    cp.scale(1.0 / denom);
+    const scalar_type denom = 4.0 * PI * _sphRadius * (square(_sphRadius) + square(smooth_param) - tgtVec.dotProduct(srcVec));
+    cp.scale(-1.0 / denom);
     return cp;
 }
 
+scalar_type SakajoTree::greens(const XyzVector& tgtVec, const XyzVector& srcVec, const scalar_type smooth_param) const {
+    const scalar_type sqdist = square(_sphRadius) - tgtVec.dotProduct(srcVec) + square(smooth_param);
+    return std::log(sqdist) / (- 4.0 * PI * _sphRadius);
+}
+
 void SakajoTree::velocity(XyzVector& vel, SakajoNode* node, const int k, const XyzVector& tgtVec, 
-            const scalar_type meshSize, const scalar_type nuPower, const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> circ,
-            const scalar_type smooth_param) {
+            const scalar_type meshSize, const scalar_type nuPower, const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> circ) {
     if (multipoleAcceptance(node, meshSize, nuPower, tgtVec)) {
         nodeCoeffs(node, tgtVec);
         for (auto& elem : node->moments) {
@@ -133,13 +143,14 @@ void SakajoTree::velocity(XyzVector& vel, SakajoNode* node, const int k, const X
             vel.y += taylor_coeffs[1] * (tgtVec.z * moments[0] - tgtVec.x * moments[2]);
             vel.z += taylor_coeffs[2] * (tgtVec.x * moments[1] - tgtVec.y * moments[0]);
         }
+        vel.scale(-1.0 / (4.0 * PI * _sphRadius));
         return;
     }
     else {
         if (k == 3 * _maxSeriesOrder ) {
             for (index_type i=0; i<node->coordsContained.size(); ++i) {
                 const XyzVector srcVec = crds->getVec(node->coordsContained[i]);
-                const XyzVector kernel = biotSavart(tgtVec, srcVec, smooth_param);
+                const XyzVector kernel = biotSavart(tgtVec, srcVec, _smooth);
                 const scalar_type Gamma = circ->getScalar(node->coordsContained[i]);
                 vel.x += Gamma * kernel.x;
                 vel.y += Gamma * kernel.y;
@@ -149,7 +160,39 @@ void SakajoTree::velocity(XyzVector& vel, SakajoNode* node, const int k, const X
         }
         else {
             for (int i=0; i<node->kids.size(); ++i) {
-                velocity(vel, dynamic_cast<SakajoNode*>(node->kids[i].get()), k+1, tgtVec, meshSize, nuPower, crds, circ, smooth_param);
+                velocity(vel, dynamic_cast<SakajoNode*>(node->kids[i].get()), k+1, tgtVec, meshSize, nuPower, crds, circ);
+            }
+        }
+    }
+}
+
+void SakajoTree::streamFn(scalar_type& psi, SakajoNode* node, const int k, const XyzVector& tgtVec, 
+            const scalar_type meshSize, const scalar_type nuPower, const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> circ) {
+    if (multipoleAcceptance(node, meshSize, nuPower, tgtVec)) {
+        nodeCoeffs(node, tgtVec);
+        for (auto& elem : node->moments) {
+            const std::vector<scalar_type> taylor_coeffs = node->coeffs[elem.first];
+            const std::vector<scalar_type> moments = elem.second;
+            for (int ii=0; ii<3; ++ii) {
+                psi += taylor_coeffs[ii] * moments[ii];
+            }
+            psi /= (- 4.0 * PI * _sphRadius);
+            return;
+        }
+    }
+    else {
+        if (k==3 * _maxSeriesOrder) {
+            for (index_type i = 0; i < node->coordsContained.size(); ++i) {
+                const XyzVector srcVec = crds->getVec(node->coordsContained[i]);
+                const scalar_type kernel = greens(tgtVec, srcVec, _smooth);
+                const scalar_type Gamma = circ->getScalar(node->coordsContained[i]);
+                psi += Gamma * kernel;
+            }
+            return;
+        }
+        else {
+            for (int i=0; i<node->kids.size(); ++i) {
+                streamFn(psi, dynamic_cast<SakajoNode*>(node->kids[i].get()), k+1, tgtVec, meshSize, nuPower, crds, circ);
             }
         }
     }
