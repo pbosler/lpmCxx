@@ -19,6 +19,13 @@ class XyzVector
 		XyzVector( const scalar_type nx = 0.0, const scalar_type ny = 0.0, const scalar_type nz = 0.0 ) :
 			x(nx), y(ny), z(nz) {};
 		
+		XyzVector(const std::vector<scalar_type>& vec) : x(vec[0]), y(vec[1]), z(vec[2]) {};
+		
+		inline std::vector<scalar_type> getStdVector() const { 
+		    std::vector<scalar_type> result = {x, y, z};
+		    return result;
+		}
+		
 		~XyzVector() {};
 		
 		inline XyzVector operator += (const XyzVector& other) 

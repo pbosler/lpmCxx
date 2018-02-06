@@ -49,7 +49,7 @@ void SakajoTree::generateTree(SakajoNode* node, const int j) {
         
         std::vector<Box3d> kidboxes = node->box.bisectAlongDims(split_dim);
         for (int i=0; i<2; ++i) {
-            if (kidboxes[i].intersectsSphere(_sphRadius)) {
+            if (false) {
                 node->kids.push_back(std::unique_ptr<SakajoNode>(new SakajoNode(kidboxes[i], node, _maxSeriesOrder)));
             }
         }
@@ -117,7 +117,7 @@ void SakajoTree::nodeMoments(SakajoNode* node, const int k, const XyzVector vecy
 
 bool SakajoTree::multipoleAcceptance(const SakajoNode* node, const scalar_type meshSize, const scalar_type nuPower, const XyzVector& queryVec) const {
     const scalar_type dist = std::abs(square(_sphRadius) - queryVec.dotProduct(node->box.centroid()));
-    return node->box.radius() <= std::pow(meshSize, nuPower) * dist;
+    return node->box.maxRadius() <= std::pow(meshSize, nuPower) * dist;
 }
 
 XyzVector SakajoTree::biotSavart(const XyzVector& tgtVec, const XyzVector& srcVec, const scalar_type smooth_param) const {

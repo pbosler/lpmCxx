@@ -25,35 +25,13 @@ int main (int argc, char* argv[]) {
         std::stringstream ss;
         ss << "Test info: \n \t title: " << "Octree unit tests" << std::endl;
         ss << "\t objectives: " << std::endl;
-        ss << "\t 1. Verify Box3d class functions" << std::endl;
         ss << "\t 2. Verify basic Treenode class functions" << std::endl;
         ss << "\t 3. Generate 3d octree for Cartesian points" << std::endl;
         ss << "\t 4. Generate 3d octree for spherical points" << std::endl;
         OutputMessage introMsg(ss.str(), OutputMessage::tracePriority, "main");
         log->logMessage(introMsg);
     }
-    {   // box 3d unit tests
-        
-        Box3d unitBox(-1,1,-1,1,-1,1);
-        std::cout << "Unit Box : " << unitBox.infoString();
-        std::cout << "\tvolume = " << unitBox.volume() << std::endl;
-        std::cout << "\tcentroid = " << unitBox.centroid() << std::endl;
-        std::cout << "\tcontains origin ? : " << (unitBox.containsPoint(XyzVector(0.0, 0.0, 0.0)) ? "true" : "false") << std::endl;
-        std::cout << "\tlongestEdge = " << unitBox.longestEdge() << std::endl;
-        std::cout << "\tshortestEdge = " << unitBox.shortestEdge() << std::endl;
-        std::cout << "\taspectRatio = " << unitBox.aspectRatio() << std::endl;
-        
-        std::vector<Box3d> kids = unitBox.bisectAll();
-        for (int i = 0; i < 8; ++i) {
-            std::cout << "child " << i << ": " << kids[i].infoString();
-        }
-        
-        Box3d boxCopy(kids[1]);
-        std::cout << "BoxCopy " << boxCopy.infoString();
-        Box3d boxAssign = boxCopy;
-        std::cout << "BoxAssign " << boxAssign.infoString();
-            
-    }
+    
     {
         const int nMax = 8000;
         const scalar_type domainRadius = 2.0;
