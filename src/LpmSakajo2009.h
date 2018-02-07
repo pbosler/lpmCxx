@@ -20,12 +20,19 @@
 namespace Lpm {
 
 struct SakajoNode : public Node {
-    typedef std::map<MultiIndex, std::vector<scalar_type>> coeff_type;
+    typedef std::map<MultiIndex, scalar_type> coeff_type;
+    typedef std::map<MultiIndex, std::vector<scalar_type>> moment_type;
     
     SakajoNode(const Box3d& bbox, SakajoNode* parent, const int max_series_order);
     
+    std::vector<MultiIndex> getKeys() const;
+    
+    std::string coeffString() const;
+    std::string momentString() const;
+    
     coeff_type coeffs;
-    coeff_type moments;
+    moment_type moments;
+    
 };
 
 class SakajoTree : public Tree {
@@ -35,30 +42,40 @@ class SakajoTree : public Tree {
         
         void buildTree(const TREE_DEPTH_CONTROL depth_type, const index_type intParam, const bool do_shrink=false) override {};
         
-        void computeCoefficients(const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> circ);
+        void computeMoments(const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> circ);
         
-        void computeCoefficients(const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> vorticity, const std::shared_ptr<Field> area);
+        void computeMoments(const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> vorticity, const std::shared_ptr<Field> area);
+        
+        void writeToVtk(const std::string& filename, const std::string& desc = "") const override;
+        
+        SakajoNode* getRoot() {return dynamic_cast<SakajoNode*>(_root.get());}
+        
+        void computeVelocity(std::shared_ptr<Field> outputVelocity, const std::shared_ptr<SphericalCoords> crds, 
+                const std::shared_ptr<Field> circ, const scalar_type meshSize, const scalar_type nuPower);
         
 //         XyzVector computeVelocity(const index_type tgt_ind, const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> circ);
+        
 //         XyzVector computeVelocity(const index_type tgt_ind, const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> vorticity, const std::shared_ptr<Field> area);
 //         
 //         scalar_type computeStreamFunction(const index_type tgt_ind, const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> circ);
+        
+        XyzVector biotSavart(const XyzVector& tgtVec, const XyzVector& srcVec, const scalar_type smooth_param = 0.0) const;
         
     protected:
         bool multipoleAcceptance(const SakajoNode* node, const scalar_type meshSize, const scalar_type nuPower, const XyzVector& queryVec) const;
     
         void generateTree(SakajoNode* node, const int j);
         
-        void nodeCoeffs(SakajoNode* node, const XyzVector& tgtVec);
+        void biotSavartCoeffs(SakajoNode* node, const XyzVector& tgtVec);
         void nodeMoments(SakajoNode* node, const int k, const XyzVector vecy, const index_type yind, const scalar_type Gamma);
         
-        void velocity(XyzVector& vel, SakajoNode* node, const int k, const XyzVector& tgtVec, 
+        void velocity(XyzVector& vel, SakajoNode* node, const int k, const XyzVector& tgtVec, const index_type tgtInd,
             const scalar_type meshSize, const scalar_type nuPower, const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> circ);
         
         void streamFn(scalar_type& psi, SakajoNode* node, const int k, const XyzVector& tgtVec, 
             const scalar_type meshSize, const scalar_type nuPower, const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> circ);
         
-        XyzVector biotSavart(const XyzVector& tgtVec, const XyzVector& srcVec, const scalar_type smooth_param = 0.0) const;
+        
         
         scalar_type greens(const XyzVector& tgtVec, const XyzVector& srcVec, const scalar_type smooth_param = 0.0) const;
         

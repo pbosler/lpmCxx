@@ -243,7 +243,7 @@ void Tree::shrinkBox(Node* node, std::shared_ptr<Faces> faces) {
 void Tree::writeToVtk(const std::string& filename, const std::string& desc) const {
     std::ofstream fs(filename);
     if (!fs.is_open()) {
-        OutputMessage errMsg("cannot open .vtk file", OutputMessage::errorPriority, "Lpm::writeTreeToVtk");
+        OutputMessage errMsg("cannot open .vtk file", OutputMessage::errorPriority, "Lpm::Tree::writeToVtk");
         log->logMessage(errMsg);
         throw std::ios_base::failure("file write error");    
     }

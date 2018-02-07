@@ -67,7 +67,7 @@ class Tree {
 
         virtual void buildTree(const TREE_DEPTH_CONTROL depth_type, const index_type intParam, const bool do_shrink=false);
     
-        void writeToVtk(const std::string& filename, const std::string& desc = "") const;
+        virtual void writeToVtk(const std::string& filename, const std::string& desc = "") const;
 
     protected:
         Tree() : _depth(0), _nnodes(0), _maxAspectRatio(1.0) {};

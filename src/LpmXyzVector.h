@@ -59,6 +59,8 @@ class XyzVector
 		
 		inline void scale( const scalar_type multiplier ){ x *= multiplier; y *= multiplier; z *= multiplier; }
 		
+		inline XyzVector scalarMultiply(const scalar_type c) const {return XyzVector(x*c, y*c, z*c);}
+		
 		inline void normalize() { const scalar_type norm = magnitude(); x /= norm; y /= norm; z /= norm; }
 			
 };

@@ -29,6 +29,8 @@ class VtkWriter {
         void writeFaceAreaToVTKCellData(std::ofstream& os, const std::shared_ptr<Faces>& faces) const;
         void writeFaceFieldToVTKCellData(std::ofstream& os, const std::shared_ptr<Faces>& faces, 
             const std::shared_ptr<Field>& field) const;
+        void writePointsAndScalarFieldsToCSV(std::ofstream& os, const std::shared_ptr<Coords>& crds, 
+            const std::vector<std::shared_ptr<Field>>& fields) const;
     protected:
         static std::unique_ptr<Logger> log;
 };

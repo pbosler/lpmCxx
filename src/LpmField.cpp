@@ -96,6 +96,38 @@ void Field::abs() {
     }
 }
 
+scalar_type Field::maxMagnitude() const {
+    scalar_type result = 0.0;
+    scalar_type normsq = 0.0;
+    scalar_type testsq;
+    switch (_nDim) {
+        case (1) : {
+            for (index_type i=0; i<n(); ++i) {
+                testsq = square(comp0[i]);
+                if (testsq > normsq)
+                    normsq = testsq;
+            }
+            break;
+        }
+        case (2) : {
+            for (index_type i=0; i<n(); ++i) {
+                testsq = square(comp0[i]) + square(comp1[i]);
+                if (testsq > normsq)
+                    normsq = testsq;
+            }
+            break;
+        }
+        case (3) : {
+            for (index_type i=0; i<n(); ++i) {
+                testsq = square(comp0[i]) + square(comp1[i]) + square(comp2[i]);
+                if (testsq > normsq)
+                    normsq = testsq;
+            }
+            break;
+        }
+    }
+    return std::sqrt(normsq);
+}
 
 void Field::scale(const scalar_type multiplier) {
     switch (_nDim) {

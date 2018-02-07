@@ -71,6 +71,8 @@ class Field {
         scalar_type maxScalarVal() const;
         scalar_type minScalarVal() const;
         
+        scalar_type maxMagnitude() const;
+        
         inline void setLogProc(const int rank) {log->setProcRank(rank);}
         
         std::string listFieldValues() const;

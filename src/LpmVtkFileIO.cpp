@@ -114,6 +114,33 @@ void VtkWriter::writeFaceAreaToVTKCellData(std::ofstream& os, const std::shared_
     }
 }
 
+void VtkWriter::writePointsAndScalarFieldsToCSV(std::ofstream& os, const std::shared_ptr<Coords>& crds, 
+            const std::vector<std::shared_ptr<Field>>& fields) const {
+    os << "x,y,z";
+    const bool hasFields = !fields.empty();
+    int lastFieldInd = -1;
+    if (hasFields) {
+        os << ",";
+        lastFieldInd = fields.size()-1;
+        for (int i=0; i<lastFieldInd; ++i) {
+            os << fields[i]->name() << ",";
+        }
+        os << fields[lastFieldInd]->name() << std::endl;
+    }
+    for (index_type i=0; i<crds->n(); ++i) {
+        const XyzVector crdvec = crds->getVec(i);
+        os << crdvec.x << "," << crdvec.y << "," << crdvec.z;
+        if (hasFields) {
+            os << ",";
+            for (int j=0; i<lastFieldInd; ++j) {
+                os << fields[j]->getScalar(i) << ",";
+            }
+            os << fields[lastFieldInd]->getScalar(i);
+        }
+        os << std::endl;
+    }
+}
+
 void VtkWriter::writeFaceFieldToVTKCellData(std::ofstream& os, const std::shared_ptr<Faces>& faces, 
             const std::shared_ptr<Field>& field) const {
     std::string fieldstring(field->name());
