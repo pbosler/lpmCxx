@@ -30,7 +30,7 @@ int main (int argc, char* argv[]) {
         Box3d unitBox(-1,1,-1,1,-1,1);
         std::cout << "Unit Box : " << unitBox.infoString();
         std::cout << "\tvolume = " << unitBox.volume() << std::endl;
-        std::cout << "\tcentroid = " << unitBox.centroid() << std::endl;
+        std::cout << "\tcentroid = " << unitBox.centroid << std::endl;
         std::cout << "\tface centroids : " << std::endl;
         const std::vector<XyzVector> fctrs = unitBox.faceCentroids();
         std::cout << "\t\t";
@@ -41,8 +41,8 @@ int main (int argc, char* argv[]) {
         std::cout << "\tlongestEdge = " << unitBox.longestEdge() << std::endl;
         std::cout << "\tshortestEdge = " << unitBox.shortestEdge() << std::endl;
         std::cout << "\taspectRatio = " << unitBox.aspectRatio() << std::endl;
-        std::cout << "\tminRadius = " << unitBox.minRadius() << std::endl;
-        std::cout << "\tmaxRadius = " << unitBox.maxRadius() << std::endl;
+        std::cout << "\tminRadius = " << unitBox.minRadius << std::endl;
+        std::cout << "\tmaxRadius = " << unitBox.maxRadius << std::endl;
         
         std::vector<Box3d> kids = unitBox.bisectAll();
         for (int i = 0; i < 8; ++i) {
@@ -61,8 +61,8 @@ int main (int argc, char* argv[]) {
         XyzVector queryPt(-1.5, 3.75, 0.0);
         std::cout << "test box: " << box1.infoString();
         std::cout << "\taspectRatio = " << box1.aspectRatio() << std::endl;
-        std::cout << "\tminRadius = " << box1.minRadius() << std::endl;
-        std::cout << "\tmaxRadius = " << box1.maxRadius() << std::endl;
+        std::cout << "\tminRadius = " << box1.minRadius << std::endl;
+        std::cout << "\tmaxRadius = " << box1.maxRadius << std::endl;
         std::cout << "\tclosestPoint to origin: " << box1.closestPointInBox() << std::endl;
         std::cout << "\tfarthestPoint from origin: " << box1.farthestPointInBox() << std::endl;    
         std::cout << "\tcontains query point " << queryPt << "?  " << (box1.containsPoint(queryPt) ? "yes" : "no") << std::endl;

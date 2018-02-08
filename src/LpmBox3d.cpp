@@ -29,28 +29,26 @@ scalar_type Box3d::aspectRatio() const {
     return longestEdge() / shortestEdge();
 }
 
-scalar_type Box3d::maxRadius() const {
-    const XyzVector cntd = centroid();
+void Box3d::calc_max_radius() {
     const std::vector<XyzVector> crnrs = corners();
     scalar_type result = 0.0;
     for (int i = 0; i < 8; ++i) {
-        const scalar_type testDist = distance(cntd, crnrs[i]);
+        const scalar_type testDist = distance(centroid, crnrs[i]);
         if (testDist > result)
             result = testDist;
     }
-    return result;
+    maxRadius = result;
 }
 
-scalar_type Box3d::minRadius() const {
-    const XyzVector cntd = centroid();
+void Box3d::calc_min_radius() {
     const std::vector<XyzVector> face_ctds = faceCentroids();
     scalar_type result = std::numeric_limits<scalar_type>::max();
     for (int i=0; i<6; ++i) {
-        const scalar_type testDist = distance(cntd, face_ctds[i]);
+        const scalar_type testDist = distance(centroid, face_ctds[i]);
         if (testDist < result)
             result = testDist;
     }
-    return result;
+    minRadius = result;
 }
 
 

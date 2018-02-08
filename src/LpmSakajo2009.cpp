@@ -145,23 +145,44 @@ void SakajoTree::computeMoments(const std::shared_ptr<SphericalCoords> crds, con
 }
 
 // Recursion formulas after equation 11 in Sakajo 2009 
-void SakajoTree::biotSavartCoeffs(SakajoNode* node, const XyzVector& tgtVec){
-    const scalar_type dxy = 1.0 / (square(_sphRadius) + square(_smooth) - tgtVec.dotProduct(node->box.centroid()));
-    node->coeffs[MultiIndex(0,0,0)] = dxy;
-    for (auto& elem : node->coeffs) {
+void SakajoNode::calc_coeffs(const XyzVector& tgtVec, const scalar_type sph_radius, const scalar_type delta) {
+    const scalar_type denom = square(sph_radius) + square(delta) - tgtVec.dotProduct(box.centroid);
+    coeffs.at(MultiIndex(0,0,0)) = 1.0 / denom;
+    for (auto& elem : coeffs) {
         const index_type k1 = elem.first.k1;
         const index_type k2 = elem.first.k2;
         const index_type k3 = elem.first.k3;
-        const scalar_type num = elem.first.magnitude()+1;
-        auto next_k1 = node->coeffs.find(MultiIndex(k1+1, k2, k3));
-        auto next_k2 = node->coeffs.find(MultiIndex(k1, k2+1, k3));
-        auto next_k3 = node->coeffs.find(MultiIndex(k1, k2, k3+1));
-        if (next_k1 != node->coeffs.end()) 
-            next_k1->second = num * dxy * tgtVec.x * elem.second / (k1 + 1);
-        if (next_k2 != node->coeffs.end())
-            next_k2->second = num * dxy * tgtVec.y * elem.second / (k2 + 1);
-        if (next_k3 != node->coeffs.end())
-            next_k3->second = num * dxy * tgtVec.z * elem.second / (k3 + 1);
+        auto next_k1 = coeffs.find(MultiIndex(k1+1, k2, k3));
+        auto next_k2 = coeffs.find(MultiIndex(k1, k2+1, k3));
+        auto next_k3 = coeffs.find(MultiIndex(k1, k2, k3+1));
+        
+        const scalar_type numer = k1 + k2 + k3 + 1;
+      
+        if (next_k1 != coeffs.end()) {
+            next_k1->second = numer / denom * tgtVec.x * elem.second / (k1 + 1);
+            //std::cout << "\tk1: " << elem.second << ", " << MultiIndex(k1+1, k2, k3) << " : " << next_k1->second << std::endl;
+        }
+        if (next_k2 != coeffs.end()) {
+            next_k2->second = numer / denom * tgtVec.y * elem.second / (k2 + 1);
+            //std::cout << "\tk2: " << elem.second << ", " << MultiIndex(k1, k2+1, k3) << " : " << next_k1->second << std::endl;
+        }
+        if (next_k3 != coeffs.end()) {
+            next_k3->second = numer / denom * tgtVec.z * elem.second / (k3 + 1);
+            //std::cout << "\tk3: " << elem.second << ", " << MultiIndex(k1, k2, k3+1) << " : " << next_k3->second << std::endl;
+        }
+    }
+}
+
+
+void SakajoNode::calc_moments(const XyzVector& srcY, const scalar_type srcGamma) {
+    if (box.containsPoint(srcY)) {
+        const XyzVector cntd_to_src = box.centroid - srcY;
+        for (auto& elem : moments) {
+            const scalar_type vec_power = elem.first.vectorPower(cntd_to_src);
+            elem.second[0] += srcGamma * srcY.x * vec_power;
+            elem.second[1] += srcGamma * srcY.y * vec_power;
+            elem.second[2] += srcGamma * srcY.z * vec_power;
+        }
     }
 }
 
@@ -180,13 +201,7 @@ std::string SakajoNode::momentString() const {
 */
 void SakajoTree::nodeMoments(SakajoNode* node, const int k, const XyzVector vecy, const index_type yind, const scalar_type Gamma) {
     if (node->box.containsPoint(vecy)) {
-        const XyzVector dvec = vecy - node->box.centroid();
-        for (auto& elem : node->moments) {
-            const scalar_type vpower = elem.first.vectorPower(dvec);
-            elem.second[0] += Gamma * vecy.x * vpower;
-            elem.second[1] += Gamma * vecy.y * vpower;
-            elem.second[2] += Gamma * vecy.z * vpower;
-        }
+        node->calc_moments(vecy, Gamma);
         if (k == 3 * _maxTreeDepth) {
             node->coordsContained.push_back(yind);
         }
@@ -198,42 +213,44 @@ void SakajoTree::nodeMoments(SakajoNode* node, const int k, const XyzVector vecy
     }
 }
 
-bool SakajoTree::multipoleAcceptance(const SakajoNode* node, const scalar_type meshSize, const scalar_type nuPower, const XyzVector& queryVec) const {
-    //const scalar_type dist = std::abs(square(_sphRadius) - queryVec.dotProduct(node->box.centroid()));
-    const scalar_type dist = distance(node->box.centroid(), queryVec);
-    return node->box.maxRadius() <= std::pow(meshSize, nuPower) * dist;
+// bool SakajoTree::multipoleAcceptance(const SakajoNode* node, const scalar_type meshSize, const scalar_type nuPower, const XyzVector& queryVec) const {
+//     //const scalar_type dist = std::abs(square(_sphRadius) - queryVec.dotProduct(node->box.centroid()));
+//     const scalar_type dist = distance(node->box.centroid, queryVec);
+//     return node->box.maxRadius <= std::pow(meshSize, nuPower) * dist;
+// }
+
+bool SakajoNode::multipoleAcceptance(const XyzVector& queryVec, const scalar_type meshSize, const scalar_type nu) const {
+    return box.maxRadius <= std::pow(meshSize, nu) * distance(box.centroid, queryVec);
 }
 
-XyzVector SakajoTree::biotSavart(const XyzVector& tgtVec, const XyzVector& srcVec, const scalar_type smooth_param) const {
+XyzVector biotSavart(const XyzVector& tgtVec, const XyzVector& srcVec, const scalar_type sphRadius, const scalar_type smooth_param) {
     XyzVector cp = tgtVec.crossProduct(srcVec);
-    const scalar_type denom = (square(_sphRadius) + square(smooth_param) - tgtVec.dotProduct(srcVec)); 
+    const scalar_type denom = (square(sphRadius) + square(smooth_param) - tgtVec.dotProduct(srcVec)); 
     return cp.scalarMultiply(1.0/denom);
 }
 
 scalar_type SakajoTree::greens(const XyzVector& tgtVec, const XyzVector& srcVec, const scalar_type smooth_param) const {
-    const scalar_type sqdist = square(_sphRadius) - tgtVec.dotProduct(srcVec) + square(smooth_param);
-    return std::log(sqdist) / (- 4.0 * PI * _sphRadius);
+    return 0.0;
 }
 
 /*  Algorithm 3 from Sakajo 2009
 */
 void SakajoTree::velocity(XyzVector& vel, SakajoNode* node, const int k, const XyzVector& tgtVec, const index_type tgtInd,
             const scalar_type meshSize, const scalar_type nuPower, const std::shared_ptr<SphericalCoords> crds, const std::shared_ptr<Field> circ) {
-    if (multipoleAcceptance(node, meshSize, nuPower, tgtVec)) {
-        biotSavartCoeffs(node, tgtVec);
-        for (auto& elem : node->moments) {
-            const scalar_type taylor_coeff = node->coeffs.at(elem.first);
-            const std::vector<scalar_type> moments = elem.second;
-            vel.x += taylor_coeff * (tgtVec.y * moments[2] - tgtVec.z * moments[1]);
-            vel.y += taylor_coeff * (tgtVec.z * moments[0] - tgtVec.x * moments[2]);
-            vel.z += taylor_coeff * (tgtVec.x * moments[1] - tgtVec.y * moments[0]);
+    if (node->multipoleAcceptance(tgtVec, meshSize, nuPower)) {
+        node->calc_coeffs(tgtVec, _sphRadius, _smooth);
+        for (auto& elem : node->coeffs) {
+            const std::vector<scalar_type> mm = node->moments.at(elem.first);
+            vel.x += elem.second * (tgtVec.y * mm[2] - tgtVec.z * mm[1]);
+            vel.y += elem.second * (tgtVec.z * mm[0] - tgtVec.x * mm[2]);
+            vel.z += elem.second * (tgtVec.x * mm[1] - tgtVec.y * mm[0]);
         }
     }
     else {
         if (k == 3 * _maxTreeDepth ) {
             for (index_type i=0; i<node->coordsContained.size(); ++i) {
                 const index_type srcInd = node->coordsContained[i];
-                if (true) { //(tgtInd != srcInd) {
+                if (tgtInd != srcInd) {
                     const XyzVector srcVec = crds->getVec(srcInd);
                     const XyzVector kernel = biotSavart(tgtVec, srcVec, _smooth);
                     const scalar_type Gamma = circ->getScalar(srcInd);

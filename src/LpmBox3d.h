@@ -9,10 +9,15 @@
 
 namespace Lpm {
 
-struct Box3d {
-    Box3d() : xmin(0.0), xmax(0.0), ymin(0.0), ymax(0.0), zmin(0.0), zmax(0.0) {};
+class Box3d {
+    public:
+    Box3d() : xmin(0.0), xmax(0.0), ymin(0.0), ymax(0.0), zmin(0.0), zmax(0.0), minRadius(0.0), maxRadius(0.0), centroid(XyzVector()) {};
     Box3d(const scalar_type x0, const scalar_type x1, const scalar_type y0, const scalar_type y1, const scalar_type z0,
-        const scalar_type z1) : xmin(x0), xmax(x1), ymin(y0), ymax(y1), zmin(z0), zmax(z1) {};
+        const scalar_type z1) : xmin(x0), xmax(x1), ymin(y0), ymax(y1), zmin(z0), zmax(z1) {
+            calc_centroid();
+            calc_min_radius();
+            calc_max_radius();
+    }
     Box3d(const scalar_type maxr, bool pad=true) : xmin(-maxr), xmax(maxr), ymin(-maxr), ymax(maxr), zmin(-maxr), zmax(maxr) {
         if (pad) {
             xmin -= BOX_PADDING_FACTOR;
@@ -22,13 +27,13 @@ struct Box3d {
             zmin -= BOX_PADDING_FACTOR;
             zmax += BOX_PADDING_FACTOR;
         }
-    };
+        calc_centroid();
+        calc_min_radius();
+        calc_max_radius();
+    }
     
     inline scalar_type volume() const {return (xmax - xmin) * (ymax - ymin) * (zmax - zmin);}
-    inline scalar_type area2d() const {return (xmax - xmin) * (ymax - ymin);}
-    
-    inline XyzVector centroid() const {return XyzVector(0.5 * (xmax + xmin), 0.5 * (ymax + ymin), 0.5 * (zmax + zmin));}
-    
+
     inline bool containsPoint(const XyzVector& vec) const {return (xmin <= vec.x && vec.x < xmax) &&
                                                                   (ymin <= vec.y && vec.y < ymax) &&
                                                                   (zmin <= vec.z && vec.z < zmax);}
@@ -60,8 +65,7 @@ struct Box3d {
     
     std::string infoString() const;
     
-    scalar_type maxRadius() const;
-    scalar_type minRadius() const;
+    
     
     /// minimum x-coordinate of this box
     scalar_type xmin;
@@ -75,6 +79,15 @@ struct Box3d {
     scalar_type zmin;
     /// maximum z-coordinate of this box
     scalar_type zmax;
+    
+    scalar_type minRadius;
+    scalar_type maxRadius;
+    XyzVector centroid;
+    
+    protected:
+        inline void calc_centroid() {centroid = XyzVector(0.5 * (xmax + xmin), 0.5 * (ymax + ymin), 0.5 * (zmax + zmin));}
+        void calc_max_radius();
+        void calc_min_radius();
 };
 
 }
