@@ -56,6 +56,7 @@ struct Box3d {
     
     std::vector<Box3d> bisectAll() const;
     std::vector<Box3d> bisectAlongDims(const bool* dims) const;
+    std::vector<Box3d> bisectAlongDims(const std::vector<bool>& dims) const;
     
     std::string infoString() const;
     

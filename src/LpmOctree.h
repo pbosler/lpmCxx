@@ -31,7 +31,7 @@ struct Node {
     
     inline void setLogProc(const int prank) {log->setProcRank(prank);}
     
-    std::string infoString() const;
+    virtual std::string infoString() const;
     
     Box3d box;
     int level;

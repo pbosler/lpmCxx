@@ -11,7 +11,7 @@ SakajoNode::SakajoNode(const Box3d& bbox, SakajoNode* parent, const int max_seri
     for (int k1=0; k1<max_series_order; ++k1) {
         for (int k2=0; k2<max_series_order; ++k2) {
             for (int k3=0; k3<max_series_order; ++k3) {
-                if (k1 + k2 + k3 <= max_series_order - 1) {
+                if (k1 + k2 + k3 < max_series_order) {
                     const MultiIndex k(k1,k2,k3);
                     coeffs.emplace(k, 0.0);
                     moments.emplace(k, std::vector<scalar_type>(3, 0.0));
@@ -37,18 +37,16 @@ SakajoTree::SakajoTree(const int max_series_order, const int max_tree_depth, con
     _root = std::unique_ptr<SakajoNode>(new SakajoNode(rbox, rparent, max_series_order));
     
     generateTree(dynamic_cast<SakajoNode*>(_root.get()), 0);
+    _depth = computeTreeDepth(_root.get());
 }
 
 // Algorithm 1 from Sakajo 2009
 void SakajoTree::generateTree(SakajoNode* node, const int j) {
-    if (j == 3 * _maxSeriesOrder) {
+    if (j == 3 * _maxTreeDepth) {
         return;
     }
     else {
-        bool split_dim[3];
-        for (int i=0; i<3; ++i) {
-            split_dim[i] = false;
-        }
+        std::vector<bool> split_dim(3, false);
         split_dim[(j+2)%3] = true;
         
         std::vector<Box3d> kidboxes = node->box.bisectAlongDims(split_dim);
@@ -84,6 +82,27 @@ std::string SakajoNode::coeffString() const {
         ss << elem.first << "  :  " << elem.second << std::endl;
     }
     return ss.str();
+}
+
+std::string SakajoNode::infoString() const {
+    std::stringstream ss;
+    ss << this->Node::infoString();
+    ss << "Coeffs" << std::endl;
+    ss << coeffString();
+    ss << "Moments" << std::endl;
+    ss << momentString();
+    return ss.str();
+}
+
+void SakajoTree::printAll() const {
+    printNodeInfo(dynamic_cast<SakajoNode*>(_root.get()));
+}
+
+void SakajoTree::printNodeInfo(const SakajoNode* node) const {
+    std::cout << node->infoString();
+    for (int i=0; i<node->kids.size(); ++i) {
+        printNodeInfo(dynamic_cast<SakajoNode*>(node->kids[i].get()));
+    }
 }
 
 void SakajoTree::writeToVtk(const std::string& filename, const std::string& desc) const {
@@ -133,7 +152,7 @@ void SakajoTree::biotSavartCoeffs(SakajoNode* node, const XyzVector& tgtVec){
         const index_type k1 = elem.first.k1;
         const index_type k2 = elem.first.k2;
         const index_type k3 = elem.first.k3;
-        const scalar_type num = elem.first.magnitude();
+        const scalar_type num = elem.first.magnitude()+1;
         auto next_k1 = node->coeffs.find(MultiIndex(k1+1, k2, k3));
         auto next_k2 = node->coeffs.find(MultiIndex(k1, k2+1, k3));
         auto next_k3 = node->coeffs.find(MultiIndex(k1, k2, k3+1));
@@ -168,9 +187,8 @@ void SakajoTree::nodeMoments(SakajoNode* node, const int k, const XyzVector vecy
             elem.second[1] += Gamma * vecy.y * vpower;
             elem.second[2] += Gamma * vecy.z * vpower;
         }
-        if (k == 3 * _maxSeriesOrder) {
+        if (k == 3 * _maxTreeDepth) {
             node->coordsContained.push_back(yind);
-            return;
         }
         else {
             for (int i=0; i<node->kids.size(); ++i) {
@@ -181,15 +199,15 @@ void SakajoTree::nodeMoments(SakajoNode* node, const int k, const XyzVector vecy
 }
 
 bool SakajoTree::multipoleAcceptance(const SakajoNode* node, const scalar_type meshSize, const scalar_type nuPower, const XyzVector& queryVec) const {
-    const scalar_type dist = std::abs(square(_sphRadius) - queryVec.dotProduct(node->box.centroid()));
+    //const scalar_type dist = std::abs(square(_sphRadius) - queryVec.dotProduct(node->box.centroid()));
+    const scalar_type dist = distance(node->box.centroid(), queryVec);
     return node->box.maxRadius() <= std::pow(meshSize, nuPower) * dist;
 }
 
 XyzVector SakajoTree::biotSavart(const XyzVector& tgtVec, const XyzVector& srcVec, const scalar_type smooth_param) const {
     XyzVector cp = tgtVec.crossProduct(srcVec);
-    const scalar_type denom = 4.0 * PI * _sphRadius * (square(_sphRadius) + square(smooth_param) - tgtVec.dotProduct(srcVec));
-    cp.scale(-1.0 / denom);
-    return cp;
+    const scalar_type denom = (square(_sphRadius) + square(smooth_param) - tgtVec.dotProduct(srcVec)); 
+    return cp.scalarMultiply(1.0/denom);
 }
 
 scalar_type SakajoTree::greens(const XyzVector& tgtVec, const XyzVector& srcVec, const scalar_type smooth_param) const {
@@ -204,26 +222,22 @@ void SakajoTree::velocity(XyzVector& vel, SakajoNode* node, const int k, const X
     if (multipoleAcceptance(node, meshSize, nuPower, tgtVec)) {
         biotSavartCoeffs(node, tgtVec);
         for (auto& elem : node->moments) {
-            const scalar_type taylor_coeff = node->coeffs[elem.first];
+            const scalar_type taylor_coeff = node->coeffs.at(elem.first);
             const std::vector<scalar_type> moments = elem.second;
             vel.x += taylor_coeff * (tgtVec.y * moments[2] - tgtVec.z * moments[1]);
             vel.y += taylor_coeff * (tgtVec.z * moments[0] - tgtVec.x * moments[2]);
             vel.z += taylor_coeff * (tgtVec.x * moments[1] - tgtVec.y * moments[0]);
         }
-        vel.scale(-1.0 / (4.0 * PI * _sphRadius));
-        return;
     }
     else {
-        if (k == 3 * _maxSeriesOrder ) {
+        if (k == 3 * _maxTreeDepth ) {
             for (index_type i=0; i<node->coordsContained.size(); ++i) {
                 const index_type srcInd = node->coordsContained[i];
-                if (tgtInd != srcInd) {
+                if (true) { //(tgtInd != srcInd) {
                     const XyzVector srcVec = crds->getVec(srcInd);
                     const XyzVector kernel = biotSavart(tgtVec, srcVec, _smooth);
                     const scalar_type Gamma = circ->getScalar(srcInd);
-                    vel.x += Gamma * kernel.x;
-                    vel.y += Gamma * kernel.y;
-                    vel.z += Gamma * kernel.z;
+                    vel += kernel.scalarMultiply(Gamma);
                 }
             }
             return;
@@ -236,15 +250,13 @@ void SakajoTree::velocity(XyzVector& vel, SakajoNode* node, const int k, const X
     }
 }
 
-/* Algorithm 4 from Sakajo 2009
-*/
 void SakajoTree::computeVelocity(std::shared_ptr<Field> outputVelocity, const std::shared_ptr<SphericalCoords> crds, 
     const std::shared_ptr<Field> circ, const scalar_type meshSize, const scalar_type nuPower) {
     for (index_type i=0; i<crds->n(); ++i) {
         XyzVector vel(0.0, 0.0, 0.0);
         const XyzVector tgtVec = crds->getVec(i);
-        velocity(vel, dynamic_cast<SakajoNode*>(_root.get()), 0, tgtVec, i, meshSize, nuPower, crds, circ);
-        outputVelocity->replace(i, vel);
+        velocity(vel, dynamic_cast<SakajoNode*>(_root.get()), 0, tgtVec, i, meshSize, nuPower, crds, circ); 
+        outputVelocity->replace(i, vel.scalarMultiply(-1.0/(4.0 * PI * _sphRadius)));
     }
 }
 

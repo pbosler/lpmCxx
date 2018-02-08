@@ -153,6 +153,11 @@ std::vector<Box3d> Box3d::bisectAll() const {
 }
 
 std::vector<Box3d> Box3d::bisectAlongDims(const bool* dims) const {
+    const std::vector<bool> dimvec = {dims[0], dims[1], dims[2]};
+    return bisectAlongDims(dimvec);
+}
+
+std::vector<Box3d> Box3d::bisectAlongDims(const std::vector<bool>& dims) const {
     std::vector<Box3d> result;
     int dimCount = 0;
     for (int i = 0; i < 3; ++i) {
@@ -196,7 +201,7 @@ std::vector<Box3d> Box3d::bisectAlongDims(const bool* dims) const {
     else {
         result = bisectAll();
     }
-    return result;
+    return result;      
 }
 
 scalar_type Box3d::edgeLength(const int dim) const {

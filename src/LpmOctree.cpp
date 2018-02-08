@@ -41,7 +41,7 @@ std::string Tree::infoString() const {
     ss << "\tnNodes = " << _nnodes << std::endl;
     ss << "\tdepth = " << _depth << std::endl;
     ss << "\tmaxAspectRatio = " << _maxAspectRatio << std::endl;
-    ss << _root->infoString();
+    //ss << _root->infoString();
     return ss.str();
 }
 

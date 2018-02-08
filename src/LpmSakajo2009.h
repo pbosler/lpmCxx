@@ -30,6 +30,8 @@ struct SakajoNode : public Node {
     std::string coeffString() const;
     std::string momentString() const;
     
+    std::string infoString() const override;
+    
     coeff_type coeffs;
     moment_type moments;
     
@@ -61,10 +63,14 @@ class SakajoTree : public Tree {
         
         XyzVector biotSavart(const XyzVector& tgtVec, const XyzVector& srcVec, const scalar_type smooth_param = 0.0) const;
         
+        void printAll() const;
+        
     protected:
         bool multipoleAcceptance(const SakajoNode* node, const scalar_type meshSize, const scalar_type nuPower, const XyzVector& queryVec) const;
     
         void generateTree(SakajoNode* node, const int j);
+        
+        void printNodeInfo(const SakajoNode* node) const;
         
         void biotSavartCoeffs(SakajoNode* node, const XyzVector& tgtVec);
         void nodeMoments(SakajoNode* node, const int k, const XyzVector vecy, const index_type yind, const scalar_type Gamma);

@@ -158,8 +158,10 @@ void Coords::insert(const scalar_type nx, const scalar_type ny, const scalar_typ
     }  
     x.push_back(nx);
     y.push_back(ny);
-    if (_geometry != PLANAR_GEOMETRY) 
+    if (_geometry != PLANAR_GEOMETRY) {
         z.push_back(nz);    
+//         std::cout << "insert (" << nx << ", " << ny << ", " << nz << ")    =    " << getVec(n()-1) << std::endl;
+    }
 }
 
 void Coords::insert(const XyzVector& vec) {

@@ -9,7 +9,7 @@
 
 namespace Lpm {
 
-class XyzVector
+struct XyzVector
 {
 	public :
 		scalar_type x;

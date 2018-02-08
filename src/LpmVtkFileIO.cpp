@@ -114,7 +114,7 @@ void VtkWriter::writeFaceAreaToVTKCellData(std::ofstream& os, const std::shared_
     }
 }
 
-void VtkWriter::writePointsAndScalarFieldsToCSV(std::ofstream& os, const std::shared_ptr<Coords>& crds, 
+void VtkWriter::writePointsAndFieldsToCSV(std::ofstream& os, const std::shared_ptr<Coords>& crds, 
             const std::vector<std::shared_ptr<Field>>& fields) const {
     os << "x,y,z";
     const bool hasFields = !fields.empty();
@@ -123,19 +123,75 @@ void VtkWriter::writePointsAndScalarFieldsToCSV(std::ofstream& os, const std::sh
         os << ",";
         lastFieldInd = fields.size()-1;
         for (int i=0; i<lastFieldInd; ++i) {
-            os << fields[i]->name() << ",";
+            switch (fields[i]->nDim()) {
+                case (1) : {
+                    os << fields[i]->name() << ",";
+                break;
+                }
+                case (2) : {
+                    os << fields[i]->name() + "0," + fields[i]->name() + "1,";
+                break;
+                }
+                case (3) : {
+                    os << fields[i]->name() + "0," + fields[i]->name() + "1," + fields[i]->name() + "2,";
+                break;
+                }
+            }
         }
-        os << fields[lastFieldInd]->name() << std::endl;
+        switch (fields[lastFieldInd]->nDim()) {
+            case (1) : {
+                os << fields[lastFieldInd]->name() << std::endl;
+            break;
+            }
+            case (2) : {
+                os << fields[lastFieldInd]->name() + "0," + fields[lastFieldInd]->name() + "1" << std::endl;
+            break;
+            }
+            case (3) : {
+                os << fields[lastFieldInd]->name() + "0," + fields[lastFieldInd]->name() + "1," +
+                      fields[lastFieldInd]->name() + "2"<< std::endl;
+            break;
+            }
+        }
+        
     }
     for (index_type i=0; i<crds->n(); ++i) {
         const XyzVector crdvec = crds->getVec(i);
         os << crdvec.x << "," << crdvec.y << "," << crdvec.z;
         if (hasFields) {
             os << ",";
-            for (int j=0; i<lastFieldInd; ++j) {
-                os << fields[j]->getScalar(i) << ",";
+            for (int j=0; j<lastFieldInd; ++j) {
+                switch (fields[j]->nDim()) {
+                    case (1) : {
+                        os << fields[j]->getScalar(i) << ",";
+                        break;
+                    }
+                    case (2) : {
+                        const XyzVector fvec = fields[j]->get2dVector(i);
+                        os << fvec.x << "," << fvec.y << ",";
+                        break;
+                    }
+                    case (3) : {
+                        const XyzVector fvec = fields[j]->get3dVector(i);
+                        os << fvec.x << "," << fvec.y << "," << fvec.z << ",";
+                        break;
+                    }
+                }
             }
-            os << fields[lastFieldInd]->getScalar(i);
+            switch (fields[lastFieldInd]->nDim()) {
+                case (1) : {
+                    os << fields[lastFieldInd]->getScalar(i);
+                break;}
+                case (2) : {
+                    const XyzVector fvec = fields[lastFieldInd]->get2dVector(i);
+                    os << fvec.x << "," << fvec.y;
+                break;}
+                case (3) : {
+                    const XyzVector fvec = fields[lastFieldInd]->get2dVector(i);
+                    os << fvec.x << "," << fvec.y << "," << fvec.z;
+                break;}
+            }
+            
         }
         os << std::endl;
     }
