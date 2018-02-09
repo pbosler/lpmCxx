@@ -95,17 +95,19 @@ int main (int argc, char* argv[]) {
     }
     const int nLat = 12;
     const int nLon = 12;
-    const int seriesOrder = 3;
-    const int treeDepthParam = 6;
+    const int seriesOrder = 6;
+    const int treeDepthParam = 3;
     
     const scalar_type nu = 1.0;
     const scalar_type delta = 0.1;
+    
+    const scalar_type meshSize = 1.0 / std::sqrt(nLat*nLon);
     
     
     
     const scalar_type dz = 1.0 / (0.5 * nLat);
     
-    std::shared_ptr<SphericalCoords> sc(new SphericalCoords(4096));
+    std::shared_ptr<SphericalCoords> sc(new SphericalCoords(nLat*nLon));
     for (int i=0; i<nLat; ++i) {
         const scalar_type zz = 1.0 - (i+1) * dz;
         for (int j=0; j < nLon; ++j) {
@@ -118,7 +120,7 @@ int main (int argc, char* argv[]) {
     std::cout << "sc->n(): " << sc->n() << std::endl;
     std::shared_ptr<Field> circ(new Field(sc->n(), 1, "Gamma", "1/time"));
     for (index_type i=0; i<sc->n(); ++i) {
-        circ->insert(std::pow(-1.0, i));
+        circ->insert( (i%2 == 0 ? 1.0/(nLat*nLon) : -1.0/(nLat*nLon)));
     }
     
     Timer buildTimer("Tree build timer");
@@ -126,7 +128,7 @@ int main (int argc, char* argv[]) {
     SakajoTree tree(seriesOrder, treeDepthParam, 1.0, delta, procRank);
     buildTimer.end();
     std::cout << buildTimer.infoString();
-    const scalar_type meshSize = 1.0 / std::sqrt(tree.nNodes());
+    
     std::cout << "treecode params: h = " << meshSize << ", nu = " << nu << ", delta = " << delta << std::endl;
     std::cout << tree.Tree::infoString();
     

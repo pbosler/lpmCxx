@@ -1,4 +1,4 @@
-#include "LpmPolyMesh2D.h"
+#include "LpmPolyMesh2d.h"
 #include "LpmEuclideanCoords.h"
 #include "LpmSphericalCoords.h"
 #include "LpmOutputMessage.h"

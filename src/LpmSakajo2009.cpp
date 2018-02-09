@@ -220,7 +220,8 @@ void SakajoTree::nodeMoments(SakajoNode* node, const int k, const XyzVector vecy
 // }
 
 bool SakajoNode::multipoleAcceptance(const XyzVector& queryVec, const scalar_type meshSize, const scalar_type nu) const {
-    return box.maxRadius <= std::pow(meshSize, nu) * distance(box.centroid, queryVec);
+    //return box.maxRadius <= std::pow(meshSize, nu) * distance(box.centroid, queryVec);
+    return box.maxRadius / distance(box.centroid, queryVec) < meshSize;
 }
 
 XyzVector biotSavart(const XyzVector& tgtVec, const XyzVector& srcVec, const scalar_type sphRadius, const scalar_type smooth_param) {
