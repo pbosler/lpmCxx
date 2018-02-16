@@ -27,7 +27,7 @@ SakajoTree::SakajoTree(const int max_series_order, const int max_tree_depth, con
         _maxTreeDepth(max_tree_depth), _sphRadius(sphere_radius), _smooth(smooth_param)
 {
     _nnodes = 1;
-    log->setProcRank(prank);
+    //log->setProcRank(prank);
     
     const Box3d rbox(sphere_radius);
     std::vector<index_type> rinds;
@@ -109,7 +109,8 @@ void SakajoTree::writeToVtk(const std::string& filename, const std::string& desc
     std::ofstream fs(filename);
     if (!fs.is_open()) {
         OutputMessage errMsg("cannot open .vtk file", OutputMessage::errorPriority, "Lpm::SakajoTree::writeToVtk");
-        log->logMessage(errMsg);
+        std::cout << errMsg;
+        //log->logMessage(errMsg);
         throw std::ios_base::failure("file write error");  
     }
     fs << "# vtk DataFile Version 2.0" << std::endl;

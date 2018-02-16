@@ -55,7 +55,7 @@ class Tree {
         
         virtual ~Tree() {};
         
-        inline void setLogProc(const int prank) {log->setProcRank(prank);}
+        //inline void setLogProc(const int prank) {log->setProcRank(prank);}
         
         std::string infoString() const;
         
@@ -92,7 +92,7 @@ class Tree {
         std::weak_ptr<Coords> _crds;    
         
         scalar_type _maxAspectRatio;
-        static std::unique_ptr<Logger> log;
+//         static std::unique_ptr<Logger> log;
 
         std::unique_ptr<Node> _root;
 };

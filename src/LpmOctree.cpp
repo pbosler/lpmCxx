@@ -10,12 +10,12 @@
 
 namespace Lpm {
 
-std::unique_ptr<Logger> Tree::log(new Logger(OutputMessage::debugPriority, "Tree_log"));
+//std::unique_ptr<Logger> Tree::log(new Logger(OutputMessage::debugPriority, "Tree_log"));
 //std::unique_ptr<Logger> Node::log(new Logger(OutputMessage::debugPriority, "Node_log"));
 
 Tree::Tree(const std::shared_ptr<Coords> crds, const scalar_type maxRatio, const int prank) : _crds(crds), _maxAspectRatio(maxRatio),
     _depth(0), _nnodes(1) {
-    log->setProcRank(prank);
+    //log->setProcRank(prank);
     
     Box3d rbox(crds->minX() - BOX_PADDING_FACTOR * crds->minX(), 
       crds->maxX() + BOX_PADDING_FACTOR * crds->maxX(),
@@ -126,7 +126,8 @@ void Tree::generateTreeMaxNodes(Node* node, Coords* crd_ptr, const index_type ma
         }
         if (node->kids.empty()) {
             OutputMessage errMsg("All kids are empty, this shouldn't happen.", OutputMessage::errorPriority, "Tree::generateTreeMaxNodes");
-            log->logMessage(errMsg);
+            //log->logMessage(errMsg);
+            std::cout << errMsg;
             return;
         }
         else {
@@ -162,7 +163,8 @@ void Tree::generateTreeMaxDepth(Node* node, Coords* crd_ptr, const index_type ma
         }
         if (node->kids.empty()) {
             OutputMessage errMsg("All kids are empty, this shouldn't happen.", OutputMessage::errorPriority, "Tree::generateTreeMaxDepth");
-            log->logMessage(errMsg);
+            //log->logMessage(errMsg);
+            std::cout << errMsg;
             return;
         }
         else {
@@ -244,7 +246,7 @@ void Tree::writeToVtk(const std::string& filename, const std::string& desc) cons
     std::ofstream fs(filename);
     if (!fs.is_open()) {
         OutputMessage errMsg("cannot open .vtk file", OutputMessage::errorPriority, "Lpm::Tree::writeToVtk");
-        log->logMessage(errMsg);
+        std::cout << errMsg; //log->logMessage(errMsg);
         throw std::ios_base::failure("file write error");    
     }
     
