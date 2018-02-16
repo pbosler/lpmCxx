@@ -29,7 +29,7 @@ struct Node {
 
     void writePoints(std::ofstream& os) const;
     
-    inline void setLogProc(const int prank) {log->setProcRank(prank);}
+    //inline void setLogProc(const int prank) {log->setProcRank(prank);}
     
     virtual std::string infoString() const;
     
@@ -43,7 +43,7 @@ struct Node {
     
     void writePoints(std::ostream& os) const;
     
-    static std::unique_ptr<Logger> log;
+    //static std::unique_ptr<Logger> log;
 };
 
 class Tree {
@@ -55,7 +55,7 @@ class Tree {
         
         virtual ~Tree() {};
         
-        inline void setLogProc(const int prank) {log->setProcRank(prank); _root->log->setProcRank(prank);}
+        inline void setLogProc(const int prank) {log->setProcRank(prank);}
         
         std::string infoString() const;
         

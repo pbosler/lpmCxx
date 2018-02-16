@@ -31,6 +31,7 @@ struct Input {
     index_type nLon;
     index_type nLat;
     scalar_type nu_exp;
+    std::string ofilebase;
     
     std::string infoString() const;
 };
@@ -195,7 +196,7 @@ int main (int argc, char* argv[]) {
     velTree->initializeToConstant(sc.get());
     
     
-    tree.writeToVtk("sakajoTree.vtk");
+    tree.writeToVtk(input.ofilebase + "_tree.vtk");
     Timer treecodeTimer("Tree sum timer");
     treecodeTimer.start();
     tree.computeMoments(sc, circ);
@@ -217,7 +218,7 @@ int main (int argc, char* argv[]) {
     std::cout << "max(error) = " << treecodeError->maxMagnitude() << std::endl;
    
     std::vector<std::shared_ptr<Field>> fields = {circ, velDirect, velTree, treecodeError, exactVelocity, directSumError};
-    const std::string outfname = "sakajoUnitTest.csv";
+    const std::string outfname = input.ofilebase + ".csv";
     std::ofstream fs(outfname);
     VtkWriter writer;
     writer.writePointsAndFieldsToCSV(fs, sc, fields);  
@@ -238,6 +239,7 @@ Input::Input(int argc, char* argv[]) {
     nLon = 64;
     nu_exp = 1.0;
     tree_depth_l = 4;
+    ofilebase = "sakajoUnitTest";
     for (int i=1; i<argc; ++i) {
         const std::string& token = argv[i];
         if (token == "--delta") {
@@ -257,6 +259,9 @@ Input::Input(int argc, char* argv[]) {
         }
         else if (token == "--nu") {
             nu_exp = std::stod(argv[++i]);
+        }
+        else if (token == "-o" || token == "--ouput") {
+            ofilebase = argv[++i];
         }
     }
 }

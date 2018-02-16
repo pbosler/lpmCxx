@@ -11,7 +11,7 @@
 namespace Lpm {
 
 std::unique_ptr<Logger> Tree::log(new Logger(OutputMessage::debugPriority, "Tree_log"));
-std::unique_ptr<Logger> Node::log(new Logger(OutputMessage::debugPriority, "Node_log"));
+//std::unique_ptr<Logger> Node::log(new Logger(OutputMessage::debugPriority, "Node_log"));
 
 Tree::Tree(const std::shared_ptr<Coords> crds, const scalar_type maxRatio, const int prank) : _crds(crds), _maxAspectRatio(maxRatio),
     _depth(0), _nnodes(1) {
