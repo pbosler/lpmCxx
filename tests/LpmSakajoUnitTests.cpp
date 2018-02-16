@@ -17,6 +17,24 @@
 
 using namespace Lpm;
 
+inline scalar_type legendre54(scalar_type z) {
+    return z*square(square(z)-1.0);
+}
+
+struct Input {
+    Input(int argc, char* argv[]);
+
+    scalar_type delta;
+    int tree_depth_l;
+    int series_order;
+    std::string program_name;
+    index_type nLon;
+    index_type nLat;
+    scalar_type nu_exp;
+    
+    std::string infoString() const;
+};
+
 int main (int argc, char* argv[]) {
     int mpiErrCode;
     int numProcs;
@@ -24,6 +42,8 @@ int main (int argc, char* argv[]) {
     mpiErrCode = MPI_Init(&argc, &argv);
     mpiErrCode = MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
     mpiErrCode = MPI_Comm_rank(MPI_COMM_WORLD, &procRank);
+    
+    Input input(argc, argv);
     
     Timer programTimer("Sakajo 2009 Unit Tests");
     programTimer.start();
@@ -93,23 +113,23 @@ int main (int argc, char* argv[]) {
                   << " kernel velocity = " << bs.scalarMultiply(-1.0/(4.0*PI*sph_radius)) 
                   << " |rel. err.| = " << err.magnitude()/bs.magnitude() << std::endl;
     }
-    const int nLat = 12;
-    const int nLon = 12;
-    const int seriesOrder = 6;
-    const int treeDepthParam = 3;
+    const int nLat = input.nLat;
+    const int nLon = input.nLon;
+    const int seriesOrder = input.series_order;
+    const int treeDepthParam = input.tree_depth_l;
     
-    const scalar_type nu = 1.0;
-    const scalar_type delta = 0.1;
+    const scalar_type nu = input.nu_exp;
+    const scalar_type delta = input.delta;
     
-    const scalar_type meshSize = 1.0 / std::sqrt(nLat*nLon);
+    const scalar_type meshSize = 1.0 / std::pow(2.0, input.tree_depth_l);
     
-    
+    std::cout << input.infoString();
     
     const scalar_type dz = 1.0 / (0.5 * nLat);
     
     std::shared_ptr<SphericalCoords> sc(new SphericalCoords(nLat*nLon));
-    for (int i=0; i<nLat; ++i) {
-        const scalar_type zz = 1.0 - (i+1) * dz;
+    for (int i=1; i<nLat; ++i) {
+        const scalar_type zz = 1.0 - (i) * dz;
         for (int j=0; j < nLon; ++j) {
             const scalar_type x = std::sqrt(1.0-square(zz)) * std::cos(2.0 * PI * j / nLon);
             const scalar_type y = std::sqrt(1.0-square(zz)) * std::sin(2.0 * PI * j / nLon);
@@ -120,7 +140,20 @@ int main (int argc, char* argv[]) {
     std::cout << "sc->n(): " << sc->n() << std::endl;
     std::shared_ptr<Field> circ(new Field(sc->n(), 1, "Gamma", "1/time"));
     for (index_type i=0; i<sc->n(); ++i) {
-        circ->insert( (i%2 == 0 ? 1.0/(nLat*nLon) : -1.0/(nLat*nLon)));
+        //circ->insert( (i%2 == 0 ? 1.0 : -1.0));
+        const XyzVector cvec = sc->getVec(i);
+        circ->insert(30.0 * std::cos(4.0 * longitude(cvec)) * legendre54(cvec.z) * 4.0 * PI / (sc->n()));
+    }
+    
+    std::shared_ptr<Field> exactVelocity(new Field(sc->n(), 3, "u", "length/time"));
+    for (index_type i=0; i<sc->n(); ++i) {
+        const XyzVector cvec = sc->getVec(i);
+        const scalar_type lat = latitude(cvec);
+        const scalar_type lon = longitude(cvec);
+        const scalar_type u = 0.5 * std::cos(4.0*lon) * cube(std::cos(lat))*(5.0 * std::cos(2.0*lat) - 3.0);
+        const scalar_type v = 4.0 * cube(std::cos(lat))*std::sin(lat)*std::sin(4.0*lon);
+        exactVelocity->insert(-u*std::sin(lon) - v*std::sin(lat)*std::cos(lon), u*std::cos(lon) - v*std::sin(lat)*std::sin(lon),
+            v*std::cos(lat));
     }
     
     Timer buildTimer("Tree build timer");
@@ -140,12 +173,12 @@ int main (int argc, char* argv[]) {
         const XyzVector tgtVec = sc->getVec(i);
         XyzVector vel(0.0, 0.0, 0.0);
         for (index_type j=0; j<sc->n(); ++j) {
-            if (i != j ) {
+            //if (i != j ) {
             const XyzVector srcVec = sc->getVec(j);
             const scalar_type Gamma = circ->getScalar(j);   
-            const XyzVector kernel = biotSavart(tgtVec, srcVec, delta);
+            const XyzVector kernel = biotSavart(tgtVec, srcVec, 1.0, delta);
             vel += kernel.scalarMultiply(-Gamma / (4.0 * PI ));
-            }
+            //}
         }
 //         for (index_type j=i+1; j<sc->n(); ++j) {
 //             const XyzVector srcVec = sc->getVec(j);
@@ -173,12 +206,17 @@ int main (int argc, char* argv[]) {
     treecodeTimer.end();
     std::cout << treecodeTimer.infoString();
     
+    std::shared_ptr<Field> directSumError(new Field(sc->n(), 3, "direct_sum_error", "dist/time"));
+    directSumError->initializeToConstant(sc.get());
+    directSumError->update(1.0, exactVelocity, -1.0, velDirect);
+    std::cout << "direct sum max err = " << directSumError->maxMagnitude() << std::endl;
+    
     std::shared_ptr<Field> treecodeError(new Field(sc->n(), 3, "treecode_error", "dist/time"));
     treecodeError->initializeToConstant(sc.get());
     treecodeError->update(1.0, velDirect, -1.0, velTree);
     std::cout << "max(error) = " << treecodeError->maxMagnitude() << std::endl;
    
-    std::vector<std::shared_ptr<Field>> fields = {circ, velDirect, velTree, treecodeError};
+    std::vector<std::shared_ptr<Field>> fields = {circ, velDirect, velTree, treecodeError, exactVelocity, directSumError};
     const std::string outfname = "sakajoUnitTest.csv";
     std::ofstream fs(outfname);
     VtkWriter writer;
@@ -192,3 +230,43 @@ int main (int argc, char* argv[]) {
 return 0;
 }
 
+Input::Input(int argc, char* argv[]) {
+    program_name = argv[0];
+    delta = 0.0;
+    series_order = 3;
+    nLat = 64;
+    nLon = 64;
+    nu_exp = 1.0;
+    tree_depth_l = 4;
+    for (int i=1; i<argc; ++i) {
+        const std::string& token = argv[i];
+        if (token == "--delta") {
+            delta = std::stod(argv[++i]);
+        }
+        else if (token == "--order" || token == "--lambda" || token == "--lam" ) {
+            series_order = std::stoi(argv[++i]);
+        }
+        else if (token == "--nLat") {
+            nLat = std::stoi(argv[++i]);
+        }
+        else if (token == "--nLon") {
+            nLon = std::stoi(argv[++i]);
+        }
+        else if (token == "--tree" || token == "--tree_depth_param" || token == "--l") {
+            tree_depth_l = std::stoi(argv[++i]);
+        }
+        else if (token == "--nu") {
+            nu_exp = std::stod(argv[++i]);
+        }
+    }
+}
+
+std::string Input::infoString() const {
+    std::stringstream ss;
+    ss << program_name << " --delta " << delta << " --order " << series_order << " --nLat " << nLat << " --nLon " << nLon
+       << " --tree " << tree_depth_l << " --nu " << nu_exp << std::endl;
+    ss << "\t\tS2009: log_2(N) = tree_depth_l = " << std::log2(nLat*nLon) << " nu = " << 1.0/std::log2(nLat*nLon) 
+       << " particle_dist = " << std::sqrt(4.0*PI/nLat/nLon) << std::endl;
+    
+    return ss.str();
+}

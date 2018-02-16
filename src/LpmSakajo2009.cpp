@@ -253,7 +253,7 @@ void SakajoTree::velocity(XyzVector& vel, SakajoNode* node, const int k, const X
                 const index_type srcInd = node->coordsContained[i];
                 if (tgtInd != srcInd) {
                     const XyzVector srcVec = crds->getVec(srcInd);
-                    const XyzVector kernel = biotSavart(tgtVec, srcVec, _smooth);
+                    const XyzVector kernel = biotSavart(tgtVec, srcVec, 1.0, _smooth);
                     const scalar_type Gamma = circ->getScalar(srcInd);
                     vel += kernel.scalarMultiply(Gamma);
                 }
