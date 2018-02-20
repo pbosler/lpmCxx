@@ -155,19 +155,57 @@ void Field::scale(const scalar_type multiplier) {
     }
 }
 
-void Field::update(const scalar_type a, const std::shared_ptr<Field>& other, 
+bool Field::sameSize(const Field& other) const {
+    return (_nDim == other._nDim && comp0.size() == other.comp0.size());
+}
+
+Field operator * (const Field& left, const Field& right) {
+    if (!left.sameSize(right)) {
+        std::stringstream ss;
+        ss << left.name() << " field " << " does not have same size as " << right.name();
+        std::cout << ss.str() << std::endl;
+        throw std::runtime_error("field size mismatch");
+    }
+    Field result(std::max(left.nMax(), right.nMax()), left.nDim(), 
+        left.name() + "*" + right.name(), left.units() + "*" + right.units());
+    switch (left.nDim()) {
+        case (1) : {
+            for (index_type i=0; i<left.n(); ++i) {
+                result.insert(left.getScalar(i) * right.getScalar(i));
+            }
+            break;
+        }
+        case (2) : {
+            for (index_type i=0; i<left.n(); ++i) {
+                const XyzVector prod = left.get2dVector(i) * right.get2dVector(i);
+                result.insert(prod);
+            }
+            break;
+        }
+        case (3) : {
+            for (index_type i=0; i<left.n(); ++i) {
+                const XyzVector prod = left.get3dVector(i) * right.get3dVector(i);
+                result.insert(prod);
+            }
+            break;
+        }
+    }
+    return result;
+}
+
+void Field::linearOp(const scalar_type a, const std::shared_ptr<Field>& other, 
                    const scalar_type b, const std::shared_ptr<Field>& other1) {
     if (_nDim != other->nDim()) {
         std::stringstream ss;
         ss << _name << " field " << " does not have same dimension as " << other->_name << "; cannot update.";
-        OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Field::update");
+        OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Field::linearOp");
         log->logMessage(errMsg);
         throw std::runtime_error("field dimension mismatch");
     }
     if ( n() < other->n() ) {
         std::stringstream ss;
         ss << _name << " field " << " has insufficient memory to update with field " << other->_name;
-        OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Field::update");
+        OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Field::linearOp");
         log->logMessage(errMsg);
         throw std::runtime_error("field memory mismatch");
     }
@@ -175,14 +213,14 @@ void Field::update(const scalar_type a, const std::shared_ptr<Field>& other,
         if (_nDim != other1->nDim()) {
             std::stringstream ss;
             ss << _name << " field " << " does not have same dimension as " << other1->_name << "; cannot update.";
-            OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Field::update");
+            OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Field::linearOp");
             log->logMessage(errMsg);
             throw std::runtime_error("field dimension mismatch");
         }
         if ( n() < other1->n() ) {
             std::stringstream ss;
             ss << _name << " field " << " has insufficient memory to update with field " << other1->_name;
-            OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Field::update");
+            OutputMessage errMsg(ss.str(), OutputMessage::errorPriority, "Field::linearOp");
             log->logMessage(errMsg);
             throw std::runtime_error("field memory mismatch");
         }

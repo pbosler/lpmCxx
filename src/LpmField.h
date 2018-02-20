@@ -64,7 +64,7 @@ class Field {
         void initializeToVectorFunction(const Coords* crds, const AnalyticFunction* fn);
         
         void abs();
-        void update(const scalar_type a, const std::shared_ptr<Field>& other, 
+        void linearOp(const scalar_type a, const std::shared_ptr<Field>& other, 
                     const scalar_type b = 0.0, const std::shared_ptr<Field>& other1 = NULL);
                     
         void scale(const scalar_type multiplier);
@@ -76,6 +76,8 @@ class Field {
         inline void setLogProc(const int rank) {log->setProcRank(rank);}
         
         std::string listFieldValues() const;
+        
+        bool sameSize(const Field& other) const;
     
     protected:
         std::vector<scalar_type> comp0;
@@ -90,6 +92,8 @@ class Field {
         
         static std::unique_ptr<Logger> log;
 };
+
+Field operator * (const Field& left, const Field& right);
 
 }
 

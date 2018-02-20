@@ -55,6 +55,8 @@ class Coords {
         inline scalar_type maxY() const {return *std::max_element(y.begin(), y.end());}
         inline scalar_type maxZ() const {return *std::max_element(z.begin(), z.end());}
         
+        scalar_type maxR() const;
+        
         inline XyzVector getVec(const index_type ind) const {return XyzVector(x[ind], y[ind], (_geometry == PLANAR_GEOMETRY ? 0.0 : z[ind]));}
         
         std::string listAllCoords() const;

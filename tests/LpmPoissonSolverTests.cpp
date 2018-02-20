@@ -96,11 +96,11 @@ int main (int argc, char* argv[]) {
             solver.meshSolve(mpiVerts, mpiFaces);
             solver.meshBroadcast(mpiVerts, mpiFaces);
             
-            pmesh->getVertexFieldPtr("vertexError")->update(1.0, pmesh->getVertexFieldPtr("potential"), 
+            pmesh->getVertexFieldPtr("vertexError")->linearOp(1.0, pmesh->getVertexFieldPtr("potential"), 
                                                           -1.0, pmesh->getVertexFieldPtr("exactPotential"));
             pmesh->getVertexFieldPtr("vertexError")->abs();
             
-            pmesh->getFaceFieldPtr("faceError")->update(1.0, pmesh->getFaceFieldPtr("potential"),
+            pmesh->getFaceFieldPtr("faceError")->linearOp(1.0, pmesh->getFaceFieldPtr("potential"),
                                                       -1.0, pmesh->getFaceFieldPtr("exactPotential"));
             pmesh->getFaceFieldPtr("faceError")->abs();
             
@@ -155,11 +155,11 @@ int main (int argc, char* argv[]) {
             solver.meshSolve(mpiVerts, mpiFaces);
             solver.meshBroadcast(mpiVerts, mpiFaces);
             
-            pmesh->getVertexFieldPtr("vertexError")->update(1.0, pmesh->getVertexFieldPtr("potential"), 
+            pmesh->getVertexFieldPtr("vertexError")->linearOp(1.0, pmesh->getVertexFieldPtr("potential"), 
                                                           -1.0, pmesh->getVertexFieldPtr("exactPotential"));
             pmesh->getVertexFieldPtr("vertexError")->abs();
             
-            pmesh->getFaceFieldPtr("faceError")->update(1.0, pmesh->getFaceFieldPtr("potential"),
+            pmesh->getFaceFieldPtr("faceError")->linearOp(1.0, pmesh->getFaceFieldPtr("potential"),
                                                       -1.0, pmesh->getFaceFieldPtr("exactPotential"));
             pmesh->getFaceFieldPtr("faceError")->abs();
             
@@ -311,11 +311,11 @@ int main (int argc, char* argv[]) {
                 solver.meshSolve(mpiVerts, mpiFaces);
                 solver.meshBroadcast(mpiVerts, mpiFaces);
             
-                pmesh->getVertexFieldPtr("vertexError")->update(1.0, pmesh->getVertexFieldPtr("potential"), 
+                pmesh->getVertexFieldPtr("vertexError")->linearOp(1.0, pmesh->getVertexFieldPtr("potential"), 
                                                               -1.0, pmesh->getVertexFieldPtr("exactPotential"));
                 pmesh->getVertexFieldPtr("vertexError")->abs();
             
-                pmesh->getFaceFieldPtr("faceError")->update(1.0, pmesh->getFaceFieldPtr("potential"),
+                pmesh->getFaceFieldPtr("faceError")->linearOp(1.0, pmesh->getFaceFieldPtr("potential"),
                                                           -1.0, pmesh->getFaceFieldPtr("exactPotential"));
                 pmesh->getFaceFieldPtr("faceError")->abs();
             
@@ -376,11 +376,11 @@ int main (int argc, char* argv[]) {
                 solver.meshSolve(mpiVerts, mpiFaces);
                 solver.meshBroadcast(mpiVerts, mpiFaces);
             
-                pmesh->getVertexFieldPtr("vertexError")->update(1.0, pmesh->getVertexFieldPtr("potential"), 
+                pmesh->getVertexFieldPtr("vertexError")->linearOp(1.0, pmesh->getVertexFieldPtr("potential"), 
                                                               -1.0, pmesh->getVertexFieldPtr("exactPotential"));
                 pmesh->getVertexFieldPtr("vertexError")->abs();
             
-                pmesh->getFaceFieldPtr("faceError")->update(1.0, pmesh->getFaceFieldPtr("potential"),
+                pmesh->getFaceFieldPtr("faceError")->linearOp(1.0, pmesh->getFaceFieldPtr("potential"),
                                                           -1.0, pmesh->getFaceFieldPtr("exactPotential"));
                 pmesh->getFaceFieldPtr("faceError")->abs();
             

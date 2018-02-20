@@ -13,6 +13,7 @@ class VectorKernel {
         virtual ~VectorKernel() {};
         virtual XyzVector evaluate(const XyzVector& tgtLoc, const XyzVector& srcLoc) const = 0;
         virtual bool isSingular() const = 0;
+        virtual scalar_type sumMultiplier() const {return 1.0;}
 };
 
 class BiotSavartSphere : public VectorKernel {
@@ -22,12 +23,11 @@ class BiotSavartSphere : public VectorKernel {
         
         inline XyzVector evaluate(const XyzVector& tgtLoc, const XyzVector& srcLoc) const {
             XyzVector result = tgtLoc.crossProduct(srcLoc);
-            const scalar_type denom = 1.0 / (_sphRadius * _sphRadius - tgtLoc.dotProduct(srcLoc) + _delta * _delta);
-            result.scale(denom);
-            return result;
+            const scalar_type denom = _sphRadius * _sphRadius - tgtLoc.dotProduct(srcLoc) + _delta * _delta;
+            return (std::abs(denom) > ZERO_TOL ? result.scalarMultiply(1.0/denom) : 0.0);
         }
         
-        inline scalar_type sumMultiplier() const {
+        inline scalar_type sumMultiplier() const override {
             return -1.0 / (4.0 * PI * _sphRadius);
         }
         

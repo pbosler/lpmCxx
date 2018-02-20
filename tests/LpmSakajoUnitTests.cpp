@@ -198,23 +198,27 @@ int main (int argc, char* argv[]) {
     
     tree.writeToVtk(input.ofilebase + "_tree.vtk");
     Timer treecodeTimer("Tree sum timer");
-    treecodeTimer.start();
-    tree.computeMoments(sc, circ);
     
+    Timer momentTimer("moment_timer");
+    momentTimer.start();
+    tree.computeMoments(sc, circ);
+    momentTimer.end();
+    treecodeTimer.start();
     tree.computeVelocity(velTree, sc, circ, meshSize, nu);
     //tree.printAll();
     
     treecodeTimer.end();
+    std::cout << momentTimer.infoString();
     std::cout << treecodeTimer.infoString();
     
     std::shared_ptr<Field> directSumError(new Field(sc->n(), 3, "direct_sum_error", "dist/time"));
     directSumError->initializeToConstant(sc.get());
-    directSumError->update(1.0, exactVelocity, -1.0, velDirect);
+    directSumError->linearOp(1.0, exactVelocity, -1.0, velDirect);
     std::cout << "direct sum max err = " << directSumError->maxMagnitude() << std::endl;
     
     std::shared_ptr<Field> treecodeError(new Field(sc->n(), 3, "treecode_error", "dist/time"));
     treecodeError->initializeToConstant(sc.get());
-    treecodeError->update(1.0, velDirect, -1.0, velTree);
+    treecodeError->linearOp(1.0, velDirect, -1.0, velTree);
     std::cout << "max(error) = " << treecodeError->maxMagnitude() << std::endl;
    
     std::vector<std::shared_ptr<Field>> fields = {circ, velDirect, velTree, treecodeError, exactVelocity, directSumError};

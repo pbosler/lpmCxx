@@ -133,6 +133,15 @@ void Coords::writeCoords(std::ostream& os) const {
     }
 }
 
+scalar_type Coords::maxR() const {
+    scalar_type result = 0.0;
+    for (index_type i=0; i<n(); ++i) {
+        const scalar_type testR = square(x[i]) + square(y[i]) + square(z[i]);
+        if (testR > result) result = testR;
+    }
+    return std::sqrt(result);
+}
+
 void Coords::writeCoordsCSV(std::ostream& os) const {
     if ( _geometry == PLANAR_GEOMETRY) {
         os << "x,y" << std::endl;

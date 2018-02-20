@@ -9,8 +9,7 @@ add_library( lpm LpmXyzVector.cpp LpmOutputMessage.cpp LpmLogger.cpp LpmCoords.c
              LpmVtkFileIO.cpp LpmParticles.cpp LpmMeshedParticles.cpp LpmMPIReplicatedData.cpp
              LpmTimer.cpp LpmDirectSum.cpp
              LpmBox3d.cpp LpmOctree.cpp LpmSakajo2009.cpp
-             #LpmTaylorSeries3d.cpp
-             #LpmTreeSum.cpp 
+             LpmTreeSum.cpp 
 )
 
 
@@ -20,7 +19,7 @@ add_library( lpm LpmXyzVector.cpp LpmOutputMessage.cpp LpmLogger.cpp LpmCoords.c
 install (FILES LpmConfig.h LpmXyzVector.h LpmOutputMessage.h LpmLogger.h LpmCoords.h LpmEuclideanCoords.h LpmSphericalCoords.h
                LpmField.h LpmAnalyticFunctions.h LpmEdges.h LpmFaces.h LpmTriFaces.h LpmQuadFaces.h LpmMeshSeed.h
                LpmPolyMesh2d.h LpmVtkFileIO.h LpmParticles.h LpmMeshedParticles.h LpmMPIReplicatedData.h
-               LpmTimer.h LpmMultiIndex.h LpmSakajo2009.h #LpmTaylorSeries3d.h #LpmTreeSum.h 
+               LpmTimer.h LpmMultiIndex.h LpmSakajo2009.h LpmTreeSum.h 
                LpmDirectSum.h
          DESTINATION include)
 		  
