@@ -37,6 +37,9 @@ class PolyMesh2d {
         inline index_type nEdges() const {return _edges->n();}
         inline index_type nFaces() const {return _faces->n();}
         
+        inline XyzVector getVertex(const index_type i, const bool lagrangian=false) {
+            return (lagrangian ? _lagCoords->getVec(i) : _coords->getVec(i)); }
+        
         inline bool faceIsDivided(const index_type faceInd) const {return _faces->hasChildren(faceInd);}
         inline XyzVector faceCentroid(const index_type faceInd, const bool lagrangian = false) const 
             {return _faces->centroid(faceInd, lagrangian);}

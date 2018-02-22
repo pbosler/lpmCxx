@@ -99,6 +99,8 @@ void DirectSum::meshSolve(const MPIReplicatedData& mpiVerts, const MPIReplicated
         std::shared_ptr<Field> face_tgt_ptr = _faceTgt.lock();
         std::shared_ptr<VectorKernel> kernel = _vecKernel.lock();
         
+        const scalar_type mult = kernel->sumMultiplier();
+        
         for (index_type i = mpiVerts.startIndex(myRank); i <= mpiVerts.endIndex(myRank); ++i) {
             XyzVector tgtVec;
             const XyzVector tgtLoc = vert_ptr->getVec(i);
@@ -111,6 +113,7 @@ void DirectSum::meshSolve(const MPIReplicatedData& mpiVerts, const MPIReplicated
                     tgtVec += kval;
                 }
             }
+            tgtVec.scale(mult);
             vert_tgt_ptr->replace(i, tgtVec);
         }
         
@@ -137,6 +140,7 @@ void DirectSum::meshSolve(const MPIReplicatedData& mpiVerts, const MPIReplicated
                             tgtVec += kval;
                         }
                     }
+                    tgtVec.scale(mult);
                     face_tgt_ptr->replace(i, tgtVec);
                 }
             }
@@ -155,6 +159,7 @@ void DirectSum::meshSolve(const MPIReplicatedData& mpiVerts, const MPIReplicated
                             tgtVec += kval;
                         }
                     }
+                    tgtVec.scale(mult);
                     face_tgt_ptr->replace(i, tgtVec);
                 }
             }

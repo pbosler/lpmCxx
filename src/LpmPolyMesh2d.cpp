@@ -83,6 +83,7 @@ PolyMesh2d::PolyMesh2d(MeshSeed& seed, const int maxRecursionLevel, const bool i
     
     ss.str(std::string());
     ss << "** Mesh created **" <<std::endl;
+    ss << "\t_coords->nMax() = " << _coords->nMax() << ", _coords->n() = " << _coords->n() << std::endl;
     ss << "\t_faces->nMax() = " << _faces->nMax() << ", _faces->n() = " << _faces->n() << ", _faces->nLeaves() = " << _faces->nLeaves() << std::endl;
     ss << "\t_edges->nMax() = " << _edges->nMax() << ", _edges->n() = " << _edges->n() << ", _edges->nLeaves() = " << _edges->nLeaves() << std::endl;    
     ss << "\tsurface area = " << _faces->surfaceArea();

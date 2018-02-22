@@ -19,6 +19,13 @@ class MeshedParticles : public Particles {
         inline index_type nEdges() const {return mesh2d->nEdges();}
         inline index_type nLeafEdges() const {return mesh2d->nLeafEdges();}
         
+        inline scalar_type maxR() const {return mesh2d->_coords->maxR();}
+        
+        inline XyzVector getVertex(const index_type i) const {return mesh2d->getVertex(i);}
+        inline XyzVector getFaceCentroid(const index_type i) const {return mesh2d->faceCentroid(i);}
+        inline scalar_type getFaceArea(const index_type i) const {return mesh2d->faceArea(i);}
+        inline bool faceIsDivided(const index_type i) const {return mesh2d->faceIsDivided(i);}
+        
         MeshedParticles(MeshSeed& seed, const int maxRecursionLevel, const bool isLagrangian = false, 
             const scalar_type domainRadius = 1.0, const int prank = 0);
     

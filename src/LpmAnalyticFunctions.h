@@ -102,6 +102,23 @@ class sphereHarmonic54 : public AnalyticFunction {
         }
 };
 
+class rossbyHaurwitz54Velocity : public AnalyticFunction {
+    public:
+        rossbyHaurwitz54Velocity() {}
+        
+        XyzVector evaluateVector(const scalar_type x, const scalar_type y, const scalar_type z) const override { 
+            return evaluateVector(XyzVector(x,y,z));}
+                    
+        XyzVector evaluateVector(const XyzVector& crdVec) const override {
+            const scalar_type lat = latitude(crdVec);
+            const scalar_type lon = longitude(crdVec);
+            const scalar_type u = 0.5 * std::cos(4.0*lon) * cube(std::cos(lat))*(5.0 * std::cos(2.0*lat) - 3.0);
+            const scalar_type v = 4.0 * cube(std::cos(lat))*std::sin(lat)*std::sin(4.0*lon);
+            return XyzVector(-u*std::sin(lon) - v*std::sin(lat)*std::cos(lon), u*std::cos(lon) - v*std::sin(lat)*std::sin(lon),
+            v*std::cos(lat));
+        }
+};
+
 }
 
 #endif
