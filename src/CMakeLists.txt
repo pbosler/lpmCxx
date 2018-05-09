@@ -20,7 +20,8 @@ install (FILES LpmConfig.h LpmXyzVector.h LpmOutputMessage.h LpmLogger.h LpmCoor
                LpmField.h LpmAnalyticFunctions.h LpmEdges.h LpmFaces.h LpmTriFaces.h LpmQuadFaces.h LpmMeshSeed.h
                LpmPolyMesh2d.h LpmVtkFileIO.h LpmParticles.h LpmMeshedParticles.h LpmMPIReplicatedData.h
                LpmTimer.h LpmMultiIndex.h LpmSakajo2009.h LpmTreeSum.h 
-               LpmDirectSum.h
+               LpmDirectSum.h 
+               LpmAosTypes.hpp
          DESTINATION include)
 		  
 install ( TARGETS lpm DESTINATION lib )  

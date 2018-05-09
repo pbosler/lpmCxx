@@ -71,6 +71,10 @@ ADD_EXECUTABLE(lpmSakajoUnitTest.exe LpmSakajoUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmSakajoUnitTest.exe lpm)
 ADD_TEST(sakajoUnitTest COMMAND mpirun -np 1 lpmSakajoUnitTest.exe)
 
+ADD_EXECUTABLE(lpmAosTypesUnitTest.exe LpmAosUnitTest.cpp)
+TARGET_LINK_LIBRARIES(lpmAosTypesUnitTest.exe lpm)
+add_test(aosTypeUnitTest lpmAosTypesUnitTest.exe)
+
 #ADD_EXECUTABLE(lpmTreeSumTest.exe LpmTreeSumTests.cpp)
 #TARGET_LINK_LIBRARIES(lpmTreeSumTest.exe lpm)
 #ADD_TEST(treeSumTest COMMAND mpirun -np 1 lpmTreeSumTest.exe)
