@@ -92,8 +92,16 @@ int main (int argc, char* argv[]) {
             Timer directSolveTimer("direct_sum_timer");
             directSolveTimer.start();
             DirectSum solver(pmesh, kernel, "velocity", "vorticity");
+            Timer dTimer("direct_solve_local");
+            dTimer.start();
             solver.meshSolve(mpiVerts, mpiFaces);
+            dTimer.end();
+            if (procRank ==0) std::cout << dTimer.infoString();
+            dTimer.rename("direct_broadcast");
+            dTimer.start();
             solver.meshBroadcast(mpiVerts, mpiFaces);
+            dTimer.end();
+            if (procRank == 0) std::cout << dTimer.infoString();
             directSolveTimer.end();
             
             std::shared_ptr<Field> errPtr = pmesh->getVertexFieldPtr("velocity_error_direct");
@@ -111,11 +119,27 @@ int main (int argc, char* argv[]) {
                         
             Timer treecodeTimer("treecode_timer");
             treecodeTimer.start();
+            Timer treeTimer("tree_build_timer");
+            treeTimer.start();
             TreeSum treeSolver(maxSeriesOrder, nParticlesPerBox, pmesh, kernel, "treeVelocity", "vorticity");
+            treeTimer.end();
+            if (procRank==0) std::cout << treeTimer.infoString();
+            treeTimer.rename("tree_moment_timer");
+            treeTimer.start();
             treeSolver.computeMeshMoments();
+            treeTimer.end();
+            if (procRank==0) std::cout << treeTimer.infoString();
             int myMacCounter = 0;
+            treeTimer.rename("tree_solve_timer_local");
+            treeTimer.start();
             treeSolver.meshSolve(mpiVerts, mpiFaces, mpTol, myMacCounter);
+            treeTimer.end();
+            if (procRank==0) std::cout << treeTimer.infoString();
+            treeTimer.rename("tree_broadcast_timer");
+            treeTimer.start();
             treeSolver.meshBroadcast(mpiVerts, mpiFaces);
+            treeTimer.end();
+            if (procRank == 0) std::cout << treeTimer.infoString();
             treecodeTimer.end();
             int macCounter = 0;
             mpiErrCode = MPI_Reduce(&myMacCounter, &macCounter, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);

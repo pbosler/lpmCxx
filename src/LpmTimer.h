@@ -15,7 +15,9 @@ class Timer {
         inline void start() {_startTime = MPI_Wtime();}
         inline void end() {_endTime = MPI_Wtime();}
         
-        std::string infoString() const;
+        std::string infoString(const bool verbose=false) const;
+        
+        inline void rename(const std::string& newname) {_name = newname;}
         
         inline scalar_type elapsed() const {return _endTime - _startTime;}
         

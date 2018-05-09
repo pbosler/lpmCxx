@@ -62,7 +62,8 @@ int main (int argc, char* argv[]) {
         std::cout << "test box: " << box1.infoString();
         std::cout << "\taspectRatio = " << box1.aspectRatio() << std::endl;
         std::cout << "\tminRadius = " << box1.minRadius << std::endl;
-        std::cout << "\tmaxRadius = " << box1.maxRadius << std::endl;
+        std::cout << "\tmaxRadius = " << box1.maxRadius
+        c << std::endl;
         std::cout << "\tclosestPoint to origin: " << box1.closestPointInBox() << std::endl;
         std::cout << "\tfarthestPoint from origin: " << box1.farthestPointInBox() << std::endl;    
         std::cout << "\tcontains query point " << queryPt << "?  " << (box1.containsPoint(queryPt) ? "yes" : "no") << std::endl;

@@ -85,27 +85,10 @@ void TreeSum::meshSolve(const MPIReplicatedData& mpiVerts, const MPIReplicatedDa
     }   
 }
 
-void TreeSum::meshBroadcast(const MPIReplicatedData& mpiVerts, const MPIReplicatedData& mpiFaces) const {
-    for (int i = 0; i < mpiVerts.getSize(); ++i) {
-        scalar_type* vertBufStartComp0 = _vertTgt.lock()->getPtrToData(0);
-        scalar_type* vertBufStartComp1 = _vertTgt.lock()->getPtrToData(1);
-        scalar_type* vertBufStartComp2 = _vertTgt.lock()->getPtrToData(2);
-        scalar_type* faceBufStartComp0 = _faceTgt.lock()->getPtrToData(0);
-        scalar_type* faceBufStartComp1 = _faceTgt.lock()->getPtrToData(1);
-        scalar_type* faceBufStartComp2 = _faceTgt.lock()->getPtrToData(2);
-    
-        MPI_Bcast(vertBufStartComp0 + mpiVerts.startIndex(i), mpiVerts.msgSize(i), MPI_DOUBLE, i, MPI_COMM_WORLD);
-        MPI_Bcast(vertBufStartComp1 + mpiVerts.startIndex(i), mpiVerts.msgSize(i), MPI_DOUBLE, i, MPI_COMM_WORLD);
-        MPI_Bcast(vertBufStartComp2 + mpiVerts.startIndex(i), mpiVerts.msgSize(i), MPI_DOUBLE, i, MPI_COMM_WORLD);
-        MPI_Bcast(faceBufStartComp0 + mpiFaces.startIndex(i), mpiFaces.msgSize(i), MPI_DOUBLE, i, MPI_COMM_WORLD);
-        MPI_Bcast(faceBufStartComp1 + mpiFaces.startIndex(i), mpiFaces.msgSize(i), MPI_DOUBLE, i, MPI_COMM_WORLD);
-        MPI_Bcast(faceBufStartComp2 + mpiFaces.startIndex(i), mpiFaces.msgSize(i), MPI_DOUBLE, i, MPI_COMM_WORLD);
-    }
-}
-
 void TreeSum::meshVecSum(XyzVector& sol, const XyzVector& tgtVec, SumNode* node, const scalar_type mp_tol, 
     std::shared_ptr<MeshedParticles> pm, std::shared_ptr<Field> src, int& macCounter) {
     if (node->multipoleAcceptance(tgtVec, mp_tol)) {
+        macCounter += 1;
         node->calc_coeffs(tgtVec, _smooth);
         for (auto& elem : node->coeffs) {
             const std::vector<scalar_type> mm = node->moments.at(elem.first);
@@ -113,7 +96,6 @@ void TreeSum::meshVecSum(XyzVector& sol, const XyzVector& tgtVec, SumNode* node,
             sol.y += elem.second * (tgtVec.z * mm[0] - tgtVec.x * mm[2]);
             sol.z += elem.second * (tgtVec.x * mm[1] - tgtVec.y * mm[0]);
         }
-        macCounter += 1;
         return;
     }
     else {
@@ -135,6 +117,25 @@ void TreeSum::meshVecSum(XyzVector& sol, const XyzVector& tgtVec, SumNode* node,
         }
     }
 }
+
+void TreeSum::meshBroadcast(const MPIReplicatedData& mpiVerts, const MPIReplicatedData& mpiFaces) const {
+    for (int i = 0; i < mpiVerts.getSize(); ++i) {
+        scalar_type* vertBufStartComp0 = _vertTgt.lock()->getPtrToData(0);
+        scalar_type* vertBufStartComp1 = _vertTgt.lock()->getPtrToData(1);
+        scalar_type* vertBufStartComp2 = _vertTgt.lock()->getPtrToData(2);
+        scalar_type* faceBufStartComp0 = _faceTgt.lock()->getPtrToData(0);
+        scalar_type* faceBufStartComp1 = _faceTgt.lock()->getPtrToData(1);
+        scalar_type* faceBufStartComp2 = _faceTgt.lock()->getPtrToData(2);
+    
+        MPI_Bcast(vertBufStartComp0 + mpiVerts.startIndex(i), mpiVerts.msgSize(i), MPI_DOUBLE, i, MPI_COMM_WORLD);
+        MPI_Bcast(vertBufStartComp1 + mpiVerts.startIndex(i), mpiVerts.msgSize(i), MPI_DOUBLE, i, MPI_COMM_WORLD);
+        MPI_Bcast(vertBufStartComp2 + mpiVerts.startIndex(i), mpiVerts.msgSize(i), MPI_DOUBLE, i, MPI_COMM_WORLD);
+        MPI_Bcast(faceBufStartComp0 + mpiFaces.startIndex(i), mpiFaces.msgSize(i), MPI_DOUBLE, i, MPI_COMM_WORLD);
+        MPI_Bcast(faceBufStartComp1 + mpiFaces.startIndex(i), mpiFaces.msgSize(i), MPI_DOUBLE, i, MPI_COMM_WORLD);
+        MPI_Bcast(faceBufStartComp2 + mpiFaces.startIndex(i), mpiFaces.msgSize(i), MPI_DOUBLE, i, MPI_COMM_WORLD);
+    }
+}
+
 
 void SumNode::calc_moments(const XyzVector& srcVec, const scalar_type srcStrength) {
     const XyzVector cntd_to_src = box.centroid - srcVec;
@@ -282,7 +283,7 @@ void TreeSum::generateTreeFromMesh(SumNode* node, const PolyMesh2d* meshptr) {
         _nnodes += node->kids.size();
         for (int i=0; i<node->kids.size(); ++i) {
             if (_shrink) {
-                shrinkBox(node->kids[i].get());
+                shrinkBox(node->kids[i].get(), meshptr->getFaces());
             }
             generateTreeFromMesh(dynamic_cast<SumNode*>(node->kids[i].get()), meshptr);
         }
