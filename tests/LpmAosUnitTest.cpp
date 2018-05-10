@@ -69,6 +69,9 @@ int main (int argc, char* argv[]) {
     std::cout << "v3a * v3c = " << v3a * Vec<3>(xxC) << std::endl;
     std::cout << "v3a = v3copy : " << (v3a == v3copy ? "True" : "False") << std::endl;
 
+    Vec<3> v3assign = v3a;
+
+    std::cout << "v3assign = " << v3assign << std::endl;
 
     std::vector<Vec<2>> vec2s = {v2a, v2b, v2fromVec};
     std::cout << "v2a.midpoint(v2b) = " << v2a.midpoint(v2b) << std::endl;
