@@ -174,7 +174,7 @@ template<int ndim=3> struct Vec {
     }
 
     const bool operator == (const Vec<ndim>& other) const {
-        return (*this - other).mag() < ZERO_TOL;
+        return this->dist(other) < ZERO_TOL;
     }
 };
 
