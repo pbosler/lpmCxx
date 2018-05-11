@@ -6,3 +6,4 @@
 #cmakedefine DEBUG_ALL
 
 #define LPM_MESH_SEED_DIR "@CMAKE_CURRENT_SOURCE_DIR@/meshSeeds"
+#define LPM_PARTICLE_SET_DIR "@CMAKE_CURRENT_SOURCE_DIR@/particle_sets"

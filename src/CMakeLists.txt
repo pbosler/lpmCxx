@@ -10,6 +10,7 @@ add_library( lpm LpmXyzVector.cpp LpmOutputMessage.cpp LpmLogger.cpp LpmCoords.c
              LpmTimer.cpp LpmDirectSum.cpp
              LpmBox3d.cpp LpmOctree.cpp LpmSakajo2009.cpp
              LpmTreeSum.cpp 
+             LpmAosTypes.cpp LpmAosParticleSet.cpp
 )
 
 
@@ -21,7 +22,7 @@ install (FILES LpmConfig.h LpmXyzVector.h LpmOutputMessage.h LpmLogger.h LpmCoor
                LpmPolyMesh2d.h LpmVtkFileIO.h LpmParticles.h LpmMeshedParticles.h LpmMPIReplicatedData.h
                LpmTimer.h LpmMultiIndex.h LpmSakajo2009.h LpmTreeSum.h 
                LpmDirectSum.h 
-               LpmAosTypes.hpp
+               LpmAosTypes.hpp LpmAosParticle.hpp LpmAosSWEParticle.hpp LpmAosParticleFactory.hpp LpmAosParticleSet.hpp
          DESTINATION include)
 		  
 install ( TARGETS lpm DESTINATION lib )  

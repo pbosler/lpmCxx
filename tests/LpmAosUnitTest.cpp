@@ -12,9 +12,6 @@
 
 using namespace Lpm;
 
-typedef Vec<2> vec2type;
-typedef Vec<3> vec3type;
-
 int main (int argc, char* argv[]) {
 
     std::unique_ptr<Logger> log(new Logger(OutputMessage::debugPriority));
@@ -51,7 +48,7 @@ int main (int argc, char* argv[]) {
     std::cout << "v2fromVec = " << v2fromVec << std::endl;
 
     Vec<2> v2b(xxB);
-    scalar_type cp2 = v2a.crossProd(v2b);
+    scalar_type cp2 = v2a.crossProdComp3(v2b);
     std::cout << "v2b = " << v2b << std::endl;
     std::cout << "v2a cross v2b = " << cp2 << std::endl;
     std::cout << "v2b - v2a = " << v2b - v2a << std::endl;
