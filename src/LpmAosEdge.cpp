@@ -9,31 +9,43 @@ namespace Lpm {
 template <int ndim> Vec<ndim> Edge::midpoint(const ParticleSet<ndim>& particles) const {
     Particle<ndim>* optr = particles.getPtr(_orig);
     Particle<ndim>* dptr = particles.getPtr(_dest);
-    return optr->physCrd.midpoint(dptr->physCrd);
+    return optr->physCrd().midpoint(dptr->physCrd());
 }
 
 template <int ndim> Vec<ndim> Edge::lagMidpoint(const ParticleSet<ndim>& particles) const {
     Particle<ndim>* optr = particles.getPtr(_orig);
     Particle<ndim>* dptr = particles.getPtr(_dest);
-    return optr->lagCrd.midpoint(dptr->lagCrd);
+    return optr->lagCrd().midpoint(dptr->lagCrd());
+}
+
+template <int ndim> Vec<ndim> Edge::sphMidpoint(const ParticleSet<ndim>& particles, const scalar_type radius) const {
+    Particle<ndim>* optr = particles.getPtr(_orig);
+    Particle<ndim>* dptr = particles.getPtr(_dest);
+    return optr->physCrd().sphMidpoint(dptr->physCrd(), radius);
+}
+
+template <int ndim> Vec<ndim> Edge::sphLagMidpoint(const ParticleSet<ndim>& particles, const scalar_type radius) const {
+    Particle<ndim>* optr = particles.getPtr(_orig);
+    Particle<ndim>* dptr = particles.getPtr(_dest);
+    return optr->lagCrd().sphMidpoint(dptr->lagCrd(), radius);
 }
 
 template <int ndim> Vec<ndim> Edge::edgeVector(const ParticleSet<ndim>& particles) const {
     Particle<ndim>* optr = particles.getPtr(_orig);
     Particle<ndim>* dptr = particles.getPtr(_dest);
-    return dptr->physCrd - optr->physCrd;
+    return dptr->physCrd() - optr->physCrd();
 }
 
 template <int ndim> scalar_type Edge::eucLength(const ParticleSet<ndim>& particles) const {
     Particle<ndim>* optr = particles.getPtr(_orig);
     Particle<ndim>* dptr = particles.getPtr(_dest);
-    return optr->physCrd.dist(dptr->physCrd);
+    return optr->physCrd().dist(dptr->physCrd());
 }
 
 template <int ndim> scalar_type Edge::sphLength(const ParticleSet<ndim>& particles, const scalar_type radius) const {
     Particle<ndim>* optr = particles.getPtr(_orig);
     Particle<ndim>* dptr = particles.getPtr(_dest);
-    return optr->physCrd.sphereDist(dptr->physCrd, radius);
+    return optr->physCrd().sphereDist(dptr->physCrd(), radius);
 }
 
 std::string Edge::infoString() const {

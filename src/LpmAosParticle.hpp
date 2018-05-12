@@ -27,12 +27,16 @@ template <int ndim=3> class Particle {
     public:
 
         Particle() : _physCrd(), _lagCrd(), _area(0.0), _volume(0.0), _velocity() {}
+        Particle(const Vec<ndim>& pos, const scalar_type aa=0.0, const scalar_type vv=0.0) : _physCrd(pos), _lagCrd(pos),
+             _area(aa), _volume(vv), _velocity() {}
+        Particle(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type ar=0.0, const scalar_type vol=0.0) :
+            _physCrd(xx), _lagCrd(aa), _area(ar), _volume(vol), _velocity() {}
 
         void setArea(const scalar_type a) {_area = a;}
         void setVolume(const scalar_type v) {_volume = v;}
 
-        inline Vec<ndim> getPhysCrd() const {return _physCrd;}
-        inline Vec<ndim> getLagCrd() const {return _lagCrd;}
+        inline Vec<ndim> physCrd() const {return _physCrd;}
+        inline Vec<ndim> lagCrd() const {return _lagCrd;}
 
         inline scalar_type area() const {return _area;}
         inline scalar_type volume() const {return _volume;}

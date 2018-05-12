@@ -4,24 +4,29 @@
 #include "LpmConfig.h"
 #include "LpmTypeDefs.h"
 #include "LpmXyzVector.h"
+#include "LpmAosTypes.hpp"
 #include <cmath>
+#include <array>
 
 namespace Lpm {
 
 class AnalyticFunction {
     public:
-        inline virtual scalar_type evaluateScalar(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const 
+        inline virtual scalar_type evaluateScalar(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const
             {return 0.0;}
         inline virtual scalar_type evaluateScalar(const XyzVector& crdVec) const {return 0.0;}
-        inline virtual XyzVector evaluateVector(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const 
+        inline virtual XyzVector evaluateVector(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const
             {return XyzVector();}
         inline virtual XyzVector evaluateVector(const XyzVector& crdVec) const {return XyzVector();}
+
+        template <int ndim> scalar_type evaluateScalar(const Vec<ndim>& vec) const {return 0.0;}
+        template <int ndim> Vec<ndim> evaluateVector(const Vec<ndim>& vec) const {return Vec<ndim>();}
 };
 
 class SineWave3D : public AnalyticFunction {
     public:
         SineWave3D(const int kk, const int ll, const int mm) : k(kk), l(ll), m(mm) {};
-    
+
         scalar_type evaluateScalar(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const override {
             return std::sin(2.0 * PI * k * x) * std::sin(2.0 * PI * l * y) * std::sin(2.0 * PI * m * z);
         };
@@ -29,7 +34,7 @@ class SineWave3D : public AnalyticFunction {
             return evaluateScalar(crdVec.x, crdVec.y, crdVec.z);
         };
     protected:
-        
+
         int k;
         int l;
         int m;
@@ -38,23 +43,23 @@ class SineWave3D : public AnalyticFunction {
 class Gaussian3D : public AnalyticFunction {
     public:
         Gaussian3D(const scalar_type b = 1.0) : _b(b) {};
-    
-        inline scalar_type evaluateScalar(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const 
+
+        inline scalar_type evaluateScalar(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const
             override {
             return std::exp(-_b * _b * ( x * x + y* y + z*z ));
         };
         inline scalar_type evaluateScalar(const XyzVector& crdVec) const override {
             return evaluateScalar(crdVec.x, crdVec.y, crdVec.z);
         };
-        
-    protected:        
+
+    protected:
         scalar_type _b;
 };
 
 class radial2dsource : public AnalyticFunction {
     public:
         radial2dsource() {};
-    
+
         scalar_type evaluateScalar(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const {
             const scalar_type rr = std::sqrt(x*x + y*y);
             const scalar_type rrdenom = rr / (ZERO_TOL * ZERO_TOL + rr * rr);
@@ -69,12 +74,12 @@ class radial2dsource : public AnalyticFunction {
         XyzVector evaluateVector(const XyzVector& crdVec) const {
             return XyzVector(0.0, 0.0, 0.0);
         }
-}; 
+};
 
 class exact2dpotential : public AnalyticFunction {
     public:
         exact2dpotential() {};
-        
+
         scalar_type evaluateScalar(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const override {
             const scalar_type rr = std::sqrt(x*x + y*y);
             return (std::abs(rr) <= 1.0 ? 0.5 * (1.0 + std::cos(PI * rr)) : 0.0);
@@ -87,16 +92,16 @@ class exact2dpotential : public AnalyticFunction {
 class sphereHarmonic54 : public AnalyticFunction {
     public:
         sphereHarmonic54() {}
-        
+
         scalar_type evaluateScalar(const scalar_type x, const scalar_type y, const scalar_type z = 0.0) const override {
             const scalar_type lon = longitude(x, y);
             return 30.0 * std::cos(4.0 * lon) * legendre54(z);
         }
-        
+
         scalar_type evaluateScalar(const XyzVector& crdVec) const override {
             return evaluateScalar(crdVec.x, crdVec.y, crdVec.z);
         }
-        
+
         inline scalar_type legendre54(const scalar_type& z) const {
             return z * (z * z - 1.0) * (z * z - 1.0);
         }
@@ -105,10 +110,10 @@ class sphereHarmonic54 : public AnalyticFunction {
 class rossbyHaurwitz54Velocity : public AnalyticFunction {
     public:
         rossbyHaurwitz54Velocity() {}
-        
-        XyzVector evaluateVector(const scalar_type x, const scalar_type y, const scalar_type z) const override { 
+
+        XyzVector evaluateVector(const scalar_type x, const scalar_type y, const scalar_type z) const override {
             return evaluateVector(XyzVector(x,y,z));}
-                    
+
         XyzVector evaluateVector(const XyzVector& crdVec) const override {
             const scalar_type lat = latitude(crdVec);
             const scalar_type lon = longitude(crdVec);
