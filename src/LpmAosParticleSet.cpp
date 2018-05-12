@@ -13,7 +13,7 @@ template <int ndim> void ParticleSet<ndim>::initFromParticleSetFile(const std::s
             if (!file.is_open()) {
                 throw std::ios_base::failure("initFromParticleSetFile ERROR: file " + fullfname + " not found.");
             }
-    
+
             index_type lineNumber = 0;
             std::string line;
             index_type nParticles = -1;
@@ -25,33 +25,37 @@ template <int ndim> void ParticleSet<ndim>::initFromParticleSetFile(const std::s
             while (std::getline(file, line)) {
                 lineNumber += 1;
                 if (lineNumber == 5) {
-                    nParticles = std::stol(line.substr(6,2));
+                    nParticles = std::stol(line.substr(6));
                 }
-                else if (lineNumber > 5 && lineNumber < 6 +nParticles ) {
+                else if (nParticles > 0 && lineNumber > 5 && lineNumber < 5 +nParticles ) {
                     std::istringstream iss(line);
                     _particles.push_back(_factory->createParticle());
                     if (ndim == 2) {
                         if (! (iss >> xx >> yy)) {
                             std::ostringstream oss;
                             oss << "initFromParticleSetFile read ERROR at line " << lineNumber;
+                            oss << std::endl << "\t" << "nParticles = " << nParticles << std::endl;
+                            oss << "\t" << line << std::endl;
                             throw std::ios_base::failure(oss.str());
                         }
                         _particles[particleID++]->init(Vec<ndim>(xx, yy));
-                
+
                     }
                     else if (ndim == 3) {
                         if (! (iss >> xx >> yy >> zz)) {
                             std::ostringstream oss;
                             oss << "initFromParticleSetFile read ERROR at line " << lineNumber;
+                            oss << std::endl << "\t" << "nParticles = " << nParticles << std::endl;
+                            oss << "\t" << line << std::endl;
                             throw std::ios_base::failure(oss.str());
                         }
                         _particles[particleID++]->init(Vec<ndim>(xx,yy,zz));
                     }
                 }
-                else if (lineNumber == 6 + nParticles) {
+                else if (nParticles > 0 && lineNumber == 6 + nParticles) {
                     particleID = 0;
                 }
-                else if (lineNumber == 7 + nParticles) {
+                else if (nParticles > 0 && lineNumber == 7 + nParticles) {
                     if (line.find("area") != std::string::npos) {
                         areaFound = true;
                     }
@@ -59,11 +63,13 @@ template <int ndim> void ParticleSet<ndim>::initFromParticleSetFile(const std::s
                         volumeFound = true;
                     }
                 }
-                else if (lineNumber > 8 + nParticles) {
+                else if (nParticles > 0 && lineNumber > 8 + nParticles) {
                     std::istringstream iss(line);
                     if (! (iss >> weight)) {
                         std::ostringstream oss;
                         oss << "initFromParticleSetFile read ERROR at line " << lineNumber;
+                        oss << std::endl << "\t" << "nParticles = " << nParticles << std::endl;
+                        oss << "\t" << line << std::endl;
                         throw std::ios_base::failure(oss.str());
                     }
                     if (areaFound) {
@@ -74,7 +80,7 @@ template <int ndim> void ParticleSet<ndim>::initFromParticleSetFile(const std::s
                     }
                 }
             }
-    
+
             file.close();
         }
 

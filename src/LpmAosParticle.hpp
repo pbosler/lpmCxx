@@ -23,31 +23,30 @@ template <int ndim=3> class Particle {
         std::map<std::string, std::array<scalar_type, ndim>> _vFields;
 
     public:
-    
+
         Particle() : _physCrd(), _lagCrd(), _area(0.0), _volume(0.0), _velocity() {}
 
         void setArea(const scalar_type a) {_area = a;}
         void setVolume(const scalar_type v) {_volume = v;}
-        
+
         Vec<ndim> getPhysCrd() const {return _physCrd;}
         Vec<ndim> getLagCrd() const {return _lagCrd;}
-        
+
         void registerScalarField(const std::string& field_name) {
             this->_sFields.emplace(field_name, 0.0);
         }
-        
+
         void registerVectorField(const std::string& field_name) {
             this->_vFields.emplace(field_name, std::array<scalar_type, ndim>());
         }
-        
+
         scalar_type getScalar(const std::string& field_name) const {
             return _sFields.at(field_name);
         }
-        
+
         std::array<scalar_type, ndim> getVector(const std::string& field_name) const {
             return _vFields.at(field_name);
         }
-
 
         virtual void init(const Vec<ndim>& initCrd, const scalar_type aa=0.0, const scalar_type vv=0.0) {
             _physCrd = initCrd;
@@ -62,9 +61,9 @@ template <int ndim=3> class Particle {
             _area = ar;
             _volume = vv;
         };
-        
+
         virtual ~Particle() {}
-        
+
         void setVel(const scalar_type* vv) {
             for (int i=0; i<ndim; ++i)
                 this->velocity[i] = vv[i];
@@ -85,8 +84,8 @@ template <int ndim=3> class Particle {
             this->_velocity[1] = v;
             this->_velocity[2] = w;
         }
-        
-        std::string infoString() const { 
+
+        std::string infoString() const {
             std::ostringstream ss;
             ss << "particle info:" << std::endl;
             ss << "\tphysCrd = " << this->_physCrd << std::endl;
