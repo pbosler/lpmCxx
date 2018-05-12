@@ -36,6 +36,8 @@ template <int ndim> class ParticleSet {
 
         std::vector<std::string> particlesInfoStrings() const;
 
+        inline Particle<ndim>* getPtr(const index_type ind) const {return _particles[ind].get();}
+
         void initScalarFieldFromFn(const std::string& field_name, const AnalyticFunction* fn);
         void initVectorFieldFromFn(const std::string& field_name, const AnalyticFunction* fn);
 
