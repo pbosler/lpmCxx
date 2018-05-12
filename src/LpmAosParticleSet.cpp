@@ -6,6 +6,53 @@
 
 namespace Lpm {
 
+template <int ndim> std::string ParticleSet<ndim>::infoString() const {
+    std::ostringstream oss;
+    oss << "particle set info:" << std::endl;
+    oss << "\tnMax = " << _nMax << std::endl;
+    oss << "\tn = " << _particles.size() << std::endl;
+    oss << "\tnActive = " << _nActive << std::endl;
+    oss << "\tfields:" << std::endl;
+    std::vector<std::string> fields = fieldNames();
+    for (int i=0; i<fields.size(); ++i)
+        oss << "\t\t" << fields[i] << std::endl;
+    oss << "\ttotalArea = " << totalArea() << std::endl;
+    oss << "\ttotalVolume = " << totalVolume() << std::endl;
+    return oss.str();
+}
+
+template <int ndim> std::vector<std::string> ParticleSet<ndim>::particlesInfoStrings() const {
+    std::vector<std::string> result;
+    for (index_type i=0; i<_particles.size(); ++i)
+        result.push_back(_particles[i]->infoString());
+    return result;
+}
+
+template <int ndim> scalar_type ParticleSet<ndim>::totalArea() const {
+    scalar_type result = 0.0;
+    for (index_type i=0; i<_particles.size(); ++i)
+        result += _particles[i]->area();
+    return result;
+}
+
+template <int ndim> scalar_type ParticleSet<ndim>::totalVolume() const {
+    scalar_type result = 0.0;
+    for (index_type i=0; i<_particles.size(); ++i)
+        result += _particles[i]->volume();
+    return result;
+}
+
+template <int ndim> std::vector<std::string> ParticleSet<ndim>::fieldNames() const {
+    return _particles[0]->fieldNames();
+}
+
+template <int ndim> scalar_type ParticleSet<ndim>::scalarIntegral(const std::string& field_name) const {
+    scalar_type result = 0.0;
+    for (index_type i=0; i<_particles.size(); ++i)
+        result += _particles[i]->getScalar(field_name) * _particles[i]->area();
+    return result;
+}
+
 template <int ndim> void ParticleSet<ndim>::initFromParticleSetFile(const std::string& fname) {
             std::string fullfname(LPM_PARTICLE_SET_DIR);
             fullfname += "/" + fname;
@@ -26,8 +73,9 @@ template <int ndim> void ParticleSet<ndim>::initFromParticleSetFile(const std::s
                 lineNumber += 1;
                 if (lineNumber == 5) {
                     nParticles = std::stol(line.substr(6));
+                    std::cout << "\t...found " << nParticles << " particles in file " << fullfname << std::endl;
                 }
-                else if (nParticles > 0 && lineNumber > 5 && lineNumber < 5 +nParticles ) {
+                else if (nParticles > 0 && lineNumber > 5 && lineNumber <= 5 +nParticles ) {
                     std::istringstream iss(line);
                     _particles.push_back(_factory->createParticle());
                     if (ndim == 2) {
@@ -73,7 +121,7 @@ template <int ndim> void ParticleSet<ndim>::initFromParticleSetFile(const std::s
                         throw std::ios_base::failure(oss.str());
                     }
                     if (areaFound) {
-                        _particles[particleID]->setArea(weight);
+                        _particles[particleID++]->setArea(weight);
                     }
                     else if (volumeFound) {
                         _particles[particleID++]->setVolume(weight);

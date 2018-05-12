@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <exception>
+#include <array>
 #include "LpmConfig.h"
 #include "LpmTypeDefs.h"
 
@@ -40,6 +41,24 @@ template<int ndim=3> struct Vec {
             this->x[1] = yy;
             this->x[2] = zz;
         }
+    }
+
+    Vec(const std::array<scalar_type, ndim>& arr) {
+        for (int i=0; i<ndim; ++i)
+            this->x[i] = arr[i];
+    }
+
+    inline std::array<scalar_type, ndim> toArray() const {
+        std::array<scalar_type, ndim> result;
+        for (int i=0; i<ndim; ++i)
+            result[i] = this->x[i];
+        return result;
+    }
+
+    inline std::vector<scalar_type> toStdVec() const {
+        std::vector<scalar_type> result(ndim);
+        for (int i=0; i<ndim; ++i)
+            result[i] = this->x[i];
     }
 
     inline Vec(const std::vector<scalar_type>& xx) {

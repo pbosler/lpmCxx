@@ -12,15 +12,17 @@
 namespace Lpm {
 
 template <int ndim=3> class Particle {
+    typedef std::array<scalar_type, ndim>  vfield_type;
+
     protected:
         Vec<ndim> _physCrd;
         Vec<ndim> _lagCrd;
-        std::array<scalar_type, ndim> _velocity;
+        vfield_type _velocity;
         scalar_type _area;
         scalar_type _volume;
 
         std::map<std::string, scalar_type> _sFields;
-        std::map<std::string, std::array<scalar_type, ndim>> _vFields;
+        std::map<std::string, vfield_type> _vFields;
 
     public:
 
@@ -29,22 +31,46 @@ template <int ndim=3> class Particle {
         void setArea(const scalar_type a) {_area = a;}
         void setVolume(const scalar_type v) {_volume = v;}
 
-        Vec<ndim> getPhysCrd() const {return _physCrd;}
-        Vec<ndim> getLagCrd() const {return _lagCrd;}
+        inline Vec<ndim> getPhysCrd() const {return _physCrd;}
+        inline Vec<ndim> getLagCrd() const {return _lagCrd;}
+
+        inline scalar_type area() const {return _area;}
+        inline scalar_type volume() const {return _volume;}
 
         void registerScalarField(const std::string& field_name) {
             this->_sFields.emplace(field_name, 0.0);
         }
 
         void registerVectorField(const std::string& field_name) {
-            this->_vFields.emplace(field_name, std::array<scalar_type, ndim>());
+            this->_vFields.emplace(field_name, vfield_type());
+        }
+
+        std::vector<std::string> fieldNames() const {
+            std::vector<std::string> result;
+            for (auto& sf : _sFields)
+                result.push_back(sf.first);
+            for (auto& vf : _vFields)
+                result.push_back(vf.first);
+            return result;
+        }
+
+        inline void setScalar(const std::string& field_name, const scalar_type val) {
+            _sFields[field_name] = val;
+        }
+
+        inline void setVector(const std::string& field_name, const Vec<ndim>& vec) {
+            _vFields[field_name] = vec.toArray();
+        }
+
+        inline void setVector(const std::string& field_name, const vfield_type& arr) {
+            _vFields[field_name] = arr;
         }
 
         scalar_type getScalar(const std::string& field_name) const {
             return _sFields.at(field_name);
         }
 
-        std::array<scalar_type, ndim> getVector(const std::string& field_name) const {
+        vfield_type getVector(const std::string& field_name) const {
             return _vFields.at(field_name);
         }
 
