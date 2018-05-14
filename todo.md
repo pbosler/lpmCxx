@@ -33,3 +33,19 @@ Meshfree
 - [ ] nanoflann integration, with tests
 
 
+Templated AOS
+------------------
+- [ ] Finish EdgeSet for quadratic and cubic edges  
+- [ ] Unit test edges   
+- [ ] Design/build AOS Faces, CubicFaces
+- [ ] Unit test faces
+- [ ] Design/build meshed particles
+- [ ] Unit test meshed particles
+- [ ] Resume Polymesh2d tests above with new data structures
+- [ ] Timestepper
+- [ ] Test timestepper
+- [ ] MLS on particles, with and without mesh
+- [ ] PSE on particles, with and without mesh
+- [ ] Treecode on particles, with and without mesh (to include PSE)
+- [ ] Meshed interpolation methods (see Polymesh2d, above)
+
