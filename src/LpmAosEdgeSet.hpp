@@ -36,7 +36,8 @@ class EdgeSet {
 
         inline Edge* getPtr(const index_type ind) const {return _edges[i].get();}
 
-        void insert(const index_type origID, const index_type destID, const index_type leftID, const index_type rightID);
+        void insert(const index_type origID, const index_type destID, const index_type leftID, const index_type rightID, 
+            const std::array<index_type>& interiorIDs = std::array<index_type>());
         template <int ndim> void divide(const index_type ind, ParticleSet<ndim>& particles, const scalar_type radius=1.0);
 
     protected:

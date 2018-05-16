@@ -43,6 +43,9 @@ template <int ndim> class ParticleSet {
         void initScalarFieldFromFn(const std::string& field_name, const AnalyticFunction* fn);
         void initVectorFieldFromFn(const std::string& field_name, const AnalyticFunction* fn);
 
+        inline Vec<ndim> physCrd(const index_type ind) const {return _particles[ind]->physCrd();}
+        inline Vec<ndim> lagCrd(const index_type ind) const {return _particles[ind]->lagCrd();}
+
     protected:
         index_type _nMax;
         index_type _nActive;

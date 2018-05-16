@@ -10,13 +10,16 @@
 
 namespace Lpm {
 
-class Edge {
+template <int ndim> class Edge {
     public:
-        Edge(const index_type origID, const index_type destID, const index_type leftID, const index_type rightID) :
+        Edge(const index_type origID, const index_type destID, const index_type leftID, const index_type rightID,
+            const std::array<index_type,2>& midpts = std::array<index_type,2>()) :
             _orig(origID), _dest(destID), _left(leftID), _right(rightID),
             _parent(-1) {
             _kids[0] = -1;
             _kids[1] = -1;
+            _midpts[0] = midpts[0];
+            _midpts[1] = midpts[1];
         }
 
         virtual ~Edge() {}
@@ -41,27 +44,34 @@ class Edge {
         inline index_type parent() const {return _parent;}
         inline void setParent(const index_type ind) {_parent = ind;}
 
-        template <int ndim> Vec<ndim> origCrd(const ParticleSet<ndim>& particles) const {
+        Vec<ndim> origCrd(const ParticleSet<ndim>& particles) const {
             return particles.getPtr(_orig)->physCrd();
         }
-        template <int ndim> Vec<ndim> destCrd(const ParticleSet<ndim>& particles) const {
+        Vec<ndim> destCrd(const ParticleSet<ndim>& particles) const {
             return particles.getPtr(_dest)->physCrd();
         }
 
-        template <int ndim> Vec<ndim> midpoint(const ParticleSet<ndim>& particles) const;
-        template <int ndim> Vec<ndim> lagMidpoint(const ParticleSet<ndim>& particles) const;
-        template <int ndim> Vec<ndim> sphMidpoint(const ParticleSet<ndim>& particles, const scalar_type radius=1.0) const;
-        template <int ndim> Vec<ndim> sphLagMidpoint(const ParticleSet<ndim>& particles, const scalar_type radius=1.0) const;
-        template <int ndim> Vec<ndim> edgeVector(const ParticleSet<ndim>& particles) const;
-        template <int ndim> scalar_type eucLength(const ParticleSet<ndim>& particles) const;
-        template <int ndim> scalar_type sphLength(const ParticleSet<ndim>& particles, const scalar_type radius=1.0) const;
+        Vec<ndim> midpoint(const ParticleSet<ndim>& particles) const;
+        Vec<ndim> lagMidpoint(const ParticleSet<ndim>& particles) const;
+        Vec<ndim> sphMidpoint(const ParticleSet<ndim>& particles, const scalar_type radius=1.0) const;
+        Vec<ndim> sphLagMidpoint(const ParticleSet<ndim>& particles, const scalar_type radius=1.0) const;
+        Vec<ndim> edgeVector(const ParticleSet<ndim>& particles) const;
+        scalar_type eucLength(const ParticleSet<ndim>& particles) const;
+        scalar_type sphLength(const ParticleSet<ndim>& particles, const scalar_type radius=1.0) const;
 
         inline bool onBoundary() const {return _left < 0 || _right < 0;}
 
         virtual std::string infoString() const;
 
-        virtual void setMidPt(const index_type ind) {}
+        virtual void setMidpt(const index_type ind) {}
         virtual void setMidpts(const index_type ind0, const index_type ind1) {}
+        virtual index_type midpt() const {return -1;}
+        virtual std::array<index_type,2> midpts() const {
+            std::array<index_type,2> result;
+            result[0] = -1;
+            result[1] = -1;
+            return result;
+        }
 
     protected:
         index_type _orig;
@@ -70,34 +80,27 @@ class Edge {
         index_type _right;
         std::array<index_type, 2> _kids;
         index_type _parent;
+        std::array<index_type, 2> _midpts;
 };
 
-class QuadraticEdge : public Edge {
+template <int ndim> class QuadraticEdge : public Edge<ndim> {
     public:
         QuadraticEdge(const index_type origID, const index_type destID, const index_type leftID, const index_type rightID,
-            const index_type midID) : Edge(origID, destID, leftID, rightID), _midpt(midID) {}
-
-        inline index_type midpt() const {return _midpt;}
-        inline void setMidpt(const index_type ind) {_midpt = ind;}
-    protected:
-        index_type _midpt;
+            const std::array<index_type,2>& midpts) : Edge<ndim>(origID, destID, leftID, rightID, midpts) {}
+    
+        inline index_type midpt() const override {return this->_midpts[0];}
+        inline void setMidpt(const index_type ind) override {this->_midpts[0] = ind;}
 };
 
-class CubicEdge : public Edge {
+template <int ndim> class CubicEdge : public Edge<ndim> {
     public:
         CubicEdge(const index_type origID, const index_type destID, const index_type leftID, const index_type rightID,
-            const index_type midID0, const index_type midID1) : Edge(origID, destID, leftID, rightID) {
-            _midpts[0] = midID0;
-            _midpts[1] = midID1;
+            const std::array<index_type,2>& midpts) : Edge<ndim>(origID, destID, leftID, rightID, midpts) {}
+        inline std::array<index_type, 2> midpts() const override {return this->_midpts;}
+        inline void setMidpts(const index_type ind0, const index_type ind1) override {
+            this->_midpts[0] = ind0;
+            this->_midpts[1] = ind1;
         }
-
-        inline std::array<index_type, 2> midpts() const {return _midpts;}
-        inline void setMidpts(const index_type ind0, const index_type ind1) {
-            _midpts[0] = ind0;
-            _midpts[1] = ind1;
-        }
-    protected:
-        std::array<index_type, 2> _midpts;
 };
 
 }

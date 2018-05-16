@@ -93,6 +93,9 @@ template <int ndim> void ParticleSet<ndim>::initFromParticleSetFile(const std::s
         if (lineNumber == 5) {
             nParticles = std::stol(line.substr(6));
             std::cout << "\t...found " << nParticles << " particles in file " << fullfname << std::endl;
+            _nMax = nParticles;
+            _particles.reserve(_nMax);
+            _nActive = nParticles;
         }
         else if (nParticles > 0 && lineNumber > 5 && lineNumber <= 5 +nParticles ) {
             std::istringstream iss(line);
