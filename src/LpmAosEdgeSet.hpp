@@ -13,9 +13,9 @@
 
 namespace Lpm {
 
-class EdgeSet {
+template <int ndim> class EdgeSet {
     public:
-        EdgeSet(const std::shared_ptr<EdgeFactory> factory, const GeometryType geom) : _factory(factory), _geom(geom) {}
+        EdgeSet(const std::shared_ptr<EdgeFactory<ndim>> factory, const GeometryType geom) : _factory(factory), _geom(geom) {}
 
         virtual ~EdgeSet() {}
 
@@ -25,27 +25,27 @@ class EdgeSet {
         inline index_type nLeaves() const {return _nActive;}
         inline index_type nDivided() const {return _edges.size() - _nActive;}
 
-        template <int ndim> scalar_type maxEucLength(const ParticleSet<ndim>& particles) const;
-        template <int ndim> scalar_type maxSphLength(const ParticleSet<ndim>& particles,
+        scalar_type maxEucLength(const ParticleSet<ndim>& particles) const;
+        scalar_type maxSphLength(const ParticleSet<ndim>& particles,
             const scalar_type radius=1.0) const;
-        template <int ndim> scalar_type minEucLength(const ParticleSet<ndim>& particles) const;
-        template <int ndim> scalar_type minSphLength(const ParticleSet<ndim>& particles,
+        scalar_type minEucLength(const ParticleSet<ndim>& particles) const;
+        scalar_type minSphLength(const ParticleSet<ndim>& particles,
             const scalar_type radius=1.0) const;
 
         virtual std::string infoString() const;
 
-        inline Edge* getPtr(const index_type ind) const {return _edges[i].get();}
+        inline Edge<ndim>* getPtr(const index_type ind) const {return _edges[ind].get();}
 
         void insert(const index_type origID, const index_type destID, const index_type leftID, const index_type rightID, 
-            const std::array<index_type>& interiorIDs = std::array<index_type>());
-        template <int ndim> void divide(const index_type ind, ParticleSet<ndim>& particles, const scalar_type radius=1.0);
+            const std::array<index_type, 2>& interiorIDs = std::array<index_type,2>());
+        void divide(const index_type ind, ParticleSet<ndim>& particles, const scalar_type radius=1.0);
 
     protected:
         GeometryType _geom;
         index_type _nMax;
         index_type _nActive;
-        std::shared_ptr<EdgeFactory> _factory;
-        std::vector<std::unique_ptr<Edge>> _edges;
+        std::shared_ptr<EdgeFactory<ndim>> _factory;
+        std::vector<std::unique_ptr<Edge<ndim>>> _edges;
 };
 
 }

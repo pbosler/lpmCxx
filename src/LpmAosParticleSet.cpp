@@ -69,6 +69,9 @@ template <int ndim> void ParticleSet<ndim>::initVectorFieldFromFn(const std::str
 
 template <int ndim> void ParticleSet<ndim>::insert(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type area,
     const scalar_type vol) {
+    if (_particles.size() + 1 == _nMax) {
+        throw std::out_of_range("ParticleSet nmax exceeded.");
+    }
     _particles.push_back(_factory->createParticle(xx, aa, area, vol));
 }
 
