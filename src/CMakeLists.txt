@@ -23,6 +23,7 @@ install (FILES LpmConfig.h LpmXyzVector.h LpmOutputMessage.h LpmLogger.h LpmCoor
                LpmTimer.h LpmMultiIndex.h LpmSakajo2009.h LpmTreeSum.h
                LpmDirectSum.h
                LpmAosTypes.hpp LpmAosParticle.hpp LpmAosSWEParticle.hpp LpmAosParticleFactory.hpp LpmAosParticleSet.hpp
+               LpmAosEdge.hpp LpmAosEdgeFactory.hpp LpmAosEdgeSet.hpp
          DESTINATION include)
 
 install ( TARGETS lpm DESTINATION lib )

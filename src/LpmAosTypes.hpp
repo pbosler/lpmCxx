@@ -197,6 +197,22 @@ template<int ndim=3> struct Vec {
     }
 };
 
+template <int ndim> Vec<ndim> pointAlongChord(Vec<ndim> a, Vec<ndim> b, const scalar_type s) {
+    a.scaleInPlace(1.0-s);
+    b.scaleInPlace(1.0+s);
+    Vec<ndim> result = a + b;
+    result.scaleInPlace(0.5);
+    return result;
+}
+
+template <int ndim> Vec<ndim> pointAlongCircle(const Vec<ndim>& a, const Vec<ndim>& b, const scalar_type s, 
+    const scalar_type radius=1.0) {
+    Vec<ndim> result = pointAlongChord(a,b,s);
+    result.normalizeInPlace();
+    result.scaleInPlace(radius);
+    return result;
+}
+
 template <int ndim> const Vec<ndim> baryCenter(const std::vector<Vec<ndim>>& vecs) {
     Vec<ndim> result;
     for (int i=0; i<vecs.size(); ++i)
