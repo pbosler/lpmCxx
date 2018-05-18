@@ -1,6 +1,7 @@
 #ifndef _LPM_TYPE_DEFS_H_
 #define _LPM_TYPE_DEFS_H_
 
+#include "LpmConfig.h"
 #ifdef USE_NANOFLANN
 #include "nanoflann.hpp"
 #endif

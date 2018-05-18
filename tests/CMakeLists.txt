@@ -12,7 +12,7 @@ add_test( outputMessageTest lpmOutputMessageUnitTest.exe)
 
 ADD_EXECUTABLE(lpmLoggerUnitTest.exe LpmLoggerUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmLoggerUnitTest.exe lpm)
-add_test( loggerTest COMMAND mpirun -np 2 lpmLoggerUnitTest.exe)
+add_test(NAME loggerTest COMMAND mpirun -np 2 lpmLoggerUnitTest.exe)
 
 ADD_EXECUTABLE(lpmCoordsUnitTest.exe LpmCoordsUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmCoordsUnitTest.exe lpm)
@@ -40,36 +40,36 @@ ADD_TEST(polymesh2dUnitTest lpmPolyMeshUnitTest.exe)
 
 ADD_EXECUTABLE(lpmMPIReplicatedDataUnitTest.exe LpmMPIReplicatedDataUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmMPIReplicatedDataUnitTest.exe lpm)
-ADD_TEST(mpiReplicatedDataUnitTest COMMAND mpirun -np 2 lpmMPIReplicatedDataUnitTest.exe)
+ADD_TEST(NAME mpiReplicatedDataUnitTest COMMAND mpirun -np 2 lpmMPIReplicatedDataUnitTest.exe)
 
 ADD_EXECUTABLE(lpmTimerUnitTest.exe LpmTimerUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmTimerUnitTest.exe lpm)
-ADD_TEST(timerUnitTest COMMAND mpirun -np 2 lpmTimerUnitTest.exe)
+ADD_TEST(NAME timerUnitTest COMMAND mpirun -np 2 lpmTimerUnitTest.exe)
 
 ADD_EXECUTABLE(lpmPoissonSolver.exe LpmPoissonSolverTests.cpp)
 TARGET_LINK_LIBRARIES(lpmPoissonSolver.exe lpm)
-ADD_TEST(poissonSolver COMMAND mpirun -np 4 lpmPoissonSolver.exe)
+ADD_TEST(NAME poissonSolver COMMAND mpirun -np 4 lpmPoissonSolver.exe)
 SET_TESTS_PROPERTIES(poissonSolver PROPERTIES TIMEOUT 300)
 
 ADD_EXECUTABLE(lpmBox3dUnitTests.exe LpmBox3dUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmBox3dUnitTests.exe lpm)
-ADD_TEST(box3dUnitTest COMMAND mpirun -np 1 lpmBox3dUnitTests.exe)
+ADD_TEST(NAME box3dUnitTest COMMAND mpirun -np 1 lpmBox3dUnitTests.exe)
 
 ADD_EXECUTABLE(lpmOctreeUnitTest.exe LpmOctreeUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmOctreeUnitTest.exe lpm)
-ADD_TEST(octreeUnitTest COMMAND mpirun -np 1 lpmOctreeUnitTest.exe)
+ADD_TEST(octreeUnitTest lpmOctreeUnitTest.exe)
 
 #ADD_EXECUTABLE(lpmTaylorSeries3dUnitTest.exe LpmTaylorSeries3dUnitTests.cpp)
 #TARGET_LINK_LIBRARIES(lpmTaylorSeries3dUnitTest.exe lpm)
-#ADD_TEST(taylorSeries3dTest COMMAND mpirun -np 1 lpmTaylorSeries3dUnitTest.exe)
+#ADD_TEST(NAME taylorSeries3dTest COMMAND mpirun -np 1 lpmTaylorSeries3dUnitTest.exe)
 
 ADD_EXECUTABLE(lpmMultiIndexUnitTest.exe LpmMultiIndexUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmMultiIndexUnitTest.exe lpm)
-ADD_TEST(multiIndexTest COMMAND mpirun -np 1 lpmMultiIndexUnitTest.exe)
+ADD_TEST(NAME multiIndexTest COMMAND mpirun -np 1 lpmMultiIndexUnitTest.exe)
 
 ADD_EXECUTABLE(lpmSakajoUnitTest.exe LpmSakajoUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmSakajoUnitTest.exe lpm)
-ADD_TEST(sakajoUnitTest COMMAND mpirun -np 1 lpmSakajoUnitTest.exe)
+ADD_TEST(NAME sakajoUnitTest COMMAND mpirun -np 1 lpmSakajoUnitTest.exe)
 
 ADD_EXECUTABLE(lpmAosTypesUnitTest.exe LpmAosUnitTest.cpp)
 TARGET_LINK_LIBRARIES(lpmAosTypesUnitTest.exe lpm)
@@ -85,8 +85,8 @@ add_test(aosEdgeUnitTest lpmAosEdgeUnitTest.exe)
 
 #ADD_EXECUTABLE(lpmTreeSumTest.exe LpmTreeSumTests.cpp)
 #TARGET_LINK_LIBRARIES(lpmTreeSumTest.exe lpm)
-#ADD_TEST(treeSumTest COMMAND mpirun -np 1 lpmTreeSumTest.exe)
+#ADD_TEST(NAME treeSumTest COMMAND mpirun -np 1 lpmTreeSumTest.exe)
 
 ADD_EXECUTABLE(lpmBiotSavartTest.exe LpmBiotSavartRHWaveTests.cpp)
 TARGET_LINK_LIBRARIES(lpmBiotSavartTest.exe lpm)
-ADD_TEST(biotSavartTest COMMAND mpirun -np 4 lpmBiotSavartTest.exe)
+ADD_TEST(NAME biotSavartTest COMMAND mpirun -np 4 lpmBiotSavartTest.exe)

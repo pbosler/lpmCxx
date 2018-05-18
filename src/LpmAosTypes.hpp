@@ -8,10 +8,11 @@
 #include <array>
 #include "LpmConfig.h"
 #include "LpmTypeDefs.h"
+#include "LpmUtilities.h"
 
 namespace Lpm {
 
-scalar_type atan4(const scalar_type y, const scalar_type x);
+// scalar_type atan4(const scalar_type y, const scalar_type x);
 
 template<int ndim=3> struct Vec {
     scalar_type x[ndim];

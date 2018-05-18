@@ -14,38 +14,38 @@ XyzVector operator * ( const XyzVector& vecA, const XyzVector& vecB ) {
 std::ostream& operator << ( std::ostream& os, const XyzVector& vec ) {
 	os << "(" << vec.x << ", " << vec.y << ", " << vec.z << ")" ; return os; }
 	
-scalar_type atan4( const scalar_type y, const scalar_type x ) {
-	scalar_type result = 0.0;
-	if ( x == 0.0 )
-	{
-		if ( y > 0.0 ) 
-			result = 0.5 * PI;
-		else if ( y < 0.0 )
-			result = 1.5 * PI;
-		else if ( y == 0.0 )
-			result = 0.0;
-	}
-	else if ( y == 0 )
-	{
-		if ( x > 0.0 )
-			result = 0.0;
-		else if ( x < 0.0 )
-			result = PI;
-	}
-	else
-	{
-		scalar_type theta = std::atan2( std::abs(y), std::abs(x) );
-		if ( x > 0.0 && y > 0.0 )
-			result = theta;
-		else if ( x < 0.0 && y > 0.0 ) 
-			result = PI - theta;
-		else if ( x < 0.0 && y < 0.0 ) 
-			result = PI + theta;
-		else if ( x > 0.0 && y < 0.0 )
-			result = 2.0 * PI - theta;
-	}
-	return result;
-}
+// scalar_type atan4( const scalar_type y, const scalar_type x ) {
+// 	scalar_type result = 0.0;
+// 	if ( x == 0.0 )
+// 	{
+// 		if ( y > 0.0 ) 
+// 			result = 0.5 * PI;
+// 		else if ( y < 0.0 )
+// 			result = 1.5 * PI;
+// 		else if ( y == 0.0 )
+// 			result = 0.0;
+// 	}
+// 	else if ( y == 0 )
+// 	{
+// 		if ( x > 0.0 )
+// 			result = 0.0;
+// 		else if ( x < 0.0 )
+// 			result = PI;
+// 	}
+// 	else
+// 	{
+// 		scalar_type theta = std::atan2( std::abs(y), std::abs(x) );
+// 		if ( x > 0.0 && y > 0.0 )
+// 			result = theta;
+// 		else if ( x < 0.0 && y > 0.0 ) 
+// 			result = PI - theta;
+// 		else if ( x < 0.0 && y < 0.0 ) 
+// 			result = PI + theta;
+// 		else if ( x > 0.0 && y < 0.0 )
+// 			result = 2.0 * PI - theta;
+// 	}
+// 	return result;
+// }
 
 bool operator == ( const XyzVector& vecA, const XyzVector& vecB ){
 	return ( ( std::abs( vecA.x - vecB.x ) < ZERO_TOL ) && ( std::abs(vecA.y - vecB.y) < ZERO_TOL)) && ( std::abs(vecA.z - vecB.z) < ZERO_TOL ) ;

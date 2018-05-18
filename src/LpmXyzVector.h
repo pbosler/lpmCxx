@@ -3,6 +3,7 @@
 
 #include "LpmTypeDefs.h"
 #include "LpmConfig.h"
+#include "LpmUtilities.h"
 #include <iostream>
 #include <cmath>
 #include <vector>
@@ -77,7 +78,7 @@ inline XyzVector crossProduct( const XyzVector& left, const XyzVector& right) {
     return left.crossProduct(right);
 }
  
-scalar_type atan4( const scalar_type y, const scalar_type x );
+//scalar_type atan4( const scalar_type y, const scalar_type x );
 
 inline void llToXyz(scalar_type& x, scalar_type& y, scalar_type& z, const scalar_type& lambda, const scalar_type& theta, 
     const scalar_type radius = 1.0) {
