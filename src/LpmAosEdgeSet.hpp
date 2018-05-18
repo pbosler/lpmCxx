@@ -33,6 +33,11 @@ template <int ndim> class EdgeSet {
             const scalar_type radius=1.0) const;
 
         virtual std::string infoString() const;
+        
+        inline scalar_type length(const index_type ind, const ParticleSet<ndim>& particles) const {
+            return (_geom == SPHERICAL_SURFACE_GEOMETRY ? _edges[ind]->sphLength(particles) : _edges[ind]->eucLength(particles));}
+
+        inline bool onBoundary(const index_type ind) const {return _edges[ind]->onBoundary();}
 
         inline Edge<ndim>* getPtr(const index_type ind) const {return _edges[ind].get();}
 

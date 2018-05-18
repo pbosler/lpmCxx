@@ -54,30 +54,44 @@ template <int ndim> void EdgeSet<ndim>::divide(const index_type ind, ParticleSet
         throw std::out_of_range("EdgeSet::divide _nMax exceeded.");
     }
     
+    Vec<ndim> midpt;
+    Vec<ndim> lagMidpt;
+    if (_geom == SPHERICAL_SURFACE_GEOMETRY) {
+        midpt = _edges[ind]->sphMidpoint(particles, radius);
+        lagMidpt = _edges[ind]->sphLagMidpoint(particles, radius);
+    }
+    else if (_geom == PLANAR_GEOMETRY || _geom == CARTESIAN_3D_GEOMETRY) {
+        midpt = _edges[ind]->midpoint(particles);
+        lagMidpt = _edges[ind]->lagMidpoint(particles);
+    }
+    std::array<Vec<ndim>, 4> new_crds;
+    std::array<Vec<ndim>, 4> new_lag_crds;
     if (dynamic_cast<QuadraticEdge<ndim>*>(_edges[0].get())) {
         //TODO
+        throw std::runtime_error("EdgeSet::divide ERROR: quadratic edges not implemented.");
     }
     else if (dynamic_cast<CubicEdge<ndim>*>(_edges[0].get())) {
+        //TODO
+        throw std::runtime_error("EdgeSet::divide ERROR: cubic edges not implemented.");
+    
         const Vec<ndim> physOrig = particles.getPtr(_edges[ind]->orig())->physCrd();
         const Vec<ndim> lagOrig = particles.getPtr(_edges[ind]->orig())->lagCrd();
         const Vec<ndim> physDest = particles.getPtr(_edges[ind]->dest())->physCrd();
         const Vec<ndim> lagDest = particles.getPtr(_edges[ind]->dest())->lagCrd();
-
-        // TODO
+        
+        if (_geom == SPHERICAL_SURFACE_GEOMETRY) {
+            
+        }
+        else if (_geom == PLANAR_GEOMETRY || _geom == CARTESIAN_3D_GEOMETRY) {
+        }
+        
     }
     else {
         Vec<ndim> midpt;
         Vec<ndim> lagMidpt;
         const index_type particle_insert = particles.n();
         const index_type edge_insert = _edges.size();
-        if (_geom == SPHERICAL_SURFACE_GEOMETRY) {
-            midpt = _edges[ind]->sphMidpoint(particles, radius);
-            lagMidpt = _edges[ind]->sphLagMidpoint(particles, radius);
-        }
-        else if (_geom == PLANAR_GEOMETRY || _geom == CARTESIAN_3D_GEOMETRY) {
-            midpt = _edges[ind]->midpoint(particles);
-            lagMidpt = _edges[ind]->lagMidpoint(particles);
-        }
+        
         const index_type lface = _edges[ind]->left();
         const index_type rface = _edges[ind]->right();
         particles.insert(midpt, lagMidpt);
