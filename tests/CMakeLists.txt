@@ -83,6 +83,10 @@ ADD_EXECUTABLE(lpmAosEdgeUnitTest.exe LpmAosEdgeUnitTest.cpp)
 TARGET_LINK_LIBRARIES(lpmAosEdgeUnitTest.exe lpm)
 add_test(aosEdgeUnitTest lpmAosEdgeUnitTest.exe)
 
+ADD_EXECUTABLE(lpmAosFaceUnitTest.exe LpmAosFaceUnitTest.cpp)
+TARGET_LINK_LIBRARIES(lpmAosFaceUnitTest.exe lpm)
+add_test(aosFaceUnitTest lpmAosFaceUnitTest.exe)
+
 #ADD_EXECUTABLE(lpmTreeSumTest.exe LpmTreeSumTests.cpp)
 #TARGET_LINK_LIBRARIES(lpmTreeSumTest.exe lpm)
 #ADD_TEST(NAME treeSumTest COMMAND mpirun -np 1 lpmTreeSumTest.exe)

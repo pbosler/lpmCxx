@@ -12,6 +12,7 @@
 #include "LpmAosEdge.hpp"
 #include "LpmAosTypes.hpp"
 #include "LpmAosEdgeFactory.hpp"
+#include "LpmAosEdgeSet.hpp"
 
 
 using namespace Lpm;
@@ -27,12 +28,13 @@ int main (int argc, char* argv[]) {
         ss << "Test info: \n \t title: " << "Lpm Edge Unit Test" << std::endl;
         ss << "\t objectives: " << std::endl;
         ss << "\t 1. Verify Edge and its subclasses' basic functionality." << std::endl;
+        ss << "\t 2. Verify EdgeSet basic functionality." << std::endl;
         OutputMessage introMsg(ss.str(), OutputMessage::tracePriority, "main");
         log->logMessage(introMsg);
         ss.str(nullstr);
     }
     
-    
+    // Edge
     std::shared_ptr<ParticleFactory<3>> sphereFactory(new SWEParticleFactory<3>());
     std::shared_ptr<EdgeFactory<3>> linearEdgeFactory(new LinearEdgeFactory<3>());
     std::shared_ptr<EdgeFactory<3>> quadraticEdgeFactory(new QuadraticEdgeFactory<3>());
@@ -62,6 +64,11 @@ int main (int argc, char* argv[]) {
     std::cout << "\tsphLength = " << linearEdge->sphLength(cubedSphere) << std::endl;
     std::cout << "\teuclength = " << linearEdge->eucLength(cubedSphere) << std::endl;
 
+    // EdgeSet
+    EdgeSet<3> edges(linearEdgeFactory, SPHERICAL_SURFACE_GEOMETRY);
+    
+    std::cout << edges.infoString() << std::endl;
+    
 return 0;
 }
 

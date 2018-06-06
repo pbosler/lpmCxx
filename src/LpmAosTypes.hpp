@@ -14,12 +14,26 @@ namespace Lpm {
 
 // scalar_type atan4(const scalar_type y, const scalar_type x);
 
+typedef std::vector<index_type> ind_vec;
+
 template<int ndim=3> struct Vec {
     scalar_type x[ndim];
 
     Vec() {
         for (int i=0; i<ndim; ++i)
             this->x[i] = 0.0;
+    }
+    
+    template <int ndim2> Vec(const Vec<ndim2>& other){
+        if (ndim < ndim2) {
+            throw std::runtime_error("Vec<ndim>(Vec<ndim2>&) : cannot convert to smaller type.");
+        }
+        for (int i=0; i<std::min(ndim, ndim2); ++i) {
+            this->x[i] = other.x[i];
+        }
+        for (int i=std::min(ndim, ndim2)-1; i<ndim; ++i) {
+            this->x[i] = 0.0;
+        }
     }
 
     Vec(const Vec<ndim>& other) {
@@ -47,6 +61,14 @@ template<int ndim=3> struct Vec {
     Vec(const std::array<scalar_type, ndim>& arr) {
         for (int i=0; i<ndim; ++i)
             this->x[i] = arr[i];
+    }
+    
+    Vec& operator= (const Vec<ndim>& other) {
+        if (this != &other) {
+            for (int i=0; i<ndim; ++i)
+                this->x[i] = other.x[i];
+        }
+        return *this;
     }
 
     inline std::array<scalar_type, ndim> toArray() const {

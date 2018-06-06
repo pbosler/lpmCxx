@@ -32,7 +32,9 @@ template <int ndim> class EdgeSet {
         scalar_type minSphLength(const ParticleSet<ndim>& particles,
             const scalar_type radius=1.0) const;
 
-        virtual std::string infoString() const;
+        std::string infoString() const;
+        
+        void initFromParticleSetFile(const std::string& fname);
         
         inline scalar_type length(const index_type ind, const ParticleSet<ndim>& particles) const {
             return (_geom == SPHERICAL_SURFACE_GEOMETRY ? _edges[ind]->sphLength(particles) : _edges[ind]->eucLength(particles));}

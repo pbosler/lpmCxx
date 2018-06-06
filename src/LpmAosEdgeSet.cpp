@@ -1,6 +1,7 @@
 #include "LpmAosEdgeSet.hpp"
 #include <limits>
 #include <exception>
+#include <sstream>
 
 namespace Lpm {
 
@@ -102,6 +103,28 @@ template <int ndim> void EdgeSet<ndim>::divide(const index_type ind, ParticleSet
         _edges[edge_insert+1]->setParent(ind);
     }
     _nActive += 1;
+}
+
+template <int ndim> void EdgeSet<ndim>::initFromVtkPolydataFile(const std::string& fname) {
+    std::string fullfname(LPM_PARTICLE_SET_DIR);
+    fullfname += "/" + fname;
+    std::ifstream file(fullfname);
+    if (!file.is_open()) {
+        throw std::ios_base::failure("EdgeSet::initFromParticleSetFile ERROR: file " + fullfname + " not found.");
+    }
+    
+    index_type lineNumber = 0;
+    std::string line;
+    
+}
+
+template <int ndim> std::string EdgeSet<ndim>::infoString() const {
+    std::ostringstream ss;
+    ss << "EdgeSet info:" << std::endl;
+    ss << "\tgeom = " << geometryString(_geom) << std::endl;
+    ss << "\tnMax = " << _nMax << std::endl;
+    ss << "\tnActive = " << _nActive << std::endl;
+    return ss.str();
 }
 
 template class EdgeSet<2>;

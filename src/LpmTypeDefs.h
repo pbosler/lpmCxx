@@ -2,9 +2,7 @@
 #define _LPM_TYPE_DEFS_H_
 
 #include "LpmConfig.h"
-#ifdef USE_NANOFLANN
-#include "nanoflann.hpp"
-#endif
+#include <string>
 
 namespace Lpm {
 
@@ -37,6 +35,25 @@ namespace Lpm {
     
     /// Kinds of geometry used by Lpm classes
     enum GeometryType {PLANAR_GEOMETRY, SPHERICAL_SURFACE_GEOMETRY, CARTESIAN_3D_GEOMETRY};
+    
+    inline std::string geometryString(const GeometryType& geom) {
+        std::string result;
+        switch (geom) {
+            case (PLANAR_GEOMETRY) : {
+                result = "PLANAR_GEOMETRY";
+                break;
+            }
+            case (SPHERICAL_SURFACE_GEOMETRY) : {
+                result = "SPHERICAL_SURFACE_GEOMETRY";
+                break;
+            }
+            case (CARTESIAN_3D_GEOMETRY) : {
+                result = "CARTESIAN_3D_GEOMETRY";
+                break;
+            }
+        }
+        return result;
+    }
     
     /// Kinds of boundary conditions
     enum BoundaryCondition {FREE, DIRICHLET, NEUMANN, PERIODIC};
