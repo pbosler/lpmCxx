@@ -15,7 +15,10 @@ namespace Lpm {
 
 template <int ndim> class EdgeSet {
     public:
-        EdgeSet(const std::shared_ptr<EdgeFactory<ndim>> factory, const GeometryType geom) : _factory(factory), _geom(geom) {}
+        EdgeSet(const std::shared_ptr<EdgeFactory<ndim>> factory, const GeometryType geom, const index_type nMax) : 
+            _factory(factory), _geom(geom), _nMax(nMax), _nActive(0) {
+            _edges.reserve(nMax);
+            }
 
         virtual ~EdgeSet() {}
 
@@ -32,7 +35,7 @@ template <int ndim> class EdgeSet {
         scalar_type minSphLength(const ParticleSet<ndim>& particles,
             const scalar_type radius=1.0) const;
 
-        std::string infoString() const;
+        std::string infoString(const bool printAll = false) const;
         
         void initFromParticleSetFile(const std::string& fname);
         

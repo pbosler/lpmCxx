@@ -2,6 +2,7 @@
 #include <limits>
 #include <exception>
 #include <sstream>
+#include <iostream>
 
 namespace Lpm {
 
@@ -43,7 +44,7 @@ template <int ndim> scalar_type EdgeSet<ndim>::minSphLength(const ParticleSet<nd
 
 template <int ndim> void EdgeSet<ndim>::insert(const index_type origID, const index_type destID, const index_type leftID, const index_type rightID, 
     const std::array<index_type,2>& mids) {
-    if (_edges.size() + 1 == _nMax) {
+    if (_edges.size() + 1 >= _nMax) {
         throw std::out_of_range("EdgeSet::insert _nMax exceeded.");
     }
     _edges.push_back(_factory->createEdge(origID, destID, leftID, rightID, mids));
@@ -102,28 +103,33 @@ template <int ndim> void EdgeSet<ndim>::divide(const index_type ind, ParticleSet
         _edges[edge_insert]->setParent(ind);
         _edges[edge_insert+1]->setParent(ind);
     }
-    _nActive += 1;
+    _nActive -= 1; // parent edge is no longer active.
 }
 
-template <int ndim> void EdgeSet<ndim>::initFromVtkPolydataFile(const std::string& fname) {
-    std::string fullfname(LPM_PARTICLE_SET_DIR);
-    fullfname += "/" + fname;
-    std::ifstream file(fullfname);
-    if (!file.is_open()) {
-        throw std::ios_base::failure("EdgeSet::initFromParticleSetFile ERROR: file " + fullfname + " not found.");
-    }
-    
-    index_type lineNumber = 0;
-    std::string line;
-    
-}
+// template <int ndim> void EdgeSet<ndim>::initFromVtkPolydataFile(const std::string& fname) {
+//     std::string fullfname(LPM_PARTICLE_SET_DIR);
+//     fullfname += "/" + fname;
+//     std::ifstream file(fullfname);
+//     if (!file.is_open()) {
+//         throw std::ios_base::failure("EdgeSet::initFromParticleSetFile ERROR: file " + fullfname + " not found.");
+//     }
+//     
+//     index_type lineNumber = 0;
+//     std::string line;
+//     
+// }
 
-template <int ndim> std::string EdgeSet<ndim>::infoString() const {
+template <int ndim> std::string EdgeSet<ndim>::infoString(const bool printAll) const {
     std::ostringstream ss;
     ss << "EdgeSet info:" << std::endl;
     ss << "\tgeom = " << geometryString(_geom) << std::endl;
     ss << "\tnMax = " << _nMax << std::endl;
     ss << "\tnActive = " << _nActive << std::endl;
+    if (printAll) {
+        for (index_type i=0; i<_edges.size(); ++i) {
+            ss << _edges[i]->infoString();
+        }
+    }
     return ss.str();
 }
 
