@@ -55,6 +55,8 @@ template <int ndim> class Face {
         
         scalar_type area() const {return _area;}
         inline void setArea(const scalar_type ar) {_area = ar;}
+        void setArea(const GeometryType geom, const ParticleSet<ndim>& particles, const scalar_type radius=1.0);    
+            
             
     protected:
 

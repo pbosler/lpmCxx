@@ -52,7 +52,7 @@ int main (int argc, char* argv[]) {
     swe_particle->init(sphpoint);
     std::cout << swe_particle->infoString() << std::endl;
 
-    ParticleSet<3> cubedSphere(sphereFactory);
+    ParticleSet<3> cubedSphere(sphereFactory, 100);
     cubedSphere.initFromParticleSetFile("cubed_sphere/cubedSphere_1.vtk");
     std::cout << cubedSphere.infoString() << std::endl;
 

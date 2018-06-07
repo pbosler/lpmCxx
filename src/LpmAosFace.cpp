@@ -23,6 +23,34 @@ template <int ndim> Vec<ndim> Face<ndim>::lagBarycenter(const ParticleSet<ndim>&
     return result;
 }
 
+template <int ndim> void Face<ndim>::setArea(const GeometryType geom, const ParticleSet<ndim>& particles,
+    const scalar_type radius) 
+{
+    scalar_type ar = 0.0;
+    const int nverts = _vertInds.size();
+    switch (geom) {
+        case (SPHERICAL_SURFACE_GEOMETRY) : {
+            const Vec<3> ctr = physSphBarycenter(particles, radius);
+            for (int i=0; i<nverts; ++i) {
+                const Vec<3> pt1 = particles.physCrd(_vertInds[i]);
+                const Vec<3> pt2 = particles.physCrd(_vertInds[(i+1)%nverts]);
+                ar += sphereTriArea(pt1, ctr, pt2);
+            }
+            break;
+        }
+        default : {
+            const Vec<ndim> ctr = physBarycenter(particles);
+            for (int i=0; i<_vertInds.size(); ++i) {
+                const Vec<ndim> pt1 = particles.physCrd(_vertInds[i]);
+                const Vec<ndim> pt2 = particles.physCrd(_vertInds[(i+1)%nverts]);
+                ar += triArea(pt1, ctr, pt2);
+            }
+            break;
+        }
+    }
+    this->_area = ar;
+};
+
 template <int ndim> Vec<3> Face<ndim>::physSphBarycenter(const ParticleSet<ndim>& particles, 
     const scalar_type radius) const {
     Vec<3> result;

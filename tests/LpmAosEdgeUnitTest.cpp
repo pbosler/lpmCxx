@@ -8,6 +8,7 @@
 #include "LpmOutputMessage.h"
 #include "LpmLogger.h"
 #include "LpmAosParticle.hpp"
+#include "LpmAosParticleFactory.hpp"
 #include "LpmAosParticleSet.hpp"
 #include "LpmAosEdge.hpp"
 #include "LpmAosTypes.hpp"
@@ -40,7 +41,7 @@ int main (int argc, char* argv[]) {
     std::shared_ptr<EdgeFactory<3>> quadraticEdgeFactory(new QuadraticEdgeFactory<3>());
     std::shared_ptr<EdgeFactory<3>> cubicEdgeFactory(new CubicEdgeFactory<3>());
     
-    ParticleSet<3> cubedSphere(sphereFactory);
+    ParticleSet<3> cubedSphere(sphereFactory, 100);
     cubedSphere.initFromParticleSetFile("cubed_sphere/cubedSphere_1.vtk");
     std::cout << cubedSphere.infoString() << std::endl;
 
@@ -65,9 +66,14 @@ int main (int argc, char* argv[]) {
     std::cout << "\teuclength = " << linearEdge->eucLength(cubedSphere) << std::endl;
 
     // EdgeSet
-    EdgeSet<3> edges(linearEdgeFactory, SPHERICAL_SURFACE_GEOMETRY);
+    EdgeSet<3> edges(linearEdgeFactory, SPHERICAL_SURFACE_GEOMETRY, 24);
     
-    std::cout << edges.infoString() << std::endl;
+    edges.insert(0, 1, 0, 1);
+    edges.insert(1, 2, 0, 2);
+    edges.divide(0, cubedSphere);
+    edges.divide(1, cubedSphere);
+    
+    std::cout << edges.infoString(true) << std::endl;
     
 return 0;
 }

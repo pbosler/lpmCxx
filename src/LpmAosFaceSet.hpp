@@ -16,11 +16,26 @@ namespace Lpm {
 
 template <int ndim> class FaceSet {
     public:
-        FaceSet(const std::shared_ptr<FaceFactory<ndim>> fac, const GeometryType geom) :
-             _factory(factory), _geom(geom) {}
+        FaceSet(const std::shared_ptr<FaceFactory<ndim>> fac, const index_type nMax, const GeometryType geom) :
+             _factory(fac), _nMax(nMax), _geom(geom) {}
     
         void insert(const ind_vec& intrs, const ind_vec& verts, const ind_vec& edges, 
-            const index_type pt, const scalar_type ar=0.0)
+            const index_type pt, const scalar_type ar=0.0);
+            
+        void divide(const index_type ind, ParticleSet<ndim>& particles, EdgeSet<ndim>& edges);
+        
+        inline void setArea(const ParticleSet<ndim>& particles, const scalar_type radius=1.0) {
+            for (index_type i=0; i<_faces.size(); ++i) {
+                if (_faces[i]->isLeaf()) {
+                    _faces[i]->setArea(_geom, particles, radius);
+                }
+                else {
+                    _faces[i]->setArea(0.0);
+                }
+            }
+        }
+        
+        std::string infoString() const;
     
     protected:
         GeometryType _geom;

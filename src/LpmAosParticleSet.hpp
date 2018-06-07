@@ -14,7 +14,8 @@ namespace Lpm {
 
 template <int ndim> class ParticleSet {
     public:
-        ParticleSet(const std::shared_ptr<ParticleFactory<ndim>> factory) : _factory(factory) {}
+        ParticleSet(const std::shared_ptr<ParticleFactory<ndim>> factory, const index_type nMax) : 
+            _factory(factory), _nMax(nMax), _nActive(0) {}
 
         virtual ~ParticleSet() {}
 
@@ -33,6 +34,7 @@ template <int ndim> class ParticleSet {
         void initFromParticleSetFile(const std::string& fname);
 
         void insert(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type area=0.0, const scalar_type vol=0.0);
+        void insert(const Vec<ndim>& xx, const scalar_type area = 0.0, const scalar_type vol = 0.0);
 
         virtual std::string infoString() const;
 

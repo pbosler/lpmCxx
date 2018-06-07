@@ -73,6 +73,15 @@ template <int ndim> void ParticleSet<ndim>::insert(const Vec<ndim>& xx, const Ve
         throw std::out_of_range("ParticleSet nmax exceeded.");
     }
     _particles.push_back(_factory->createParticle(xx, aa, area, vol));
+    _nActive += 1;
+}
+
+template <int ndim> void ParticleSet<ndim>::insert(const Vec<ndim>& xx, const scalar_type ar, const scalar_type vol) {
+    if (_particles.size() + 1 == _nMax) {
+        throw std::out_of_range("ParticleSet nmax exceeded.");
+    }
+    _particles.push_back(_factory->createParticle(xx, ar, vol));    
+    _nActive += 1;
 }
 
 template <int ndim> void ParticleSet<ndim>::initFromParticleSetFile(const std::string& fname) {
