@@ -244,7 +244,7 @@ template <int ndim> const Vec<ndim> baryCenter(const std::vector<Vec<ndim>>& vec
     return result;
 }
 
-inline const Vec<3> sphereBaryCenter(const std::vector<Vec<3>>& vecs, const scalar_type radius = 1.0) {
+template <int ndim> const Vec<ndim> sphereBaryCenter(const std::vector<Vec<ndim>>& vecs, const scalar_type radius = 1.0) {
     Vec<3> result;
     for (int i=0; i<vecs.size(); ++i)
         result += vecs[i];

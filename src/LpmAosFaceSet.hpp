@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include <exception>
+#include <algorithm>
 #include "LpmConfig.h"
 #include "LpmAosTypes.hpp"
 #include "LpmAosParticleSet.hpp"
@@ -16,8 +17,8 @@ namespace Lpm {
 
 template <int ndim> class FaceSet {
     public:
-        FaceSet(const std::shared_ptr<FaceFactory<ndim>> fac, const index_type nMax, const GeometryType geom) :
-             _factory(fac), _nMax(nMax), _geom(geom) {}
+        FaceSet(const std::shared_ptr<FaceFactory<ndim>> fac, const index_type nMax, const GeometryType geom, 
+            const scalar_type r=1.0) : _factory(fac), _nMax(nMax), _geom(geom), _radius(r) {}
     
         void insert(const ind_vec& intrs, const ind_vec& verts, const ind_vec& edges, 
             const index_type pt, const scalar_type ar=0.0);
@@ -35,9 +36,20 @@ template <int ndim> class FaceSet {
             }
         }
         
-        std::string infoString() const;
+        inline index_type n() const {return _faces.size();}
+        inline index_type nMax() const {return _nMax;}
+        inline index_type nActive() const {return _nActive;}
+        inline index_type nLeaves() const {return _nActive;}
+        inline index_type nDivided() const {return _faces.size() - _nActive;}
+
+        scalar_type minArea() const;
+        scalar_type maxArea() const;
+        scalar_type maxLeafArea() const;
+                
+        std::string infoString(const bool printAll = false) const;
     
     protected:
+        scalar_type _radius;
         GeometryType _geom;
         index_type _nMax;
         index_type _nActive;

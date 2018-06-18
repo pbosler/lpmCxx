@@ -12,6 +12,7 @@
 namespace Lpm {
 
 typedef std::vector<index_type> ind_vec;
+template <int ndim> class FaceSet;
 
 template <int ndim> class Face {
     
@@ -38,9 +39,12 @@ template <int ndim> class Face {
         
         std::string infoString() const;
         
-        inline ind_vec interiors() const {return _interiorInds;;}
+        inline ind_vec interiors() const {return _interiorInds;}
+//         std::vector<Vec<ndim>> interiors(const ParticleSet<ndim>& particles) const;
         inline ind_vec vertices() const {return _vertInds;}
         inline ind_vec edges() const {return _edgeInds;}
+        
+        std::vector<Vec<ndim>> corners() const;
         
         inline void setInteriorInds(const ind_vec& inds) {_interiorInds = inds;}
         inline void setVerts(const ind_vec& inds) {_vertInds = inds;}
@@ -57,7 +61,7 @@ template <int ndim> class Face {
         inline void setArea(const scalar_type ar) {_area = ar;}
         void setArea(const GeometryType geom, const ParticleSet<ndim>& particles, const scalar_type radius=1.0);    
             
-            
+        friend class FaceSet<ndim>;
     protected:
 
         Face() {}

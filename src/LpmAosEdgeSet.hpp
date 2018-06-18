@@ -34,10 +34,21 @@ template <int ndim> class EdgeSet {
         scalar_type minEucLength(const ParticleSet<ndim>& particles) const;
         scalar_type minSphLength(const ParticleSet<ndim>& particles,
             const scalar_type radius=1.0) const;
+            
+        inline bool isDivided(const index_type ind) const {return _edges[ind]->isDivided();}
+        inline std::array<index_type, 2> kids(const index_type ind) const {return _edges[ind]->kids();}
+        inline void setLeftFace(const index_type eind, const index_type find) {_edges[eind]->setLeft(find);}
+        inline void setRightFace(const index_type eind, const index_type find) {_edges[eind]->setRight(find);}
+        inline index_type orig(const index_type ind) const {return _edges[ind]->orig();}
+        inline index_type dest(const index_type ind) const {return _edges[ind]->dest();}
 
         std::string infoString(const bool printAll = false) const;
         
         void initFromParticleSetFile(const std::string& fname);
+        
+        inline bool positiveOrientation(const index_type edgeInd, const index_type faceInd) const {
+            return (_edges[edgeInd]->left() == faceInd);
+        }
         
         inline scalar_type length(const index_type ind, const ParticleSet<ndim>& particles) const {
             return (_geom == SPHERICAL_SURFACE_GEOMETRY ? _edges[ind]->sphLength(particles) : _edges[ind]->eucLength(particles));}

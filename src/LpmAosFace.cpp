@@ -51,6 +51,7 @@ template <int ndim> void Face<ndim>::setArea(const GeometryType geom, const Part
     this->_area = ar;
 };
 
+
 template <int ndim> Vec<3> Face<ndim>::physSphBarycenter(const ParticleSet<ndim>& particles, 
     const scalar_type radius) const {
     Vec<3> result;
