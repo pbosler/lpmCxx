@@ -66,6 +66,7 @@ template <int ndim> void EdgeSet<ndim>::divide(const index_type ind, ParticleSet
         midpt = _edges[ind]->midpoint(particles);
         lagMidpt = _edges[ind]->lagMidpoint(particles);
     }
+    
     std::array<Vec<ndim>, 4> new_crds;
     std::array<Vec<ndim>, 4> new_lag_crds;
     if (dynamic_cast<QuadraticEdge<ndim>*>(_edges[0].get())) {

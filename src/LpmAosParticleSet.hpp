@@ -35,6 +35,7 @@ template <int ndim> class ParticleSet {
 
         void insert(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type area=0.0, const scalar_type vol=0.0);
         void insert(const Vec<ndim>& xx, const scalar_type area = 0.0, const scalar_type vol = 0.0);
+        void move(const index_type ind, const Vec<ndim>& xx, const Vec<ndim>& aa);
 
         virtual std::string infoString() const;
 

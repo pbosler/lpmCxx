@@ -76,6 +76,10 @@ template <int ndim> void ParticleSet<ndim>::insert(const Vec<ndim>& xx, const Ve
     _nActive += 1;
 }
 
+template <int ndim> void ParticleSet<ndim>::move(const index_type ind, const Vec<ndim>& xx, const Vec<ndim>& aa) {
+    _particles[ind]->move(xx, aa);
+}
+
 template <int ndim> void ParticleSet<ndim>::insert(const Vec<ndim>& xx, const scalar_type ar, const scalar_type vol) {
     if (_particles.size() + 1 == _nMax) {
         throw std::out_of_range("ParticleSet nmax exceeded.");

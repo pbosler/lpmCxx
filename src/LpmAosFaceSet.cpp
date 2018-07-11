@@ -72,6 +72,14 @@ template <int ndim> void FaceSet<ndim>::divide(const index_type ind, ParticleSet
     if (dynamic_cast<TriFace<ndim>*>(_faces[0].get())) {
         std::vector<std::vector<index_type>> newFaceVerts(4, std::vector<index_type>(3));
         std::vector<std::vector<index_type>> newFaceEdges(4, std::vector<index_type>(3));
+        std::array<index_type, 4> newFaceInds;
+        std::array<index_type, 3> newEdgeInds;
+        for (int i=0; i<3; ++i) {
+            newEdgeInds[i] = edges.n() + i;
+        }        
+        for (int i=0; i<4; ++i) {
+            newFaceInds[i] = _faces.size()+i;
+        }
         
         Vec<ndim> bctr;
         Vec<ndim> lagbctr;
@@ -102,24 +110,71 @@ template <int ndim> void FaceSet<ndim>::divide(const index_type ind, ParticleSet
             }
             
             newFaceVerts[i][(i+1)%3] = edges.dest(childedges[0]);
-            newFaceVerts[(1+1)%3][i] = edges.dest(childedges[0]);
+            newFaceVerts[(i+1)%3][i] = edges.dest(childedges[0]);
+            newFaceVerts[3][(i+2)%3] = edges.dest(childedges[0]);
             
             if (edges.positiveOrientation(parentEdge, ind)) {
                 newFaceEdges[i][i] = childedges[0];
-                edges.setLeftFace(childedges[0], _faces.size() + i);
+                edges.setLeftFace(childedges[0], newFaceInds[i]);
                 
                 newFaceEdges[(i+1)%3][i] = childedges[1];
-                edges.setLeftFace(childedges[1], _faces.size() + (i+1)%3
+                edges.setLeftFace(childedges[1], newFaceInds[(i+1)%3]);
             }
             else {
                 newFaceEdges[i][i] = childedges[1];
-                edges.setRightFace(childedges[1], _faces.size() + i);
+                edges.setRightFace(childedges[1], newFaceInds[i]);
                 
                 newFaceEdges[(i+1)%3][i] = childedges[0];
-                edges.setRightFace(childedges[0], _faces.size() + (i+1)%3);
+                edges.setRightFace(childedges[0], newFaceInds[(i+1)%3]);
             }
         }
-        newFaceVerts[4] = [newFaceVerts[]];
+        
+        
+        edges.insert(newFaceVerts[2][1], newFaceVerts[2][0], newFaceInds[3], newFaceInds[2]);
+        newFaceEdges[3][0] = newEdgeInds[0];
+        newFaceEdges[2][0] = newEdgeInds[0];
+        
+        edges.insert(newFaceVerts[0][2], newFaceVerts[0][1], newFaceInds[3], newFaceInds[0]);
+        newFaceEdges[3][1] = newEdgeInds[1];
+        newFaceEdges[0][1] = newEdgeInds[1];
+        
+        edges.insert(newFaceVerts[1][2], newFaceVerts[1][0], newFaceInds[3], newFaceInds[1]);
+        newFaceEdges[3][2] = newEdgeInds[2];
+        newFaceEdges[1][2] = newEdgeInds[2];
+        
+        // create new center particles
+        std::vector<Vec<ndim>> triCorners(3);
+        std::vector<Vec<ndim>> lagtriCorners(3);
+        std::vector<Vec<ndim>> newFaceCenters(4);
+        std::vector<Vec<ndim>> newFaceLagCenters(3);
+        for (int i=0; i<4; ++i) {
+            for (int j=0; j<3; ++j) {
+                triCorners[j] = particles.physCrd(newFaceVerts[i][j]);
+                lagtriCorners[j] = particles.lagCrd(newFaceVerts[i][j]);
+            }   
+            if (_geom == SPHERICAL_SURFACE_GEOMETRY) {
+                newFaceCenters[i] = sphereBaryCenter(triCorners, _radius);
+                newFaceLagCenters[i] = sphereBaryCenter(lagtriCorners, _radius);
+            }
+            else {
+                newFaceCenters[i] = baryCenter(triCorners);
+                newFaceLagCenters[i] = baryCenter(lagtriCorners);
+            }    
+        }
+        // create child faces
+        const index_type faceInsert = _faces.size();
+        for (int i=0; i<3; ++i) {
+            particles.insert(newFaceCenters[i], newFaceLagCenters[i]);
+            this->insert(std::vector<index_type>(particles.n()-1), newFaceVerts[i], newFaceEdges[i], ind);
+            this->_faces[ind]->_kids[i] = faceInsert  + i;
+        }
+        // reuse parent face's center particle for child face 3
+        this->insert(pInteriors, newFaceVerts[3], newFaceEdges[3], ind);
+        particles.move(pInteriors[0], newFaceCenters[3], newFaceLagCenters[3]);
+        
+        for (index_type i=faceInsert; _faces.size(); ++i) {
+            this->_faces[i]->setArea(_geom, particles, _radius);
+        }
     }
     else if (dynamic_cast<QuadFace<ndim>*>(_faces[0].get())) {
         std::vector<std::vector<index_type>> newFaceVerts(4, std::vector<index_type>(4));
@@ -156,39 +211,46 @@ template <int ndim> void FaceSet<ndim>::divide(const index_type ind, ParticleSet
                 newFaceEdges[i][i] = childedges[0];
                 edges.setLeftFace(childedges[0], _faces.size() + i);
                 
-                newFaceEdges[i][(i+1)%4] = childedges[1];
+                newFaceEdges[(i+1)%4][i] = childedges[1];
                 edges.setLeftFace(childedges[1], _faces.size() + (i+1)%4);
             }
             else {
                 newFaceEdges[i][i] = childedges[1];
                 edges.setRightFace(childedges[1], _faces.size() +i);
                 
-                newFaceEdges[i][(i+1)%4] = childedges[0];
+                newFaceEdges[(i+1)%4][i] = childedges[0];
                 edges.setRightFace(childedges[0], _faces.size() + (i+1)%4);
             }
         }
         
-        edges.insert(newFaceVerts[1][0], newFaceVerts[2][0], _faces.size(), _faces.size() + 1);
-        newFaceEdges[1][0] = edges.n();
-        newFaceEdges[3][1] = edges.n();
+        std::array<index_type, 4> newFaceInds;
+        std::array<index_type, 4> newEdgeInds;
+        for (int i=0; i<4; ++i) {
+            newFaceInds[i] = _faces.size() + i;
+            newEdgeInds[i] = edges.n() + i;
+        }
         
-        edges.insert(newFaceVerts[0][3], newFaceVerts[3][2], _faces.size() + 3, _faces.size() + 2);
-        newFaceEdges[3][2] = edges.n();
-        newFaceEdges[1][3] = edges.n();
+        edges.insert(newFaceVerts[0][1], newFaceVerts[0][2], newFaceInds[0], newFaceInds[1]);
+        newFaceEdges[0][1] = newEdgeInds[0];
+        newFaceEdges[1][3] = newEdgeInds[0];
         
-        edges.insert(newFaceVerts[2][1], newFaceVerts[3][1], _faces.size() + 1, _faces.size() + 2);
-        newFaceEdges[2][1] = edges.n();
-        newFaceEdges[0][2] = edges.n();
+        edges.insert(newFaceVerts[2][0], newFaceVerts[2][3], newFaceInds[3], newFaceInds[2]);
+        newFaceEdges[3][1] = newEdgeInds[1];
+        newFaceEdges[2][3] = newEdgeInds[1];
         
-        edges.insert(newFaceVerts[1][3], newFaceVerts[0][3], _faces.size(), _faces.size() + 3);
-        newFaceEdges[0][3] = edges.n();
-        newFaceEdges[2][0] = edges.n();
+        edges.insert(newFaceVerts[2][1], newFaceVerts[2][0], newFaceInds[1], newFaceInds[2]); 
+        newFaceEdges[2][1] = newEdgeInds[2];
+        newFaceEdges[0][2] = newEdgeInds[2];
+        
+        edges.insert(newFaceVerts[3][1], newFaceVerts[3][0], newFaceInds[0], newFaceInds[3]);
+        newFaceEdges[0][3] = newEdgeInds[3];
+        newFaceEdges[2][0] = newEdgeInds[3];
         
         // create new center particles
-        std::vector<Vec<ndim>> quadCorners;
-        std::vector<Vec<ndim>> lagQuadCorners;
-        std::vector<Vec<ndim>> newFaceCenters;
-        std::vector<Vec<ndim>> newFaceLagCenters;
+        std::vector<Vec<ndim>> quadCorners(4);
+        std::vector<Vec<ndim>> lagQuadCorners(4);
+        std::vector<Vec<ndim>> newFaceCenters(4);
+        std::vector<Vec<ndim>> newFaceLagCenters(4);
         for (int i=0; i<4; ++i) {
             for (int j=0; j<4; ++j) {
                 quadCorners[j] = particles.physCrd(newFaceVerts[i][j]);
@@ -202,7 +264,6 @@ template <int ndim> void FaceSet<ndim>::divide(const index_type ind, ParticleSet
                 newFaceCenters[i] = baryCenter(quadCorners);
                 newFaceLagCenters[i] = baryCenter(lagQuadCorners);
             }
-            
         }
         // create child faces
         const index_type faceInsert = _faces.size();
@@ -211,11 +272,16 @@ template <int ndim> void FaceSet<ndim>::divide(const index_type ind, ParticleSet
             this->insert(std::vector<index_type>(particles.n()-1), newFaceVerts[i], newFaceEdges[i], ind);
             this->_faces[ind]->_kids[i] = faceInsert  + i;
         }
+        for (index_type i=faceInsert; _faces.size(); ++i) {
+            this->_faces[i]->setArea(_geom, particles, _radius);
+        }
     }
     else if (dynamic_cast<QuadCubicFace<ndim>*>(_faces[0].get())) {
         throw std::runtime_error("QuadCubicFaces not implemented.");
     }
     this->_nActive += 3;
+    this->_faces[ind]->_area = 0.0;
+
 }
 
 

@@ -84,6 +84,11 @@ template <int ndim=3> class Particle {
             _area = aa;
             _volume = vv;
         };
+        
+        virtual void move(const Vec<ndim>& xx, const Vec<ndim>& aa) {
+            _physCrd = xx;
+            _lagCrd = aa;
+        }
 
         virtual void init(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type ar=0.0, const scalar_type vv=0.0) {
             _physCrd = xx;
