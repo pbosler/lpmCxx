@@ -38,6 +38,7 @@ set(CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS} ${MPI_LINK_FLAGS})
 #
 add_subdirectory( src )
 add_subdirectory( tests )
+add_subdirectory( examples)
 
 message("project binary dir = " ${PROJECT_BINARY_DIR})
 

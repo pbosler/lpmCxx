@@ -16,6 +16,7 @@ template <int ndim> std::string ParticleSet<ndim>::infoString() const {
     std::vector<std::string> fields = fieldNames();
     for (int i=0; i<fields.size(); ++i)
         oss << "\t\t" << fields[i] << std::endl;
+    oss << "\ttotalLength = " << totalLength() << std::endl;
     oss << "\ttotalArea = " << totalArea() << std::endl;
     oss << "\ttotalVolume = " << totalVolume() << std::endl;
     return oss.str();
@@ -25,6 +26,14 @@ template <int ndim> std::vector<std::string> ParticleSet<ndim>::particlesInfoStr
     std::vector<std::string> result;
     for (index_type i=0; i<_particles.size(); ++i)
         result.push_back(_particles[i]->infoString());
+    return result;
+}
+
+template <int ndim> scalar_type ParticleSet<ndim>::totalLength() const {
+    scalar_type result = 0.0;
+    for (index_type i=0; i<_particles.size(); ++i) {
+        result += _particles[i]->length();
+    }
     return result;
 }
 
@@ -43,7 +52,7 @@ template <int ndim> scalar_type ParticleSet<ndim>::totalVolume() const {
 }
 
 template <int ndim> std::vector<std::string> ParticleSet<ndim>::fieldNames() const {
-    return _particles[0]->fieldNames();
+    return (!_particles.empty() ? _particles[0]->fieldNames() : std::vector<std::string>(1, "null"));
 }
 
 template <int ndim> scalar_type ParticleSet<ndim>::scalarIntegral(const std::string& field_name) const {
@@ -67,12 +76,30 @@ template <int ndim> void ParticleSet<ndim>::initVectorFieldFromFn(const std::str
     }
 }
 
-template <int ndim> void ParticleSet<ndim>::insert(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type area,
+template <int ndim> void ParticleSet<ndim>::initScalarFieldFromVector(const std::string& field_name, const std::vector<scalar_type>& vals) {
+    if (_nActive > vals.size()) {
+        throw std::out_of_range("ParticleSet::initScalarFieldFromVector ERROR : size mismatch.");
+    }
+    for (index_type i=0; i<_nActive; ++i) {
+        _particles[i]->setScalar(field_name, vals[i]);
+    }
+}
+
+template <int ndim> void ParticleSet<ndim>::initVectorFieldFromVectoryArray(const std::string& field_name, const std::vector<Vec<ndim>>& vals) {
+    if (_nActive > vals.size()) {
+        throw std::out_of_range("ParticleSet::initVectorFieldFromVectorArray ERROR : size mismatch.");
+    }
+    for (index_type i=0; i<_nActive; ++i) {
+        _particles[i]->setVector(field_name, vals[i]);
+    }
+}
+
+template <int ndim> void ParticleSet<ndim>::insert(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type len, const scalar_type area,
     const scalar_type vol) {
-    if (_particles.size() + 1 == _nMax) {
+    if (_particles.size() + 1 > _nMax) {
         throw std::out_of_range("ParticleSet nmax exceeded.");
     }
-    _particles.push_back(_factory->createParticle(xx, aa, area, vol));
+    _particles.push_back(_factory->createParticle(xx, aa, len, area, vol));
     _nActive += 1;
 }
 
@@ -80,12 +107,20 @@ template <int ndim> void ParticleSet<ndim>::move(const index_type ind, const Vec
     _particles[ind]->move(xx, aa);
 }
 
-template <int ndim> void ParticleSet<ndim>::insert(const Vec<ndim>& xx, const scalar_type ar, const scalar_type vol) {
-    if (_particles.size() + 1 == _nMax) {
+template <int ndim> void ParticleSet<ndim>::insert(const Vec<ndim>& xx, const scalar_type len, const scalar_type ar, const scalar_type vol) {
+    if (_particles.size() + 1 > _nMax) {
         throw std::out_of_range("ParticleSet nmax exceeded.");
     }
-    _particles.push_back(_factory->createParticle(xx, ar, vol));    
+    _particles.push_back(_factory->createParticle(xx, len, ar, vol));    
     _nActive += 1;
+}
+
+template <int ndim> std::vector<scalar_type> ParticleSet<ndim>::getScalarFieldValues(const std::string& field_name) const {
+    std::vector<scalar_type> result(_nActive);
+    for (index_type i=0; i<_nActive; ++i) {
+        result[i] = _particles[i]->getScalar(field_name);
+    }
+    return result;
 }
 
 template <int ndim> void ParticleSet<ndim>::initFromParticleSetFile(const std::string& fname) {
@@ -169,7 +204,7 @@ template <int ndim> void ParticleSet<ndim>::initFromParticleSetFile(const std::s
 
     file.close();
 }
-
-template class ParticleSet<3>;
+template class ParticleSet<1>;
 template class ParticleSet<2>;
+template class ParticleSet<3>;
 }

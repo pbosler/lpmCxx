@@ -11,6 +11,12 @@ namespace Lpm {
 template <int ndim=3> class SWEParticle : public Particle<ndim> {
     public:
         SWEParticle() : Particle<ndim>() {
+            if (ndim > 1) {
+                this->registerVectorField("velocity");
+            }
+            else {
+                this->registerScalarField("velocity");
+            }
             this->registerScalarField("potvort");
             this->registerScalarField("relvort");
             this->registerScalarField("divergence");
@@ -19,7 +25,13 @@ template <int ndim=3> class SWEParticle : public Particle<ndim> {
             this->registerScalarField("bottom_height");
         }
 
-        SWEParticle(const Vec<ndim>& pos, const scalar_type aa, const scalar_type vv=0.0) : Particle<ndim>(pos, aa, vv) {
+        SWEParticle(const Vec<ndim>& pos, const scalar_type len = 0.0, const scalar_type ar=0.0, const scalar_type vv=0.0) : Particle<ndim>(pos, len, ar, vv) {
+            if (ndim > 1) {
+                this->registerVectorField("velocity");
+            }
+            else {
+                this->registerScalarField("velocity");
+            }
             this->registerScalarField("potvort");
             this->registerScalarField("relvort");
             this->registerScalarField("divergence");
@@ -28,8 +40,14 @@ template <int ndim=3> class SWEParticle : public Particle<ndim> {
             this->registerScalarField("bottom_height");
         }
 
-        SWEParticle(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type ar, const scalar_type vv=0.0) :
-            Particle<ndim>(xx, aa, ar, vv) {
+        SWEParticle(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type len = 0.0, const scalar_type ar = 0.0, const scalar_type vv=0.0) :
+            Particle<ndim>(xx, aa, len, ar, vv) {
+            if (ndim > 1) {
+                this->registerVectorField("velocity");
+            }
+            else {
+                this->registerScalarField("velocity");
+            }
             this->registerScalarField("potvort");
             this->registerScalarField("relvort");
             this->registerScalarField("divergence");

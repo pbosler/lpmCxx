@@ -18,6 +18,7 @@ template <int ndim=3> class Particle {
         Vec<ndim> _physCrd;
         Vec<ndim> _lagCrd;
         vfield_type _velocity;
+        scalar_type _length;
         scalar_type _area;
         scalar_type _volume;
 
@@ -27,17 +28,19 @@ template <int ndim=3> class Particle {
     public:
 
         Particle() : _physCrd(), _lagCrd(), _area(0.0), _volume(0.0), _velocity() {}
-        Particle(const Vec<ndim>& pos, const scalar_type aa=0.0, const scalar_type vv=0.0) : _physCrd(pos), _lagCrd(pos),
-             _area(aa), _volume(vv), _velocity() {}
-        Particle(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type ar=0.0, const scalar_type vol=0.0) :
+        Particle(const Vec<ndim>& pos, const scalar_type len = 0.0, const scalar_type aa=0.0, const scalar_type vv=0.0) : _physCrd(pos), _lagCrd(pos),
+             _length(len), _area(aa), _volume(vv), _velocity() {}
+        Particle(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type len=0.0, const scalar_type ar=0.0, const scalar_type vol=0.0) :
             _physCrd(xx), _lagCrd(aa), _area(ar), _volume(vol), _velocity() {}
 
+        void setLength(const scalar_type l) {_length=l;}
         void setArea(const scalar_type a) {_area = a;}
         void setVolume(const scalar_type v) {_volume = v;}
 
         inline Vec<ndim> physCrd() const {return _physCrd;}
         inline Vec<ndim> lagCrd() const {return _lagCrd;}
 
+        inline scalar_type length() const {return _length;}
         inline scalar_type area() const {return _area;}
         inline scalar_type volume() const {return _volume;}
 
@@ -51,19 +54,19 @@ template <int ndim=3> class Particle {
 
         std::vector<std::string> fieldNames() const {
             std::vector<std::string> result;
-            for (auto& sf : _sFields)
-                result.push_back(sf.first);
             for (auto& vf : _vFields)
                 result.push_back(vf.first);
+            for (auto& sf : _sFields)
+                result.push_back(sf.first);
             return result;
         }
 
         inline void setScalar(const std::string& field_name, const scalar_type val) {
-            _sFields[field_name] = val;
+            _sFields.at(field_name) = val;
         }
 
         inline void setVector(const std::string& field_name, const Vec<ndim>& vec) {
-            _vFields[field_name] = vec.toArray();
+            _vFields.at(field_name) = vec.toArray();
         }
 
         inline void setVector(const std::string& field_name, const vfield_type& arr) {
@@ -78,9 +81,10 @@ template <int ndim=3> class Particle {
             return _vFields.at(field_name);
         }
 
-        virtual void init(const Vec<ndim>& initCrd, const scalar_type aa=0.0, const scalar_type vv=0.0) {
+        virtual void init(const Vec<ndim>& initCrd, const scalar_type len=0.0, const scalar_type aa=0.0, const scalar_type vv=0.0) {
             _physCrd = initCrd;
             _lagCrd = initCrd;
+            _length = len;
             _area = aa;
             _volume = vv;
         };
@@ -90,8 +94,9 @@ template <int ndim=3> class Particle {
             _lagCrd = aa;
         }
 
-        virtual void init(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type ar=0.0, const scalar_type vv=0.0) {
+        virtual void init(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type len=0.0, const scalar_type ar=0.0, const scalar_type vv=0.0) {
             _physCrd = xx;
+            _length = len;
             _lagCrd = aa;
             _area = ar;
             _volume = vv;
@@ -129,6 +134,7 @@ template <int ndim=3> class Particle {
             for (int i=0; i<ndim; ++i)
                 ss << this->_velocity[i] << " ";
             ss << "]" << std::endl;
+            ss << "\tlength = " << this->_length << std::endl;
             ss << "\tarea = " << this->_area << std::endl;
             ss << "\tvolume = " << this->_volume << std::endl;
             for (auto& sf : this->_sFields) {

@@ -57,6 +57,10 @@ scalar_type sphereTriArea(const Vec<3>& a, const Vec<3>& b, const Vec<3>& c, con
 //     return os;
 // }
 
+std::ostream& operator << (std::ostream& os, const Vec<1>& vec) {
+    os << "(" << vec.x[0] << ")" << std::endl;
+}
+
 std::ostream& operator << (std::ostream& os, const Vec<2>& vec) {
     os << "(" << vec.x[0] << ", " << vec.x[1] << ")";
     return os;

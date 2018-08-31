@@ -24,6 +24,7 @@ template <int ndim> class ParticleSet {
         index_type nActive() const {return this->_nActive;}
         index_type nPassive() const {return this->n() - this->_nActive;}
 
+        scalar_type totalLength() const;
         scalar_type totalVolume() const;
         scalar_type totalArea() const;
 
@@ -33,8 +34,8 @@ template <int ndim> class ParticleSet {
 
         void initFromParticleSetFile(const std::string& fname);
 
-        void insert(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type area=0.0, const scalar_type vol=0.0);
-        void insert(const Vec<ndim>& xx, const scalar_type area = 0.0, const scalar_type vol = 0.0);
+        void insert(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type len = 0., const scalar_type area=0.0, const scalar_type vol=0.0);
+        void insert(const Vec<ndim>& xx, const scalar_type len = 0., const scalar_type area = 0.0, const scalar_type vol = 0.0);
         void move(const index_type ind, const Vec<ndim>& xx, const Vec<ndim>& aa);
 
         virtual std::string infoString() const;
@@ -45,6 +46,11 @@ template <int ndim> class ParticleSet {
 
         void initScalarFieldFromFn(const std::string& field_name, const AnalyticFunction* fn);
         void initVectorFieldFromFn(const std::string& field_name, const AnalyticFunction* fn);
+        
+        void initScalarFieldFromVector(const std::string& field_name, const std::vector<scalar_type>& vals);
+        void initVectorFieldFromVectoryArray(const std::string& field_name, const std::vector<Vec<ndim>>& vals);
+        
+        std::vector<scalar_type> getScalarFieldValues(const std::string& field_name) const;
 
         inline Vec<ndim> physCrd(const index_type ind) const {return _particles[ind]->physCrd();}
         inline Vec<ndim> lagCrd(const index_type ind) const {return _particles[ind]->lagCrd();}

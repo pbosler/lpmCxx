@@ -279,6 +279,7 @@ inline scalar_type sphereTriArea(const std::vector<Vec<3>>& vecs) {
 scalar_type atan4(const scalar_type y, const scalar_type x);
 // template <int ndim> std::ostream& operator << (std::ostream& os, const Vec<ndim>& vec);
 
+std::ostream& operator << (std::ostream& os, const Vec<1>& vec);
 std::ostream& operator << (std::ostream& os, const Vec<2>& vec);
 std::ostream& operator << (std::ostream& os, const Vec<3>& vec);
 
