@@ -20,7 +20,6 @@
 #include "LpmAosFaceSet.hpp"
 #include "LpmAosMeshSeed.hpp"
 
-
 #ifdef HAVE_VTK
 #include "vtkSmartPointer.h"
 #include "vtkPointData.h"
@@ -33,10 +32,21 @@ namespace Aos {
 
 template <int ndim> class PolyMesh2d {
     public:
-        PolyMesh2d(const MeshSeed* seed, const index_type initRecursion, const index_type maxRecursion, 
-            const int amrLimit, const scalar_type domainRadius=1.0);
+        PolyMesh2d(const index_type initRecursion, const index_type maxRecursion, 
+            const int amrLimit, const scalar_type domainRadius=1.0) :  
+            _initRecursion(initRecursion), _maxRecursion(maxRecursion), _amrLimit(amrLimit), 
+            _radius(domainRadius), _tindex(0), _time(0.0) {}
         
-        inline GeometryType geom() const {return _faces->geom;}
+        void initFromSeedCollocated(const MeshSeed* seedptr, const std::shared_ptr<ParticleFactory<ndim>> pfac,
+            const std::shared_ptr<EdgeFactory<ndim>> efac, const std::shared_ptr<FaceFactory<ndim>> ffac);
+            
+        void initFromSeedStaggeredFacesAndVerts(const MeshSeed* seedptr, const std::shared_ptr<ParticleFactory<ndim>> pfac,
+            const std::shared_ptr<EdgeFactory<ndim>> efac, const std::shared_ptr<FaceFactory<ndim>> ffac);
+            
+        void initFromSeedStaggeredFacesEdgesAndVerts(const MeshSeed* seedptr, const std::shared_ptr<ParticleFactory<ndim>> pfac,
+            const std::shared_ptr<EdgeFactory<ndim>> efac, const std::shared_ptr<FaceFactory<ndim>> ffac);
+        
+        inline GeometryType geometryType() const {return _geom;}
         
         ParticleSet<ndim>* verticesPtr() {return _vertexParticles.get();}
         ParticleSet<ndim>* edgeParticlePtr() {return _edgeParticles.get();}
@@ -58,6 +68,9 @@ template <int ndim> class PolyMesh2d {
         scalar_type _radius;
         index_type _tindex;
         scalar_type _time;
+        GeometryType _geom;
+        
+        void determineMaxAllocations(index_type& nv, index_type& nf, index_type& ne) const;
     
         std::unique_ptr<ParticleSet<ndim>> _vertexParticles;
         std::unique_ptr<ParticleSet<ndim>> _edgeParticles;
@@ -67,11 +80,9 @@ template <int ndim> class PolyMesh2d {
         
         index_type nRootFaces;
         
-        index_type walkSearch(const Vec<ndim>& querypt, const index_type startIndex) const;
-        index_type treeSearch(const Vec<ndim>& querypt, const index_type, startIndex) const;
-        index_type nearestRootFace(const Vec<ndim>& querypt) const;
-        
-        void initFromSeed(const MeshSeed& seed, const index_type maxRecursion, const scalar_type radius);
+//         index_type walkSearch(const Vec<ndim>& querypt, const index_type startIndex) const;
+//         index_type treeSearch(const Vec<ndim>& querypt, const index_type, startIndex) const;
+//         index_type nearestRootFace(const Vec<ndim>& querypt) const;
     
 };
 

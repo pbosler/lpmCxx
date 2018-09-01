@@ -28,6 +28,8 @@ template <int ndim> class Face {
         
         virtual ~Face() {}
         
+        virtual void enrich(ParticleSet<ndim>& particles, EdgeSet<ndim>& edges) {};
+        
         inline bool hasKids() const {return _kids[0] >= 0;}
         inline bool isDivided() const {return hasKids();}
         inline bool isLeaf() const {return !hasKids();}

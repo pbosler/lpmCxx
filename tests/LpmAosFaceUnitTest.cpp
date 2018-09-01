@@ -101,8 +101,9 @@ int main (int argc, char* argv[]) {
     }
     std::shared_ptr<FaceFactory<3>> csFaceFac = std::shared_ptr<FaceFactory<3>>(new QuadFaceFactory<3>());
     FaceSet<3> cs(csFaceFac, 6, SPHERICAL_SURFACE_GEOMETRY);
+    const int root_index = -1;
     for (int i=0; i<6; ++i) {
-        cs.insert(ind_vec(1, i+8), fv[i], fe[i], -1);
+        cs.insert(ind_vec(1, i+8), fv[i], fe[i], root_index);
     }
     
     std::cout << cs.infoString() << std::endl;

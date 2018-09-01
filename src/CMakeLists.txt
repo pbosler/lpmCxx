@@ -11,7 +11,7 @@ add_library( lpm LpmXyzVector.cpp LpmUtilities.cpp LpmOutputMessage.cpp LpmLogge
              LpmBox3d.cpp LpmOctree.cpp LpmSakajo2009.cpp
              LpmTreeSum.cpp
              LpmAosTypes.cpp LpmAosParticleSet.cpp LpmAosEdge.cpp LpmAosEdgeSet.cpp 
-             LpmAosFace.cpp LpmAosFaceSet.cpp LpmAosMeshSeed.cpp
+             LpmAosFace.cpp LpmAosFaceSet.cpp LpmAosMeshSeed.cpp LpmAosPolyMesh2d.cpp
 )
 TARGET_LINK_LIBRARIES(lpm ${VTK_LIBRARIES})
 
@@ -26,7 +26,7 @@ install (FILES LpmConfig.h LpmXyzVector.h LpmUtilities.h
                LpmTimer.h LpmMultiIndex.h LpmSakajo2009.h LpmTreeSum.h
                LpmDirectSum.h
                LpmAosTypes.hpp LpmAosParticle.hpp LpmAosSWEParticle.hpp LpmAosParticleFactory.hpp LpmAosParticleSet.hpp
-               LpmAosEdge.hpp LpmAosEdgeFactory.hpp LpmAosEdgeSet.hpp LpmAosFace.hpp LpmAosMeshSeed.hpp
+               LpmAosEdge.hpp LpmAosEdgeFactory.hpp LpmAosEdgeSet.hpp LpmAosFace.hpp LpmAosMeshSeed.hpp LpmAosPolyMesh2d.hpp
          DESTINATION include)
 
 install ( TARGETS lpm DESTINATION lib )

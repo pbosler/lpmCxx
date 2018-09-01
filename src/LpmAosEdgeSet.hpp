@@ -52,6 +52,8 @@ template <int ndim> class EdgeSet {
 
         std::string infoString(const bool printAll = false) const;
         
+        inline void enrich(const index_type ind, ParticleSet<ndim> particles) {_edges[ind]->enrich(particles);}
+        
         void initFromParticleSetFile(const std::string& fname);
         
         inline bool positiveOrientation(const index_type edgeInd, const index_type faceInd) const {

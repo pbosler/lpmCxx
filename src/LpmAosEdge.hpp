@@ -27,6 +27,8 @@ template <int ndim> class Edge {
         }
 
         virtual ~Edge() {}
+        
+        virtual void enrich(ParticleSet<ndim>& particles) {};
 		
 		virtual inline index_type ptsPerEdge() const {return 2;}
 

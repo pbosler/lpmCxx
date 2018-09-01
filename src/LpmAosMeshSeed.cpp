@@ -12,18 +12,19 @@ std::string MeshSeed::infoString() const {
     std::ostringstream ss;
     std::cout << "MESH SEED INFO: id = " << this->idString() << std::endl;
     std::cout << "\tseed file = " << _fname << std::endl;
+    std::cout << "\tseed face coordinates included in file? " << (this->faceCrdsIncluded() ? "yes" : "no" ) << std::endl;
     if (_ndim == 2) {
-        std::cout << "\tr2vertexCrds :" << std::endl;
+        std::cout << "\tr2Crds :" << std::endl;
         for (index_type i=0; i<_nCrds; ++i) {
-            std::cout  << "\t" << r2vertexCrds[i] << std::endl;
+            std::cout  << "\t" << r2Crds[i] << std::endl;
         }
-        std::cout << "\tr3vertexCrds.empty() = " << (r3vertexCrds.empty() ? "true" : "false") << std::endl;
+        std::cout << "\tr3Crds.empty() = " << (r3Crds.empty() ? "true" : "false") << std::endl;
     }
     else if (_ndim == 3) {
-        std::cout << "\tr2vertexCrds.empty() = " << (r2vertexCrds.empty() ? "true" : "false") << std::endl;
-        std::cout << "\tr3vertexCrds :" << std::endl;
+        std::cout << "\tr2Crds.empty() = " << (r2Crds.empty() ? "true" : "false") << std::endl;
+        std::cout << "\tr3Crds :" << std::endl;
         for (index_type i=0; i<_nCrds; ++i) {
-            std::cout << "\t" << r3vertexCrds[i] << std::endl;
+            std::cout << "\t" << r3Crds[i] << std::endl;
         }        
     }
     std::cout << "\tedges :" << std::endl;
@@ -64,8 +65,8 @@ void MeshSeed::determineMaxAllocations(index_type& nv, index_type& nf, index_typ
 
 void MeshSeed::initFromFile() {
     // start with clean slate
-    r2vertexCrds.clear();
-    r3vertexCrds.clear();
+    r2Crds.clear();
+    r3Crds.clear();
     edgeOrigs.clear();
     edgeDests.clear();
     edgeLefts.clear();
@@ -125,14 +126,14 @@ void MeshSeed::initFromFile() {
                         crdErr = true;
                     }
                     //std::cout << "(x,y) = (" << x << "," << y << ")" << std::endl;
-                    r2vertexCrds.push_back(Vec<2>(x,y));
+                    r2Crds.push_back(Vec<2>(x,y));
                     break;
                 }
                 case (3) : {
                     if (!(iss >> x >> y >> z)) {
                         crdErr = true;
                     }
-                    r3vertexCrds.push_back(Vec<3>(x,y,z));
+                    r3Crds.push_back(Vec<3>(x,y,z));
                     break;
                 }
                 if (crdErr) {
