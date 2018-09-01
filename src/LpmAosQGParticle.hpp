@@ -9,23 +9,23 @@
 namespace Lpm {
 namespace Aos {
 
-class QGParticle : public Particle<2> {
+template <int ndim> class QGParticle : public Particle<ndim> {
     public:
-        QGParticle() : Particle<2>() {
+        QGParticle() : Particle<ndim>() {
             this->registerVectorField("velocity");
             this->registerScalarField("potvort");
             this->registerScalarField("relvort");
             this->registerScalarField("streamfn");
         }
         
-        QGParticle(const Vec<2>& pos, const scalar_type ar=0.0) : Particle<2>(pos, ar);
+        QGParticle(const Vec<ndim>& pos, const scalar_type ar=0.0) : Particle<ndim>(pos, ar) {}
         
-        QGParticle(const Vec<2>& xx, const Vec<2>& aa, const scalar_type ar=0.0) : Particle<2>(xx, aa, ar);
+        QGParticle(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type ar=0.0) : Particle<ndim>(xx, aa, ar) {}
         
 
 };
 
-inline scalar_type coriolis(const Vec<2>& pos, const scalar_type f0 = 0.0, const scalar_type beta = 0.0) {
+template <int ndim> inline scalar_type coriolis(const Vec<ndim>& pos, const scalar_type f0 = 0.0, const scalar_type beta = 0.0) {
     return f0 + beta*pos.x[1];
 }
 
