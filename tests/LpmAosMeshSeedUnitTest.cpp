@@ -5,15 +5,21 @@
 #include <iomanip>
 #include <string>
 #include <sstream>
+#include <vector>
 
 using namespace Lpm::Aos;
+using Lpm::index_type;
 
 int main(int argc, char* argv[]) {
 
+    index_type nv;
+    index_type ne;
+    index_type nf;
+    
+    const index_type maxRec = 9;
+
     TriHexSeed triPlane;
-    
     std::cout << "id string = " << triPlane.idString() << std::endl;
-    
     std::cout << "initializing from file." << std::endl;
     triPlane.initFromFile();
     std::cout << "returned." << std::endl;
@@ -30,6 +36,43 @@ int main(int argc, char* argv[]) {
     CubedSphereSeed cubedSphere;
     cubedSphere.initFromFile();
     std::cout << cubedSphere.infoString();
+
+    
+    std::cout << "TriHexSeed Memory Requirements: " << std::endl;
+    std::cout << std::setw(20) << "refinement level" << std::setw(20) << "nverts" 
+        << std::setw(20) << "nedges" << std::setw(20) << "nfaces" << std::endl;
+    for (int i=0; i<maxRec; ++i) {
+        triPlane.determineMaxAllocations(nv, nf, ne, i);
+        std::cout << std::setw(20) << i << std::setw(20) << nv << std::setw(20) << ne  
+            << std::setw(20) << nf << std::endl;
+    }
+    
+    std::cout << "QuadRectSeed Memory Requirements: " << std::endl;
+    std::cout << std::setw(20) << "refinement level" << std::setw(20) << "nverts" 
+        << std::setw(20) << "nedges" << std::setw(20) << "nfaces" << std::endl;
+    for (int i=0; i<maxRec; ++i) {
+        quadPlane.determineMaxAllocations(nv, nf, ne, i);
+        std::cout << std::setw(20) << i << std::setw(20) << nv << std::setw(20) << ne  
+            << std::setw(20) << nf << std::endl;
+    }
+
+    std::cout << "IcosTriSphereSeed Memory Requirements: " << std::endl;
+    std::cout << std::setw(20) << "refinement level" << std::setw(20) << "nverts" 
+        << std::setw(20) << "nedges" << std::setw(20) << "nfaces" << std::endl;
+    for (int i=0; i<maxRec; ++i) {
+        icosTriSphere.determineMaxAllocations(nv, nf, ne, i);
+        std::cout << std::setw(20) << i << std::setw(20) << nv << std::setw(20) << ne  
+            << std::setw(20) << nf << std::endl;
+    }
+    
+    std::cout << "CubedSphereSeed Memory Requirements: " << std::endl;
+    std::cout << std::setw(20) << "refinement level" << std::setw(20) << "nverts" 
+        << std::setw(20) << "nedges" << std::setw(20) << "nfaces" << std::endl;
+    for (int i=0; i<maxRec; ++i) {
+        cubedSphere.determineMaxAllocations(nv, nf, ne, i);
+        std::cout << std::setw(20) << i << std::setw(20) << nv << std::setw(20) << ne  
+            << std::setw(20) << nf << std::endl;
+    }
 
 return 0;
 }

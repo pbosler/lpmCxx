@@ -52,6 +52,16 @@ std::string MeshSeed::infoString() const {
     return ss.str();
 }
 
+void MeshSeed::determineMaxAllocations(index_type& nv, index_type& nf, index_type& ne, const index_type maxRec) const {
+    nv = this->nVerticesAfterUniformRefinement(maxRec);
+    nf = 0;
+    ne = 0;
+    for (int k=0; k<=maxRec; ++k) {
+        nf += this->nFacesAfterUniformRefinement(k);
+        ne += this->nEdgesAfterUniformRefinement(nVerticesAfterUniformRefinement(k), nFacesAfterUniformRefinement(k));
+    }
+}
+
 void MeshSeed::initFromFile() {
     // start with clean slate
     r2vertexCrds.clear();

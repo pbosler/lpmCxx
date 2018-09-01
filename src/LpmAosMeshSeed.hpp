@@ -28,10 +28,13 @@ class MeshSeed {
         virtual index_type nRootFaces() const = 0;
         virtual std::string idString() const = 0;
         virtual index_type ndim() const = 0;
+        virtual GeometryType geometryType() const = 0;
     
         std::string infoString() const;
         
         void initFromFile();
+        
+        void determineMaxAllocations(index_type& nv, index_type& nf, index_type& ne, const index_type maxRec) const;
     
     protected:
         MeshSeed(const std::string fname, const int ndim, const int ncoords, const int nedges, const int nfaces, 
@@ -67,6 +70,7 @@ class TriHexSeed : public MeshSeed {
         inline index_type nRootFaces() const {return 6;}
         inline std::string idString() const {return "triHexPlane";}
         inline index_type ndim() const {return 2;}
+        inline GeometryType geometryType() const {return PLANAR_GEOMETRY;}
 };
 
 class QuadRectSeed : public MeshSeed {
@@ -78,6 +82,7 @@ class QuadRectSeed : public MeshSeed {
         inline index_type nRootFaces() const {return 4;}
         inline std::string idString() const {return "quadRectPlane";}
         inline index_type ndim() const {return 2;}
+        inline GeometryType geometryType() const {return PLANAR_GEOMETRY;}
 };
 
 class IcosTriSphereSeed : public MeshSeed {
@@ -89,6 +94,7 @@ class IcosTriSphereSeed : public MeshSeed {
         inline index_type nRootFaces() const {return 20;}
         inline std::string idString() const {return "icosTriSphere";}
         inline index_type ndim() const {return 3;}
+        inline GeometryType geometryType() const {return SPHERICAL_SURFACE_GEOMETRY;}
 };
 
 class CubedSphereSeed : public MeshSeed {
@@ -100,6 +106,7 @@ class CubedSphereSeed : public MeshSeed {
         inline index_type nRootFaces() const {return 6;}
         inline std::string idString() const {return "cubedSphere";}
         inline index_type ndim() const {return 3;}
+        inline GeometryType geometryType() const {return SPHERICAL_SURFACE_GEOMETRY;}
 };
 
 }
