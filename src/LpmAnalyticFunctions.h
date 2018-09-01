@@ -19,8 +19,8 @@ class AnalyticFunction {
             {return XyzVector();}
         inline virtual XyzVector evaluateVector(const XyzVector& crdVec) const {return XyzVector();}
 
-        template <int ndim> scalar_type evaluateScalar(const Vec<ndim>& vec) const {return 0.0;}
-        template <int ndim> Vec<ndim> evaluateVector(const Vec<ndim>& vec) const {return Vec<ndim>();}
+        template <int ndim> scalar_type evaluateScalar(const Aos::Vec<ndim>& vec) const {return 0.0;}
+        template <int ndim> Aos::Vec<ndim> evaluateVector(const Aos::Vec<ndim>& vec) const {return Aos::Vec<ndim>();}
 };
 
 class SineWave3D : public AnalyticFunction {

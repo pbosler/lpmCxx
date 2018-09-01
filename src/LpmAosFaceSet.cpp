@@ -6,10 +6,11 @@
 #include <sstream>
 
 namespace Lpm {
+namespace Aos {
 
 template <int ndim> void FaceSet<ndim>::insert(const ind_vec& intrs, const ind_vec& verts, const ind_vec& edges, 
             const index_type pt, const scalar_type ar) {
-    if (_faces.size() + 1 >= _nMax) {
+    if (_faces.size() + 1 > _nMax) {
         throw std::out_of_range("FaceSet::insert _nMax exceeded.");
     }
     _faces.push_back(_factory->createFace(intrs, verts, edges, pt, ar));
@@ -284,8 +285,22 @@ template <int ndim> void FaceSet<ndim>::divide(const index_type ind, ParticleSet
 
 }
 
+#ifdef HAVE_VTK
+template<int ndim> vtkSmartPointer<vtkCellArray> FaceSet<ndim>::toVtkCellArray() const {
+    vtkSmartPointer<vtkCellArray> result = vtkSmartPointer<vtkCellArray>::New();
+    const index_type ptsPerFace = _faces[0]->nVerts();
+    for(index_type i=0; i<_faces.size(); ++i) {
+        if (_faces[i]->isLeaf()) {
+            const std::vector<index_type> verts = _faces[i]->vertices();
+            result->InsertNextCell(ptsPerFace);
+            for(int j=0; j<ptsPerFace; ++j) result->InsertCellPoint(verts[j]);
+        }
+    }
+    return result;
+}
+#endif
 
 template class FaceSet<2>;
 template class FaceSet<3>;
 }
-
+}

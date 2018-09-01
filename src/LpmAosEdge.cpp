@@ -5,6 +5,7 @@
 #include <iostream>
 
 namespace Lpm {
+namespace Aos {
 
 template <int ndim> Vec<ndim> Edge<ndim>::midpoint(const ParticleSet<ndim>& particles) const {
     Particle<ndim>* optr = particles.getPtr(_orig);
@@ -65,4 +66,5 @@ template <int ndim> std::string Edge<ndim>::infoString() const {
 
 template class Edge<2>;
 template class Edge<3>;
+}
 }

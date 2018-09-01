@@ -5,6 +5,7 @@
 #include "LpmAosParticleSet.hpp"
 
 namespace Lpm {
+namespace Aos {
 
 template <int ndim> std::string ParticleSet<ndim>::infoString() const {
     std::ostringstream oss;
@@ -144,8 +145,8 @@ template <int ndim> void ParticleSet<ndim>::initFromParticleSetFile(const std::s
         if (lineNumber == 5) {
             nParticles = std::stol(line.substr(6));
             std::cout << "\t...found " << nParticles << " particles in file " << fullfname << std::endl;
-            _nMax = nParticles;
-            _particles.reserve(_nMax);
+            //_nMax = nParticles;
+            _particles.reserve(nParticles);
             _nActive = nParticles;
         }
         else if (nParticles > 0 && lineNumber > 5 && lineNumber <= 5 +nParticles ) {
@@ -204,7 +205,45 @@ template <int ndim> void ParticleSet<ndim>::initFromParticleSetFile(const std::s
 
     file.close();
 }
+
+#ifdef HAVE_VTK
+template <int ndim> vtkSmartPointer<vtkPoints> ParticleSet<ndim>::toVtkPoints(const bool useFieldForHeight, 
+	const std::string scalarFieldName) const {
+		vtkSmartPointer<vtkPoints> result = vtkSmartPointer<vtkPoints>::New();
+		switch (ndim) {
+			case (2) : {
+				if (useFieldForHeight) {
+					for (index_type i=0; i<_nActive; ++i) {
+						const Particle<ndim>* pptr = getPtr(i);
+						const Vec<ndim> pos=pptr->physCrd();
+						result->InsertPoint(i, pos.x[0], pos.x[1], pptr->getScalar(scalarFieldName));
+					}
+				}
+				else {
+					for (index_type i=0; i<_nActive; ++i) {
+						const Vec<ndim> pos=getPtr(i)->physCrd();
+						result->InsertPoint(i, pos.x[0], pos.x[1], 0.0);
+					}
+				}
+				break;
+			}
+			case (3) : {
+				for (index_type i=0; i<_nActive; ++i) {
+					const Vec<ndim> pos=getPtr(i)->physCrd();
+					result->InsertPoint(i, pos.x[0], pos.x[1], pos.x[2]);
+				}
+			}
+		}
+		return result;
+	}
+	
+template <int ndim>	vtkSmartPointer<vtkPointData> ParticleSet<ndim>::fieldToVtkPointData(const std::string name) const{
+	
+}
+#endif
+
 template class ParticleSet<1>;
 template class ParticleSet<2>;
 template class ParticleSet<3>;
+}
 }

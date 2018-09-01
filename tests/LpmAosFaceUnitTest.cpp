@@ -10,8 +10,16 @@
 #include <iomanip>
 #include <memory>
 #include <vector>
+#ifdef HAVE_VTK
 
-using namespace Lpm;
+#endif
+
+using namespace Lpm::Aos;
+using Lpm::index_type;
+using Lpm::scalar_type;
+using Lpm::Logger;
+using Lpm::OutputMessage;
+using Lpm::GeometryType::SPHERICAL_SURFACE_GEOMETRY;
 
 typedef std::vector<index_type> ind_vec;
 
@@ -98,6 +106,11 @@ int main (int argc, char* argv[]) {
     }
     
     std::cout << cs.infoString() << std::endl;
+#ifdef HAVE_VTK
+	vtkSmartPointer<vtkCellArray> vcells = cs.toVtkCellArray();
+	std::cout << "inserted " << vcells->GetNumberOfCells() << " cells to vtkCellArray." << std::endl;
+#endif    
+    
 return 0;
 }
 

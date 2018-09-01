@@ -9,7 +9,11 @@
 #include "LpmAosParticleFactory.hpp"
 #include "LpmTypeDefs.h"
 
-using namespace Lpm;
+using namespace Lpm::Aos;
+
+using Lpm::index_type;
+using Lpm::scalar_type;
+using Lpm::PI;
 
 struct Input {
     index_type nmax;

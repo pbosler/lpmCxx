@@ -10,7 +10,16 @@
 #include "LpmAosParticleFactory.hpp"
 #include "LpmAnalyticFunctions.h"
 
+#ifdef HAVE_VTK
+#include "vtkSmartPointer.h"
+#include "vtkPoints.h"
+#include "vtkPointData.h"
+#endif
+
 namespace Lpm {
+namespace Aos {
+
+template <int ndim> class PolyMesh2d;
 
 template <int ndim> class ParticleSet {
     public:
@@ -51,10 +60,26 @@ template <int ndim> class ParticleSet {
         void initVectorFieldFromVectoryArray(const std::string& field_name, const std::vector<Vec<ndim>>& vals);
         
         std::vector<scalar_type> getScalarFieldValues(const std::string& field_name) const;
+        inline scalar_type scalarVal(const index_type ind, const std::string field_name) const {
+        	return _particles[ind]->getScalar(field_name);
+        }
+        inline std::array<scalar_type, ndim> vectorVal(const index_type ind, const std::string field_name) const {
+        	return _particles[ind]->getVector(field_name);
+        }
+        
+        inline std::vector<std::string> getFieldNames() const {return _particles[0]->fieldNames();}
+        inline std::vector<std::string> getScalarFieldNames() const {return _particles[0]->scalarFieldNames();}
+        inline std::vector<std::string> getVectorFieldNames() const {return _particles[0]->vectorFieldNames();}
 
         inline Vec<ndim> physCrd(const index_type ind) const {return _particles[ind]->physCrd();}
         inline Vec<ndim> lagCrd(const index_type ind) const {return _particles[ind]->lagCrd();}
 
+#ifdef HAVE_VTK
+		vtkSmartPointer<vtkPoints> toVtkPoints(const bool useFieldForHeight = false, const std::string scalarFieldName="") const;
+		vtkSmartPointer<vtkPointData> fieldToVtkPointData(const std::string name) const;
+#endif
+
+		friend class PolyMesh2d<ndim>;
     protected:
         index_type _nMax;
         index_type _nActive;
@@ -98,6 +123,6 @@ template <int ndim> class ParticleSet {
 //     protected:
 // };
 
-
+}
 }
 #endif

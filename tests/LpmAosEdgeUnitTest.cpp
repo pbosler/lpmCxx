@@ -16,7 +16,13 @@
 #include "LpmAosEdgeSet.hpp"
 
 
-using namespace Lpm;
+using namespace Lpm::Aos;
+
+using Lpm::index_type;
+using Lpm::scalar_type;
+using Lpm::Logger;
+using Lpm::OutputMessage;
+using Lpm::GeometryType::SPHERICAL_SURFACE_GEOMETRY;
 
 int main (int argc, char* argv[]) {
 
@@ -74,6 +80,11 @@ int main (int argc, char* argv[]) {
     edges.divide(1, cubedSphere);
     
     std::cout << edges.infoString(true) << std::endl;
+
+#ifdef HAVE_VTK
+	vtkSmartPointer<vtkCellArray> vcells = edges.toVtkCellArray();
+	std::cout << "inserted " << vcells->GetNumberOfCells() << " cells to vtkCellArray." << std::endl;
+#endif
     
 return 0;
 }

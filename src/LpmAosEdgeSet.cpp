@@ -5,6 +5,7 @@
 #include <iostream>
 
 namespace Lpm {
+namespace Aos {
 
 template <int ndim> scalar_type EdgeSet<ndim>::maxEucLength(const ParticleSet<ndim>& particles) const {
     scalar_type result(0.0);
@@ -134,8 +135,27 @@ template <int ndim> std::string EdgeSet<ndim>::infoString(const bool printAll) c
     return ss.str();
 }
 
+#ifdef HAVE_VTK
+template <int ndim> vtkSmartPointer<vtkCellArray> EdgeSet<ndim>::toVtkCellArray() const {
+	vtkSmartPointer<vtkCellArray> result = vtkSmartPointer<vtkCellArray>::New();
+	const index_type ptsPerEdge = _edges[0]->ptsPerEdge();
+	for (index_type i=0; i<_edges.size(); ++i) {
+		if (_edges[i]->isLeaf()) {
+			result->InsertNextCell(ptsPerEdge);
+			result->InsertCellPoint(_edges[i]->orig());
+			if (_edges[i]->_midpts[0] >= 0) result->InsertCellPoint(_edges[i]->_midpts[0]);
+			if (_edges[i]->_midpts[1] >= 0) result->InsertCellPoint(_edges[i]->_midpts[1]);
+			result->InsertCellPoint(_edges[i]->dest());
+		}
+	}
+	
+	return result;
+}
+#endif
+
 template class EdgeSet<2>;
 template class EdgeSet<3>;
 
+}
 }
 

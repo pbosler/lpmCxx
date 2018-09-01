@@ -4,6 +4,7 @@
 #include "LpmAosEdge.hpp"
 
 namespace Lpm {
+namespace Aos {
 
 template <int ndim> Vec<ndim> Face<ndim>::physBarycenter(const ParticleSet<ndim>& particles) const {
     Vec<ndim> result;
@@ -101,4 +102,4 @@ template <int ndim> std::string Face<ndim>::infoString() const {
 template class Face<2>;
 template class Face<3>;
 }
-
+}

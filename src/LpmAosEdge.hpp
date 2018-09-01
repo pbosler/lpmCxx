@@ -10,6 +10,10 @@
 
 namespace Lpm {
 
+namespace Aos {
+
+template <int ndim> class EdgeSet;
+
 template <int ndim> class Edge {
     public:
         Edge(const index_type origID, const index_type destID, const index_type leftID, const index_type rightID,
@@ -23,6 +27,8 @@ template <int ndim> class Edge {
         }
 
         virtual ~Edge() {}
+		
+		virtual inline index_type ptsPerEdge() const {return 2;}
 
         inline bool hasKids() const {return _kids[0] > 0;}
         inline bool isLeaf() const {return !hasKids();}
@@ -73,6 +79,7 @@ template <int ndim> class Edge {
             return result;
         }
 
+		friend class EdgeSet<ndim>;
     protected:
         index_type _orig;
         index_type _dest;
@@ -90,6 +97,8 @@ template <int ndim> class QuadraticEdge : public Edge<ndim> {
     
         inline index_type midpt() const override {return this->_midpts[0];}
         inline void setMidpt(const index_type ind) override {this->_midpts[0] = ind;}
+        
+        inline index_type ptsPerEdge() const override {return 3;}
 };
 
 template <int ndim> class CubicEdge : public Edge<ndim> {
@@ -101,7 +110,8 @@ template <int ndim> class CubicEdge : public Edge<ndim> {
             this->_midpts[0] = ind0;
             this->_midpts[1] = ind1;
         }
+        inline index_type ptsPerEdge() const override {return 4;}
 };
-
+}
 }
 #endif

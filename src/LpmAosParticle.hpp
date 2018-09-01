@@ -10,6 +10,9 @@
 #include <array>
 
 namespace Lpm {
+namespace Aos {
+
+template <int ndim> class ParticleSet;
 
 template <int ndim=3> class Particle {
     typedef std::array<scalar_type, ndim>  vfield_type;
@@ -26,6 +29,7 @@ template <int ndim=3> class Particle {
         std::map<std::string, vfield_type> _vFields;
 
     public:
+        friend class ParticleSet<ndim>;
 
         Particle() : _physCrd(), _lagCrd(), _area(0.0), _volume(0.0), _velocity() {}
         Particle(const Vec<ndim>& pos, const scalar_type len = 0.0, const scalar_type aa=0.0, const scalar_type vv=0.0) : _physCrd(pos), _lagCrd(pos),
@@ -50,6 +54,21 @@ template <int ndim=3> class Particle {
 
         void registerVectorField(const std::string& field_name) {
             this->_vFields.emplace(field_name, vfield_type());
+        }
+        
+        std::vector<std::string> scalarFieldNames() const {
+            std::vector<std::string> result;
+            for (auto& sf : _sFields) {
+                result.push_back(sf.first);
+            }
+            return result;
+        }
+        std::vector<std::string> vectorFieldNames() const {
+            std::vector<std::string> result;
+            for (auto& vf : _vFields) {
+                result.push_back(vf.first);
+            }
+            return result;
         }
 
         std::vector<std::string> fieldNames() const {
@@ -151,5 +170,5 @@ template <int ndim=3> class Particle {
 };
 
 }
-
+}
 #endif

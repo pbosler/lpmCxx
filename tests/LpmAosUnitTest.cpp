@@ -10,7 +10,12 @@
 #include "LpmLogger.h"
 #include "LpmAosTypes.hpp"
 
-using namespace Lpm;
+using namespace Lpm::Aos;
+
+using Lpm::index_type;
+using Lpm::scalar_type;
+using Lpm::Logger;
+using Lpm::OutputMessage;
 
 int main (int argc, char* argv[]) {
 

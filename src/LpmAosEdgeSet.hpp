@@ -10,8 +10,16 @@
 #include "LpmAosEdge.hpp"
 #include "LpmAosEdgeFactory.hpp"
 #include "LpmAosParticleSet.hpp"
+#ifdef HAVE_VTK
+#include "vtkSmartPointer.h"
+#include "vtkCellArray.h"
+#endif
 
 namespace Lpm {
+
+namespace Aos {
+
+template <int ndim> class PolyMesh2d;
 
 template <int ndim> class EdgeSet {
     public:
@@ -61,6 +69,12 @@ template <int ndim> class EdgeSet {
             const std::array<index_type, 2>& interiorIDs = std::array<index_type,2>());
         void divide(const index_type ind, ParticleSet<ndim>& particles, const scalar_type radius=1.0);
 
+#ifdef HAVE_VTK
+		vtkSmartPointer<vtkCellArray> toVtkCellArray() const;
+#endif
+
+		friend class PolyMesh2d<ndim>;
+
     protected:
         GeometryType _geom;
         index_type _nMax;
@@ -69,5 +83,6 @@ template <int ndim> class EdgeSet {
         std::vector<std::unique_ptr<Edge<ndim>>> _edges;
 };
 
+}
 }
 #endif

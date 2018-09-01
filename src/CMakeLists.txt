@@ -1,7 +1,7 @@
 #
 #   build
 #
-include_directories("${PROJECT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src" "${PROJECT_BINARY_DIR}")
+include_directories("${PROJECT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src" "${PROJECT_BINARY_DIR}" "${VTK_INCLUDE_DIRS}")
 
 add_library( lpm LpmXyzVector.cpp LpmUtilities.cpp LpmOutputMessage.cpp LpmLogger.cpp LpmCoords.cpp
              LpmEuclideanCoords.cpp LpmSphericalCoords.cpp LpmField.cpp LpmEdges.cpp
@@ -11,8 +11,9 @@ add_library( lpm LpmXyzVector.cpp LpmUtilities.cpp LpmOutputMessage.cpp LpmLogge
              LpmBox3d.cpp LpmOctree.cpp LpmSakajo2009.cpp
              LpmTreeSum.cpp
              LpmAosTypes.cpp LpmAosParticleSet.cpp LpmAosEdge.cpp LpmAosEdgeSet.cpp 
-             LpmAosFace.cpp LpmAosFaceSet.cpp
+             LpmAosFace.cpp LpmAosFaceSet.cpp LpmAosMeshSeed.cpp
 )
+TARGET_LINK_LIBRARIES(lpm ${VTK_LIBRARIES})
 
 
 #
@@ -25,7 +26,7 @@ install (FILES LpmConfig.h LpmXyzVector.h LpmUtilities.h
                LpmTimer.h LpmMultiIndex.h LpmSakajo2009.h LpmTreeSum.h
                LpmDirectSum.h
                LpmAosTypes.hpp LpmAosParticle.hpp LpmAosSWEParticle.hpp LpmAosParticleFactory.hpp LpmAosParticleSet.hpp
-               LpmAosEdge.hpp LpmAosEdgeFactory.hpp LpmAosEdgeSet.hpp LpmAosFace.hpp
+               LpmAosEdge.hpp LpmAosEdgeFactory.hpp LpmAosEdgeSet.hpp LpmAosFace.hpp LpmAosMeshSeed.hpp
          DESTINATION include)
 
 install ( TARGETS lpm DESTINATION lib )

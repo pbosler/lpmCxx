@@ -10,6 +10,7 @@
 #include <vector>
 
 namespace Lpm {
+namespace Aos {
 
 typedef std::vector<index_type> ind_vec;
 template <int ndim> class FaceSet;
@@ -43,6 +44,8 @@ template <int ndim> class Face {
 //         std::vector<Vec<ndim>> interiors(const ParticleSet<ndim>& particles) const;
         inline ind_vec vertices() const {return _vertInds;}
         inline ind_vec edges() const {return _edgeInds;}
+        
+        inline index_type nVerts() const {return _vertInds.size();}
         
         std::vector<Vec<ndim>> corners() const;
         
@@ -94,5 +97,6 @@ template <int ndim> class QuadCubicFace : public Face<ndim> {
             const index_type pt, const scalar_type ar=0.0) : Face<ndim>(intInds, vertInds, edgeInds, pt, ar) {}
 };
 
+}
 }
 #endif

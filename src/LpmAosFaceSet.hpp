@@ -13,7 +13,15 @@
 #include "LpmAosFace.hpp"
 #include "LpmAosFaceFactory.hpp"
 
+#ifdef HAVE_VTK
+#include "vtkSmartPointer.h"
+#include "vtkCellArray.h"
+#endif
+
 namespace Lpm {
+namespace Aos {
+
+template <int ndim> class PolyMesh2d;
 
 template <int ndim> class FaceSet {
     public:
@@ -47,7 +55,12 @@ template <int ndim> class FaceSet {
         scalar_type maxLeafArea() const;
                 
         std::string infoString(const bool printAll = false) const;
+
+#ifdef HAVE_VTK
+		vtkSmartPointer<vtkCellArray> toVtkCellArray() const;
+#endif
     
+    	friend class PolyMesh2d<ndim>;
     protected:
         scalar_type _radius;
         GeometryType _geom;
@@ -58,5 +71,5 @@ template <int ndim> class FaceSet {
 };
 
 }
-
+}
 #endif

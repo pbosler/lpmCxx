@@ -11,6 +11,7 @@
 #include "LpmUtilities.h"
 
 namespace Lpm {
+namespace Aos {
 
 // scalar_type atan4(const scalar_type y, const scalar_type x);
 
@@ -283,5 +284,6 @@ std::ostream& operator << (std::ostream& os, const Vec<1>& vec);
 std::ostream& operator << (std::ostream& os, const Vec<2>& vec);
 std::ostream& operator << (std::ostream& os, const Vec<3>& vec);
 
+}
 }
 #endif

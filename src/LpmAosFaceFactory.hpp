@@ -8,6 +8,7 @@
 #include "LpmAosFace.hpp"
 
 namespace Lpm {
+namespace Aos {
 
 typedef std::vector<index_type> ind_vec;
 
@@ -43,5 +44,5 @@ template <int ndim> class QuadCubicFaceFactory : public FaceFactory<ndim> {
 };
 
 }
-
+}
 #endif

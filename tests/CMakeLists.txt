@@ -1,6 +1,6 @@
 include(CTest)
 
-include_directories("${PROJECT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src" "${PROJECT_BINARY_DIR}")
+include_directories("${PROJECT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src" "${PROJECT_BINARY_DIR}" ${VTK_INCLUDE_DIRS})
 
 ADD_EXECUTABLE(lpmXyzVectorUnitTest.exe LpmXyzVectorUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmXyzVectorUnitTest.exe lpm)
@@ -86,6 +86,10 @@ add_test(aosEdgeUnitTest lpmAosEdgeUnitTest.exe)
 ADD_EXECUTABLE(lpmAosFaceUnitTest.exe LpmAosFaceUnitTest.cpp)
 TARGET_LINK_LIBRARIES(lpmAosFaceUnitTest.exe lpm)
 add_test(aosFaceUnitTest lpmAosFaceUnitTest.exe)
+
+ADD_EXECUTABLE(lpmAosMeshSeedTest.exe LpmAosMeshSeedUnitTest.cpp)
+TARGET_LINK_LIBRARIES(lpmAosMeshSeedTest.exe lpm)
+add_test(aosMeshSeedTest lpmAosMeshSeedTest.exe)
 
 #ADD_EXECUTABLE(lpmTreeSumTest.exe LpmTreeSumTests.cpp)
 #TARGET_LINK_LIBRARIES(lpmTreeSumTest.exe lpm)

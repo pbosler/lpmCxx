@@ -33,6 +33,13 @@ find_package(MPI REQUIRED)
 set(CMAKE_CXX_COMPILE_FLAGS ${CMAKE_CXX_COMPILE_FLAGS} ${MPI_COMPILE_FLAGS})
 set(CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS} ${MPI_LINK_FLAGS})
 
+find_package(VTK HINTS $ENV{VTK_ROOT})
+if (VTK_FOUND)
+	OPTION(HAVE_VTK "Located vtk libraries" ON)
+	Message("vtk_include_dirs = " ${VTK_INCLUDE_DIRS})
+	Message("VTK_LIBRARIES = " ${VTK_LIBRARIES})
+endif()
+
 #
 # Add subdirectories
 #

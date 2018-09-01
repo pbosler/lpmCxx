@@ -7,6 +7,7 @@
 #include "LpmAosParticle.hpp"
 
 namespace Lpm {
+namespace Aos {
 
 template <int ndim=3> class SWEParticle : public Particle<ndim> {
     public:
@@ -75,6 +76,6 @@ inline scalar_type coriolis(const Vec<3>& pos, const scalar_type Omega=0.0) {ret
 
 
 
-
+}
 }
 #endif

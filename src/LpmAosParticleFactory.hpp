@@ -6,8 +6,10 @@
 #include "LpmTypeDefs.h"
 #include "LpmAosParticle.hpp"
 #include "LpmAosSWEParticle.hpp"
+#include "LpmAosQGParticle.hpp"
 
 namespace Lpm {
+namespace Aos {
 
 template <int ndim> class ParticleFactory {
     public:
@@ -55,6 +57,22 @@ template <int ndim> class SWEParticleFactory : public ParticleFactory<ndim> {
     protected:
 };
 
-}
+template <int ndim> class QGParticleFactory : public ParticleFactory<ndim> {
+	public:
+		std::unique_ptr<Particle<ndim>> createParticle() const {
+			return std::unique_ptr<Particle<ndim>>(new QGParticle<ndim>());
+		}
+		
+		std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& pos, const scalar_type ar=0.0) const {
+			return std::unique_ptr<Particle<ndim>>(new QGParticle<ndim>(pos,ar));
+		}
+		
+		std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type ar=0.0) const {
+			return std::unique_ptr<Particle<ndim>>(new QGParticle<ndim>(xx,aa,ar));
+		}
+	protected:
+};
 
+}
+}
 #endif

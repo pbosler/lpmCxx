@@ -8,6 +8,7 @@
 #include "LpmAosEdge.hpp"
 
 namespace Lpm {
+namespace Aos {
 
 template <int ndim> class EdgeFactory {
     public:
@@ -49,5 +50,5 @@ template <int ndim> class CubicEdgeFactory : public EdgeFactory<ndim> {
 };
 
 }
-
+}
 #endif

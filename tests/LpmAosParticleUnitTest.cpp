@@ -14,8 +14,18 @@
 #include "LpmAosParticleFactory.hpp"
 #include "LpmAosSWEParticle.hpp"
 #include "LpmAosParticleSet.hpp"
+#ifdef HAVE_VTK
 
-using namespace Lpm;
+#endif
+
+using namespace Lpm::Aos;
+
+using Lpm::index_type;
+using Lpm::scalar_type;
+using Lpm::Logger;
+using Lpm::OutputMessage;
+using Lpm::ZERO_TOL;
+using Lpm::PI;
 
 int main (int argc, char* argv[]) {
 
@@ -59,6 +69,16 @@ int main (int argc, char* argv[]) {
     if (std::abs(cubedSphere.totalArea() - 4.0*PI) > ZERO_TOL) {
         throw std::runtime_error("Surface area unit test FAILED");
     }
+
+#ifdef HAVE_VTK
+	vtkSmartPointer<vtkPoints> vpts = cubedSphere.toVtkPoints();
+	scalar_type bounds[6];
+	vpts->ComputeBounds();
+	vpts->GetBounds(bounds);
+	std::cout << "vtk computed bounds: (xmin, xmax), (ymin, ymax), (zmin, zmax) = " << std::endl;
+	std::cout << "\t(" << bounds[0] << ", " << bounds[1] << ") (" << bounds[2] << ", " << bounds[3] 
+		<< ") (" << bounds[4] << ", " << bounds[5] << ")" << std::endl;
+#endif
 
 //     std::vector<std::string> allinfo = cubedSphere.particlesInfoStrings();
 //     for (int i=0; i<allinfo.size(); ++i) {
