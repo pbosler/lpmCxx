@@ -11,32 +11,25 @@
 namespace Lpm {
 namespace Aos {
 
-template <int ndim> class MeshSeedFactory {
+class MeshSeedFactory {
     public :
         std::unique_ptr<MeshSeed> createSeed(const std::string id) const {
-            switch (id) {
-                case "triHexPlane" {
-                    return std::unique_ptr<MeshSeed>(new TriHexSeed());
-                    break;
-                }
-                case "quadRectPlane" {
-                    return std::unique_ptr<MeshSeed>(new QuadRectSeed());
-                    break;
-                }
-                case "icosTriSphere" {
-                    return std::unique_ptr<MeshSeed>(new IcosTriSphereSeed());
-                    break;
-                }
-                case "cubedSphere" {
-                    return std::unique_ptr<MeshSeed>(new CubedSphereSeed());
-                    break;
-                }
-                default : {
-                    std::ostringstream ss;
-                    ss << "error: unrecognized seed id " << id;
-                    throw std::invalid_argument(ss.str());
-                    break;
-                }
+            if (id == "triHexPlane") {
+                return std::unique_ptr<MeshSeed>(new TriHexSeed());
+            }
+            else if (id == "quadRectPlane" ) {
+                return std::unique_ptr<MeshSeed>(new QuadRectSeed());
+            }
+            else if (id == "icosTriSphere") {
+                return std::unique_ptr<MeshSeed>(new IcosTriSphereSeed());
+            }
+            else if (id == "cubedSphere") {
+                return std::unique_ptr<MeshSeed>(new CubedSphereSeed());
+            }
+            else {
+                std::ostringstream ss;
+                ss << "error: unrecognized seed id " << id;
+                throw std::invalid_argument(ss.str());
             }
         }
 };

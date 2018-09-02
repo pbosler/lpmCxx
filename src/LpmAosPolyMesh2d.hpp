@@ -1,11 +1,6 @@
 #ifndef LPM_AOS_POLYMESH_2D_HPP
 #define LPM_AOS_POLYMESH_2D_HPP
 
-#include <vector>
-#include <memory>
-#include <string>
-#include <exception>
-#include <algorithm>
 #include "LpmConfig.h"
 #include "LpmTypeDefs.h"
 #include "LpmAosTypes.hpp"
@@ -32,27 +27,39 @@ namespace Aos {
 
 template <int ndim> class PolyMesh2d {
     public:
-        PolyMesh2d(const index_type initRecursion, const index_type maxRecursion, 
-            const int amrLimit, const scalar_type domainRadius=1.0) :  
+        PolyMesh2d(const MeshSeed* seed, const std::shared_ptr<ParticleFactory<ndim>> pfac,
+            const std::shared_ptr<EdgeFactory<ndim>> efac, const std::shared_ptr<FaceFactory<ndim>> ffac, 
+            const index_type nMaxParticles, const index_type nMaxEdges, const index_type nMaxFaces,
+            const index_type initRecursion, const index_type maxRecursion, 
+            const int amrLimit, const scalar_type domainRadius=1.0) : 
+            _seed(seed), _pfac(pfac), _efac(efac), _ffac(ffac), 
             _initRecursion(initRecursion), _maxRecursion(maxRecursion), _amrLimit(amrLimit), 
-            _radius(domainRadius), _tindex(0), _time(0.0) {}
+            _radius(domainRadius), _tindex(0), _time(0.0), 
+            _vertexParticles(pfac, nMaxParticles),
+            _edges(efac, seed->geometryType(), nMaxEdges),
+            _faces(ffac, nMaxFaces, seed->geometryType(), domainRadius)
+            {}
         
-        void initFromSeedCollocated(const MeshSeed* seedptr, const std::shared_ptr<ParticleFactory<ndim>> pfac,
-            const std::shared_ptr<EdgeFactory<ndim>> efac, const std::shared_ptr<FaceFactory<ndim>> ffac);
-            
-        void initFromSeedStaggeredFacesAndVerts(const MeshSeed* seedptr, const std::shared_ptr<ParticleFactory<ndim>> pfac,
-            const std::shared_ptr<EdgeFactory<ndim>> efac, const std::shared_ptr<FaceFactory<ndim>> ffac);
-            
-        void initFromSeedStaggeredFacesEdgesAndVerts(const MeshSeed* seedptr, const std::shared_ptr<ParticleFactory<ndim>> pfac,
-            const std::shared_ptr<EdgeFactory<ndim>> efac, const std::shared_ptr<FaceFactory<ndim>> ffac);
+ //        void initFromSeedStaggeredFacesAndVerts(const MeshSeed* seedptr);
+//         
+// //         todo
+//         void initFromSeedCollocated(const MeshSeed* seedptr, const std::shared_ptr<ParticleFactory<ndim>> pfac,
+//             const std::shared_ptr<EdgeFactory<ndim>> efac, const std::shared_ptr<FaceFactory<ndim>> ffac) {};
+//         
+// //          todo
+//         void initFromFileCollocated(const std::string filename){};
+//         
+// //         todo
+//         void initFromSeedStaggeredFacesEdgesAndVerts(const MeshSeed* seedptr, const std::shared_ptr<ParticleFactory<ndim>> pfac,
+//             const std::shared_ptr<EdgeFactory<ndim>> efac, const std::shared_ptr<FaceFactory<ndim>> ffac) {};
         
         inline GeometryType geometryType() const {return _geom;}
         
-        ParticleSet<ndim>* verticesPtr() {return _vertexParticles.get();}
-        ParticleSet<ndim>* edgeParticlePtr() {return _edgeParticles.get();}
-        ParticleSet<ndim>* faceParticlePtr() {return _faceParticles.get();}
-        EdgeSet<ndim>* edgesPtr() {return _edges.get();}
-        FaceSet<ndim>* facesPtr() {return _faces.get();}
+//         ParticleSet<ndim>* verticesPtr() {return _vertexParticles.get();}
+//         ParticleSet<ndim>* edgeParticlePtr() {return _edgeParticles.get();}
+//         ParticleSet<ndim>* faceParticlePtr() {return _faceParticles.get();}
+//         EdgeSet<ndim>* edgesPtr() {return _edges.get();}
+//         FaceSet<ndim>* facesPtr() {return _faces.get();}
 
 #ifdef HAVE_VTK
         vtkSmartPointer<vtkPolyData> toVtkPolyData() const;
@@ -69,14 +76,22 @@ template <int ndim> class PolyMesh2d {
         index_type _tindex;
         scalar_type _time;
         GeometryType _geom;
+        FaceType _facekind;
+        const MeshSeed* _seed;
+        
+        bool verifyFactories(const MeshSeed* seed, const std::shared_ptr<FaceFactory<ndim>> ffac);
         
         void determineMaxAllocations(index_type& nv, index_type& nf, index_type& ne) const;
     
-        std::unique_ptr<ParticleSet<ndim>> _vertexParticles;
-        std::unique_ptr<ParticleSet<ndim>> _edgeParticles;
-        std::unique_ptr<ParticleSet<ndim>> _faceParticles;
-        std::unique_ptr<EdgeSet<ndim>> _edges;
-        std::unique_ptr<FaceSet<ndim>> _faces;
+        std::shared_ptr<ParticleFactory<ndim>> _pfac;
+        std::shared_ptr<EdgeFactory<ndim>> _efac;
+        std::shared_ptr<FaceFactory<ndim>> _ffac;
+    
+        ParticleSet<ndim> _vertexParticles;
+        ParticleSet<ndim> _edgeParticles;
+        ParticleSet<ndim> _faceParticles;
+        EdgeSet<ndim> _edges;
+        FaceSet<ndim> _faces;
         
         index_type nRootFaces;
         

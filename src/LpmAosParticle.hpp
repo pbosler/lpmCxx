@@ -7,7 +7,7 @@
 #include <string>
 #include <sstream>
 #include <map>
-#include <array>
+#include <vector>
 
 namespace Lpm {
 namespace Aos {
@@ -15,7 +15,7 @@ namespace Aos {
 template <int ndim> class ParticleSet;
 
 template <int ndim=3> class Particle {
-    typedef std::array<scalar_type, ndim>  vfield_type;
+    typedef std::vector<scalar_type>  vfield_type;
 
     protected:
         Vec<ndim> _physCrd;
@@ -53,7 +53,7 @@ template <int ndim=3> class Particle {
         }
 
         void registerVectorField(const std::string& field_name) {
-            this->_vFields.emplace(field_name, vfield_type());
+            this->_vFields.emplace(field_name, vfield_type(ndim, 0.0));
         }
         
         std::vector<std::string> scalarFieldNames() const {
@@ -85,7 +85,7 @@ template <int ndim=3> class Particle {
         }
 
         inline void setVector(const std::string& field_name, const Vec<ndim>& vec) {
-            _vFields.at(field_name) = vec.toArray();
+            _vFields.at(field_name) = vec.toStdVec();
         }
 
         inline void setVector(const std::string& field_name, const vfield_type& arr) {

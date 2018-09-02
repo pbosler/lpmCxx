@@ -13,28 +13,31 @@ namespace Lpm {
     typedef long index_type;
     
     /// Pi
-    static const scalar_type PI = 3.1415926535897932384626433832795027975;
+    static constexpr scalar_type PI = 3.1415926535897932384626433832795027975;
     
     /// Radians to degrees conversion factor
-    static const scalar_type rad2deg = 180.0 / PI;
+    static constexpr scalar_type rad2deg = 180.0 / PI;
     
     /// Gravitational acceleration
-    static const scalar_type g = 9.80616;
+    static constexpr scalar_type g = 9.80616;
     
     /// Mean sea level radius of the Earth (meters)
-    static const scalar_type earthRadiusMeters = 6371220.0;
+    static constexpr scalar_type earthRadiusMeters = 6371220.0;
     
     /// One sidereal day, in units of seconds
-    static const scalar_type oneDaySeconds = 24.0 * 3600.0;
+    static constexpr scalar_type oneDaySeconds = 24.0 * 3600.0;
     
     /// Rotational rate of Earth about its z-axis
-    static const scalar_type earthOmega = 2.0 * PI / oneDaySeconds;
+    static constexpr scalar_type earthOmega = 2.0 * PI / oneDaySeconds;
     
     /// Floating point zero
-    static const scalar_type ZERO_TOL = 1.0e-13;
+    static constexpr scalar_type ZERO_TOL = 1.0e-13;
     
     /// Kinds of geometry used by Lpm classes
     enum GeometryType {PLANAR_GEOMETRY, SPHERICAL_SURFACE_GEOMETRY, CARTESIAN_3D_GEOMETRY};
+    
+    /// Basic face types
+    enum FaceType {TRI, QUAD, QUAD_CUBIC, VORONOI};
     
     inline std::string geometryString(const GeometryType& geom) {
         std::string result;

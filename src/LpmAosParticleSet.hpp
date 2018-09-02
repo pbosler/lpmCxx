@@ -23,8 +23,12 @@ template <int ndim> class PolyMesh2d;
 
 template <int ndim> class ParticleSet {
     public:
+        ParticleSet() : _factory(nullptr), _nMax(0), _nActive(0) {}
+    
         ParticleSet(const std::shared_ptr<ParticleFactory<ndim>> factory, const index_type nMax) : 
-            _factory(factory), _nMax(nMax), _nActive(0) {}
+            _factory(factory), _nMax(nMax), _nActive(0) {
+            _particles.reserve(nMax);
+        }
 
         virtual ~ParticleSet() {}
 
@@ -63,7 +67,7 @@ template <int ndim> class ParticleSet {
         inline scalar_type scalarVal(const index_type ind, const std::string field_name) const {
         	return _particles[ind]->getScalar(field_name);
         }
-        inline std::array<scalar_type, ndim> vectorVal(const index_type ind, const std::string field_name) const {
+        inline std::vector<scalar_type> vectorVal(const index_type ind, const std::string field_name) const {
         	return _particles[ind]->getVector(field_name);
         }
         
@@ -86,43 +90,6 @@ template <int ndim> class ParticleSet {
         std::shared_ptr<ParticleFactory<ndim>> _factory;
         std::vector<std::unique_ptr<Particle<ndim>>> _particles;
 };
-
-// class CubedSphereParticles : public ParticleSet<3> {
-//     public:
-//
-//     protected:
-// };
-//
-// class IcosTriSphereParticles : public ParticleSet<3> {
-//     public:
-//
-//     protected:
-// };
-//
-// class CubedSphereCubicParticles : public ParticleSet<3> {
-//     public:
-//
-//     protected:
-// };
-//
-// class PlanarTriParticles : public ParticleSet<2> {
-//     public:
-//
-//     protected:
-// };
-//
-// class PlanarQuadParticles : public ParticleSet<2> {
-//     public:
-//
-//     protected:
-// };
-//
-// class PlanarCubicQuadParticles :: public ParticleSet<2> {
-//     public:
-//
-//     protected:
-// };
-
 }
 }
 #endif

@@ -25,8 +25,13 @@ template <int ndim> class PolyMesh2d;
 
 template <int ndim> class FaceSet {
     public:
+        FaceSet() : _factory(nullptr), _nMax(0), _nActive(0), _geom(PLANAR_GEOMETRY), _radius(1.0) {}
+    
         FaceSet(const std::shared_ptr<FaceFactory<ndim>> fac, const index_type nMax, const GeometryType geom, 
-            const scalar_type r=1.0) : _factory(fac), _nMax(nMax), _geom(geom), _radius(r) {}
+            const scalar_type r=1.0) : _factory(fac), _nMax(nMax), _geom(geom), _radius(r) 
+        {
+            _faces.reserve(nMax);
+        }
     
         void insert(const ind_vec& intrs, const ind_vec& verts, const ind_vec& edges, 
             const index_type parent, const scalar_type ar=0.0);

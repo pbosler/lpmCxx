@@ -23,6 +23,8 @@ template <int ndim> class PolyMesh2d;
 
 template <int ndim> class EdgeSet {
     public:
+        EdgeSet() : _factory(nullptr), _geom(PLANAR_GEOMETRY), _nMax(0), _nActive(0) {}
+    
         EdgeSet(const std::shared_ptr<EdgeFactory<ndim>> factory, const GeometryType geom, const index_type nMax) : 
             _factory(factory), _geom(geom), _nMax(nMax), _nActive(0) {
             _edges.reserve(nMax);

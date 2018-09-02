@@ -63,6 +63,14 @@ ADD_TEST(octreeUnitTest lpmOctreeUnitTest.exe)
 #TARGET_LINK_LIBRARIES(lpmTaylorSeries3dUnitTest.exe lpm)
 #ADD_TEST(NAME taylorSeries3dTest COMMAND mpirun -np 1 lpmTaylorSeries3dUnitTest.exe)
 
+#ADD_EXECUTABLE(lpmTreeSumTest.exe LpmTreeSumTests.cpp)
+#TARGET_LINK_LIBRARIES(lpmTreeSumTest.exe lpm)
+#ADD_TEST(NAME treeSumTest COMMAND mpirun -np 1 lpmTreeSumTest.exe)
+
+ADD_EXECUTABLE(lpmBiotSavartTest.exe LpmBiotSavartRHWaveTests.cpp)
+TARGET_LINK_LIBRARIES(lpmBiotSavartTest.exe lpm)
+ADD_TEST(NAME biotSavartTest COMMAND mpirun -np 4 lpmBiotSavartTest.exe)
+
 ADD_EXECUTABLE(lpmMultiIndexUnitTest.exe LpmMultiIndexUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmMultiIndexUnitTest.exe lpm)
 ADD_TEST(NAME multiIndexTest COMMAND mpirun -np 1 lpmMultiIndexUnitTest.exe)
@@ -91,10 +99,8 @@ ADD_EXECUTABLE(lpmAosMeshSeedTest.exe LpmAosMeshSeedUnitTest.cpp)
 TARGET_LINK_LIBRARIES(lpmAosMeshSeedTest.exe lpm)
 add_test(aosMeshSeedTest lpmAosMeshSeedTest.exe)
 
-#ADD_EXECUTABLE(lpmTreeSumTest.exe LpmTreeSumTests.cpp)
-#TARGET_LINK_LIBRARIES(lpmTreeSumTest.exe lpm)
-#ADD_TEST(NAME treeSumTest COMMAND mpirun -np 1 lpmTreeSumTest.exe)
+ADD_EXECUTABLE(lpmAosPolyMesh2dUnitTest.exe LpmAosPolyMeshUnitTest.cpp)
+TARGET_LINK_LIBRARIES(lpmAosPolyMesh2dUnitTest.exe lpm)
+add_test(aosPolyMeshTest lpmAosPolyMesh2dUnitTest.exe)
 
-ADD_EXECUTABLE(lpmBiotSavartTest.exe LpmBiotSavartRHWaveTests.cpp)
-TARGET_LINK_LIBRARIES(lpmBiotSavartTest.exe lpm)
-ADD_TEST(NAME biotSavartTest COMMAND mpirun -np 4 lpmBiotSavartTest.exe)
+

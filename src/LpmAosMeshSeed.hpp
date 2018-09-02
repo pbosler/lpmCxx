@@ -40,12 +40,14 @@ class MeshSeed {
         virtual std::string idString() const = 0;
         virtual index_type ndim() const = 0;
         virtual GeometryType geometryType() const = 0;
+        virtual FaceType faceType() const = 0;
         virtual bool faceCrdsIncluded() const = 0;
         
         inline index_type nVerts() const {return _nVerts;}
         inline index_type nCrds() const {return _nCrds;}
         inline index_type nEdges() const {return _nEdges;}
         inline index_type nFaces() const {return _nFaces;}
+        inline short nEdgesPerFace() const {return _nEdgesPerFace;}
         
         std::string infoString() const;
         
@@ -66,9 +68,6 @@ class MeshSeed {
         std::string _fname;
         short _ndim;
         short _nEdgesPerFace;
-        
-        
-        
 };
 
 class TriHexSeed : public MeshSeed {
@@ -81,6 +80,7 @@ class TriHexSeed : public MeshSeed {
         inline std::string idString() const {return "triHexPlane";}
         inline index_type ndim() const {return 2;}
         inline GeometryType geometryType() const {return PLANAR_GEOMETRY;}
+        inline FaceType faceType() const {return TRI;}
         inline bool faceCrdsIncluded() const {return true;}
 };
 
@@ -94,6 +94,7 @@ class QuadRectSeed : public MeshSeed {
         inline std::string idString() const {return "quadRectPlane";}
         inline index_type ndim() const {return 2;}
         inline GeometryType geometryType() const {return PLANAR_GEOMETRY;}
+        inline FaceType faceType() const {return QUAD;}
         inline bool faceCrdsIncluded() const {return true;}
 };
 
@@ -107,6 +108,7 @@ class IcosTriSphereSeed : public MeshSeed {
         inline std::string idString() const {return "icosTriSphere";}
         inline index_type ndim() const {return 3;}
         inline GeometryType geometryType() const {return SPHERICAL_SURFACE_GEOMETRY;}
+        inline FaceType faceType() const {return TRI;}
         inline bool faceCrdsIncluded() const {return false;}
 };
 
@@ -120,6 +122,7 @@ class CubedSphereSeed : public MeshSeed {
         inline std::string idString() const {return "cubedSphere";}
         inline index_type ndim() const {return 3;}
         inline GeometryType geometryType() const {return SPHERICAL_SURFACE_GEOMETRY;}
+        inline FaceType faceType() const {return QUAD;}
         inline bool faceCrdsIncluded() const {return true;}
 };
 
