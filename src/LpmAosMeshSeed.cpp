@@ -8,52 +8,42 @@
 namespace Lpm {
 namespace Aos {
 
-std::string MeshSeed::infoString() const {
+template <int ndim> std::string MeshSeed<ndim>::infoString() const {
     std::ostringstream ss;
-    std::cout << "MESH SEED INFO: id = " << this->idString() << std::endl;
-    std::cout << "\tseed file = " << _fname << std::endl;
-    std::cout << "\tseed face coordinates included in file? " << (this->faceCrdsIncluded() ? "yes" : "no" ) << std::endl;
-    if (_ndim == 2) {
-        std::cout << "\tr2Crds :" << std::endl;
-        for (index_type i=0; i<_nCrds; ++i) {
-            std::cout  << "\t" << r2Crds[i] << std::endl;
-        }
-        std::cout << "\tr3Crds.empty() = " << (r3Crds.empty() ? "true" : "false") << std::endl;
+    ss << "MESH SEED INFO: id = " << this->idString() << std::endl;
+    ss << "\tseed file = " << _fname << std::endl;
+    ss << "\tseed face coordinates included in file? " << (this->faceCrdsIncluded() ? "yes" : "no" ) << std::endl;
+    for (index_type i=0; i<_nCrds; ++i) {
+        ss << crds[i] << " ";
     }
-    else if (_ndim == 3) {
-        std::cout << "\tr2Crds.empty() = " << (r2Crds.empty() ? "true" : "false") << std::endl;
-        std::cout << "\tr3Crds :" << std::endl;
-        for (index_type i=0; i<_nCrds; ++i) {
-            std::cout << "\t" << r3Crds[i] << std::endl;
-        }        
-    }
-    std::cout << "\tedges :" << std::endl;
-    std::cout << std::setw(20) << "orig" << std::setw(20) <<  "dest"<< std::setw(20)  << "left"
+    ss << std::endl;
+    ss << "\tedges :" << std::endl;
+    ss << std::setw(20) << "orig" << std::setw(20) <<  "dest"<< std::setw(20)  << "left"
         << std::setw(20) << "right" << std::endl;
     for (index_type i=0; i<_nEdges; ++i) {
-        std::cout << std::setw(20) << edgeOrigs[i] << std::setw(20) << edgeDests[i] << std::setw(20) << edgeLefts[i]
+        ss << std::setw(20) << edgeOrigs[i] << std::setw(20) << edgeDests[i] << std::setw(20) << edgeLefts[i]
             << std::setw(20) << edgeRights[i] << std::endl;
     }
-    std::cout << "\tface vertices:" << std::endl;
+    ss << "\tface vertices:" << std::endl;
     for (index_type i=0; i<_nFaces; ++i) {
-        std::cout << "\t";
+        ss << "\t";
         for (index_type j=0; j<_nEdgesPerFace; ++j) {
-            std::cout << faceVerts[i][j] << " ";
+            ss << faceVerts[i][j] << " ";
         }
-        std::cout << std::endl;
+        ss << std::endl;
     }
-    std::cout << "\tface edges:" << std::endl;
+    ss << "\tface edges:" << std::endl;
     for (index_type i=0; i<_nFaces; ++i) {
-        std::cout << "\t";
+        ss << "\t";
         for (index_type j=0; j<_nEdgesPerFace; ++j) {
-            std::cout << faceEdges[i][j] << " ";
+            ss << faceEdges[i][j] << " ";
         }
-        std::cout << std::endl;
+        ss << std::endl;
     }
     return ss.str();
 }
 
-void MeshSeed::determineMaxAllocations(index_type& nv, index_type& nf, index_type& ne, const index_type maxRec) const {
+template <int ndim> void MeshSeed<ndim>::determineMaxAllocations(index_type& nv, index_type& ne, index_type& nf, const index_type maxRec) const {
     nv = this->nVerticesAfterUniformRefinement(maxRec);
     nf = 0;
     ne = 0;
@@ -63,10 +53,9 @@ void MeshSeed::determineMaxAllocations(index_type& nv, index_type& nf, index_typ
     }
 }
 
-void MeshSeed::initFromFile() {
+template <int ndim> void MeshSeed<ndim>::initFromFile() {
     // start with clean slate
-    r2Crds.clear();
-    r3Crds.clear();
+    crds.clear();
     edgeOrigs.clear();
     edgeDests.clear();
     edgeLefts.clear();
@@ -88,7 +77,7 @@ void MeshSeed::initFromFile() {
         throw std::ios_base::failure(ss.str());
     }
     else {
-        std::cout << "...reading mesh seed data from file " << fullFilename << std::endl;
+        std::cout << "MeshSeed::initFromFile: reading mesh seed data from file " << fullFilename << std::endl;
     }
     // parse file
     std::string line;
@@ -126,14 +115,14 @@ void MeshSeed::initFromFile() {
                         crdErr = true;
                     }
                     //std::cout << "(x,y) = (" << x << "," << y << ")" << std::endl;
-                    r2Crds.push_back(Vec<2>(x,y));
+                    crds.push_back(Vec<ndim>(x,y));
                     break;
                 }
                 case (3) : {
                     if (!(iss >> x >> y >> z)) {
                         crdErr = true;
                     }
-                    r3Crds.push_back(Vec<3>(x,y,z));
+                    crds.push_back(Vec<ndim>(x,y,z));
                     break;
                 }
                 if (crdErr) {
@@ -294,6 +283,9 @@ index_type IcosTriSphereSeed::nEdgesAfterUniformRefinement(const index_type nver
 index_type CubedSphereSeed::nEdgesAfterUniformRefinement(const index_type nverts, const index_type nfaces) const {
     return nfaces + nverts - 2;
 }
+
+template class MeshSeed<2>;
+template class MeshSeed<3>;
 
 }
 }

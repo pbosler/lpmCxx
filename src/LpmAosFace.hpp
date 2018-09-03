@@ -8,6 +8,7 @@
 #include <array>
 #include <memory>
 #include <vector>
+#include <map>
 
 namespace Lpm {
 namespace Aos {
@@ -16,7 +17,7 @@ typedef std::vector<index_type> ind_vec;
 template <int ndim> class FaceSet;
 
 template <int ndim> class Face {
-    
+    typedef std::vector<scalar_type> vfield_type;
 
     public:
         Face(const ind_vec& intInds, const ind_vec& vertInds, const ind_vec& edgeInds, const index_type pt, const scalar_type ar=0.0) : 
@@ -67,6 +68,58 @@ template <int ndim> class Face {
         void setArea(const GeometryType geom, const ParticleSet<ndim>& particles, const scalar_type radius=1.0);    
             
         friend class FaceSet<ndim>;
+        
+        inline void registerScalarField(const std::string& field_name) {
+            this->_sfields.emplace(field_name, 0.0);
+        }
+        
+        inline void registerVectorField(const std::string& field_name) {
+            this->_vfields.emplace(field_name, vfield_type(ndim,0.0));
+        }
+        
+        inline std::vector<std::string> scalarFieldNames() const {
+            std::vector<std::string> result;
+            for (auto& sf : _sfields) {
+                result.push_back(sf.first);
+            }
+            return result;
+        }
+        
+        inline std::vector<std::string> vectorFieldNames() const {
+            std::vector<std::string> result;
+            for (auto& vf : _vfields) {
+                result.push_back(vf.first);
+            }
+            return result;
+        }
+        
+        inline std::vector<std::string> fieldNames() const {
+            std::vector<std::string> result;
+            for (auto& sf : _sfields) {
+                result.push_back(sf.first);
+            }
+            for (auto& vf : _vfields) {
+                result.push_back(vf.first);
+            }
+            return result;
+        }
+        
+        inline void setScalar(const std::string& fname, const scalar_type val) {
+            _sfields.at(fname) = val;
+        }
+        
+        inline void setVector(const std::string& fname, const vfield_type& val) {
+            _vfields.at(fname) = val;
+        }
+        
+        inline void setVector(const std::string& fname, const Vec<ndim>& val) {
+            _vfields.at(fname) = val.toStdVec();
+        }
+        
+        inline scalar_type getScalar(const std::string& fname) const {return _sfields.at(fname);}
+        
+        inline vfield_type getVector(const std::string& fname) const {return _vfields.at(fname);}
+        
     protected:
 
         Face() {}
@@ -77,6 +130,9 @@ template <int ndim> class Face {
         index_type _parent;
         std::array<index_type, 4> _kids;
         scalar_type _area;
+        
+        std::map<std::string, scalar_type> _sfields;
+        std::map<std::string, scalar_type> _vfields;
 };
 
 template <int ndim> class QuadFace : public Face<ndim> {

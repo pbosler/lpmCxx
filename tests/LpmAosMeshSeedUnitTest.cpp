@@ -20,21 +20,21 @@ int main(int argc, char* argv[]) {
 
     TriHexSeed triPlane;
     std::cout << "id string = " << triPlane.idString() << std::endl;
-    std::cout << "initializing from file." << std::endl;
-    triPlane.initFromFile();
+//     std::cout << "initializing from file." << std::endl;
+//     triPlane.initFromFile();
     std::cout << "returned." << std::endl;
     std::cout << triPlane.infoString();
     
     QuadRectSeed quadPlane;
-    quadPlane.initFromFile();
+//     quadPlane.initFromFile();
     std::cout << quadPlane.infoString();
     
     IcosTriSphereSeed icosTriSphere;
-    icosTriSphere.initFromFile();
+//     icosTriSphere.initFromFile();
     std::cout << icosTriSphere.infoString();
     
     CubedSphereSeed cubedSphere;
-    cubedSphere.initFromFile();
+//     cubedSphere.initFromFile();
     std::cout << cubedSphere.infoString();
 
     
@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
     std::cout << std::setw(20) << "refinement level" << std::setw(20) << "nverts" 
         << std::setw(20) << "nedges" << std::setw(20) << "nfaces" << std::endl;
     for (int i=0; i<maxRec; ++i) {
-        triPlane.determineMaxAllocations(nv, nf, ne, i);
+        triPlane.determineMaxAllocations(nv, ne, nf, i);
         std::cout << std::setw(20) << i << std::setw(20) << nv << std::setw(20) << ne  
             << std::setw(20) << nf << std::endl;
     }
@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
     std::cout << std::setw(20) << "refinement level" << std::setw(20) << "nverts" 
         << std::setw(20) << "nedges" << std::setw(20) << "nfaces" << std::endl;
     for (int i=0; i<maxRec; ++i) {
-        quadPlane.determineMaxAllocations(nv, nf, ne, i);
+        quadPlane.determineMaxAllocations(nv, ne, nf, i);
         std::cout << std::setw(20) << i << std::setw(20) << nv << std::setw(20) << ne  
             << std::setw(20) << nf << std::endl;
     }
@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
     std::cout << std::setw(20) << "refinement level" << std::setw(20) << "nverts" 
         << std::setw(20) << "nedges" << std::setw(20) << "nfaces" << std::endl;
     for (int i=0; i<maxRec; ++i) {
-        icosTriSphere.determineMaxAllocations(nv, nf, ne, i);
+        icosTriSphere.determineMaxAllocations(nv, ne, nf, i);
         std::cout << std::setw(20) << i << std::setw(20) << nv << std::setw(20) << ne  
             << std::setw(20) << nf << std::endl;
     }
@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
     std::cout << std::setw(20) << "refinement level" << std::setw(20) << "nverts" 
         << std::setw(20) << "nedges" << std::setw(20) << "nfaces" << std::endl;
     for (int i=0; i<maxRec; ++i) {
-        cubedSphere.determineMaxAllocations(nv, nf, ne, i);
+        cubedSphere.determineMaxAllocations(nv, ne, nf, i);
         std::cout << std::setw(20) << i << std::setw(20) << nv << std::setw(20) << ne  
             << std::setw(20) << nf << std::endl;
     }

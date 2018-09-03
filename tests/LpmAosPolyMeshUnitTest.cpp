@@ -3,7 +3,7 @@
 #include "LpmOutputMessage.h"
 #include "LpmLogger.h"
 #include "LpmAosPolyMesh2d.hpp"
-#include "LpmAosMeshSeedFactory.hpp"
+// #include "LpmAosMeshSeedFactory.hpp"
 #include "LpmAosParticleFactory.hpp"
 #include <iostream>
 #include <sstream>
@@ -13,7 +13,9 @@
 #include <string>
 
 #ifdef HAVE_VTK
+#include "vtkSmartPointer.h"
 #include "vtkPolyData.h"
+#include "vtkPolyDataWriter.h"
 #endif
 
 using namespace Lpm::Aos;
@@ -37,12 +39,10 @@ int main (int argc, char* argv[]) {
         ss.str(nullstr);
     }
     
-    MeshSeedFactory sfac;
-    
-    std::unique_ptr<MeshSeed> triPlaneSeed = sfac.createSeed("triHexPlane");
-    std::unique_ptr<MeshSeed> quadPlaneSeed = sfac.createSeed("quadRectPlane");
-    std::unique_ptr<MeshSeed> triSphereSeed = sfac.createSeed("icosTriSphere");
-    std::unique_ptr<MeshSeed> quadSphereSeed = sfac.createSeed("cubedSphere");
+    std::shared_ptr<MeshSeed<2>> triPlaneSeed = std::shared_ptr<MeshSeed<2>>(new TriHexSeed());
+    std::shared_ptr<MeshSeed<2>> quadPlaneSeed = std::shared_ptr<MeshSeed<2>>(new QuadRectSeed());
+    std::shared_ptr<MeshSeed<3>> triSphereSeed = std::shared_ptr<MeshSeed<3>>(new IcosTriSphereSeed());
+    std::shared_ptr<MeshSeed<3>> quadSphereSeed = std::shared_ptr<MeshSeed<3>>(new CubedSphereSeed());
     
     std::shared_ptr<BasicParticleFactory<2>> pfac_plane(new BasicParticleFactory<2>());
     std::shared_ptr<SWEParticleFactory<3>> pfac_sphere(new SWEParticleFactory<3>());
@@ -77,17 +77,54 @@ int main (int argc, char* argv[]) {
     triSphereSeed->determineMaxAllocations(nMaxTriSphereParticles, nMaxTriSphereEdges, nMaxTriSphereFaces, maxnest);
     quadSphereSeed->determineMaxAllocations(nMaxQuadSphereParticles, nMaxQuadSphereEdges, nMaxQuadSphereFaces, maxnest);
     
-    PolyMesh2d<2> triplane(triPlaneSeed.get(), pfac_plane, efac_plane, trifac_plane, nMaxTriPlaneParticles,
-        nMaxTriPlaneEdges, nMaxTriPlaneFaces, initnest, maxnest, amrLimit, radius);
+    PolyMesh2d<2> triplane(triPlaneSeed, pfac_plane, efac_plane, trifac_plane, initnest, maxnest, amrLimit, radius);
+    triplane.initFromSeedStaggeredFacesAndVerts();
     
-    PolyMesh2d<2> quadplane(quadPlaneSeed.get(), pfac_plane, efac_plane, quadfac_plane, nMaxQuadPlaneParticles,
-        nMaxQuadPlaneEdges, nMaxQuadPlaneFaces, initnest, maxnest, amrLimit, radius);
+    PolyMesh2d<2> quadplane(quadPlaneSeed, pfac_plane, efac_plane, quadfac_plane, initnest, maxnest, amrLimit, radius);
+    quadplane.initFromSeedStaggeredFacesAndVerts();
     
-    PolyMesh2d<3> trisphere(triSphereSeed.get(), pfac_sphere, efac_sphere, trifac_sphere, nMaxTriSphereParticles,
-        nMaxTriSphereEdges, nMaxTriSphereFaces, initnest, maxnest, amrLimit, radius);
+    PolyMesh2d<3> trisphere(triSphereSeed, pfac_sphere, efac_sphere, trifac_sphere, initnest, maxnest, amrLimit, radius);
+    trisphere.initFromSeedStaggeredFacesAndVerts();
     
-    PolyMesh2d<3> quadsphere(quadSphereSeed.get(), pfac_sphere, efac_sphere, quadfac_sphere, nMaxQuadSphereParticles,
-        nMaxQuadSphereEdges, nMaxQuadSphereFaces, initnest, maxnest, amrLimit, radius);
+    PolyMesh2d<3> quadsphere(quadSphereSeed, pfac_sphere, efac_sphere, quadfac_sphere, initnest, maxnest, amrLimit, radius);
+    quadsphere.initFromSeedStaggeredFacesAndVerts();
+    
+    std::cout << "all meshes with initnest = " << initnest << " created." << std::endl;
+#ifdef HAVE_VTK
+    {
+    const std::string froot = "tmp/polymeshtest_";
+    std::ostringstream ss;
+    ss << froot << "planetri_" << initnest << ".vtk";
+    vtkSmartPointer<vtkPolyData> pd = triplane.toVtkPolyData();
+    std::cout << "returned from vtkPolyData conversion." << std::endl;
+    vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
+    writer->SetInputData(pd);
+    writer->SetFileName(ss.str().c_str());
+    writer->Write();
+    ss.str(std::string());
+    
+    ss << froot << "planequad_" << initnest << ".vtk";
+    pd = quadplane.toVtkPolyData();
+    writer->SetInputData(pd);
+    writer->SetFileName(ss.str().c_str());
+    writer->Write();
+    ss.str(std::string());
+    
+    ss << froot << "trisphere_" << initnest << ".vtk";
+    pd = trisphere.toVtkPolyData();
+    writer->SetInputData(pd);
+    writer->SetFileName(ss.str().c_str());
+    writer->Write();
+    ss.str(std::string());
+    
+    ss << froot << "quadsphere" << initnest << ".vtk";
+    pd = quadsphere.toVtkPolyData();
+    writer->SetInputData(pd);
+    writer->SetFileName(ss.str().c_str());
+    writer->Write();
+    ss.str(std::string());
+    }
+#endif    
     
 return 0;
 }

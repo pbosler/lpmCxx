@@ -27,21 +27,34 @@ namespace Aos {
 
 template <int ndim> class PolyMesh2d {
     public:
-        PolyMesh2d(const MeshSeed* seed, const std::shared_ptr<ParticleFactory<ndim>> pfac,
+        PolyMesh2d(const std::shared_ptr<MeshSeed<ndim>> seed, const std::shared_ptr<ParticleFactory<ndim>> pfac,
             const std::shared_ptr<EdgeFactory<ndim>> efac, const std::shared_ptr<FaceFactory<ndim>> ffac, 
-            const index_type nMaxParticles, const index_type nMaxEdges, const index_type nMaxFaces,
             const index_type initRecursion, const index_type maxRecursion, 
             const int amrLimit, const scalar_type domainRadius=1.0) : 
             _seed(seed), _pfac(pfac), _efac(efac), _ffac(ffac), 
             _initRecursion(initRecursion), _maxRecursion(maxRecursion), _amrLimit(amrLimit), 
             _radius(domainRadius), _tindex(0), _time(0.0), 
-            _vertexParticles(pfac, nMaxParticles),
-            _edges(efac, seed->geometryType(), nMaxEdges),
-            _faces(ffac, nMaxFaces, seed->geometryType(), domainRadius)
+//             _vertexParticles(pfac, nMaxParticles),
+//             _edges(efac, seed->geometryType(), nMaxEdges),
+//             _faces(ffac, nMaxFaces, seed->geometryType(), domainRadius),
+            _seedId(seed->idString()), _geom(seed->geometryType()), _facekind(seed->faceType())
             {}
         
- //        void initFromSeedStaggeredFacesAndVerts(const MeshSeed* seedptr);
-//         
+        void initFromSeedStaggeredFacesAndVerts();
+        
+        inline index_type nParticles() const {return _vertexParticles->n();}
+        inline index_type nMaxParticles() const {return _vertexParticles->nMax();}
+        
+        inline index_type nEdges() const {return _edges->n();}
+        inline index_type nLeafEdges() const {return _edges->nLeaves();}
+        inline index_type nMaxEdges() const {return _edges->nMax();}
+        
+        inline index_type nFaces() const {return _faces->n();}
+        inline index_type nLeafFaces() const {return _faces->nLeaves();}
+        inline index_type nMaxFaces() const {return _faces->nMax();}
+        
+        
+        
 // //         todo
 //         void initFromSeedCollocated(const MeshSeed* seedptr, const std::shared_ptr<ParticleFactory<ndim>> pfac,
 //             const std::shared_ptr<EdgeFactory<ndim>> efac, const std::shared_ptr<FaceFactory<ndim>> ffac) {};
@@ -55,11 +68,6 @@ template <int ndim> class PolyMesh2d {
         
         inline GeometryType geometryType() const {return _geom;}
         
-//         ParticleSet<ndim>* verticesPtr() {return _vertexParticles.get();}
-//         ParticleSet<ndim>* edgeParticlePtr() {return _edgeParticles.get();}
-//         ParticleSet<ndim>* faceParticlePtr() {return _faceParticles.get();}
-//         EdgeSet<ndim>* edgesPtr() {return _edges.get();}
-//         FaceSet<ndim>* facesPtr() {return _faces.get();}
 
 #ifdef HAVE_VTK
         vtkSmartPointer<vtkPolyData> toVtkPolyData() const;
@@ -77,9 +85,9 @@ template <int ndim> class PolyMesh2d {
         scalar_type _time;
         GeometryType _geom;
         FaceType _facekind;
-        const MeshSeed* _seed;
+        std::weak_ptr<MeshSeed<ndim>> _seed;
         
-        bool verifyFactories(const MeshSeed* seed, const std::shared_ptr<FaceFactory<ndim>> ffac);
+        bool verifyFactories(const MeshSeed<ndim>* seed, const std::shared_ptr<FaceFactory<ndim>> ffac);
         
         void determineMaxAllocations(index_type& nv, index_type& nf, index_type& ne) const;
     
@@ -87,11 +95,11 @@ template <int ndim> class PolyMesh2d {
         std::shared_ptr<EdgeFactory<ndim>> _efac;
         std::shared_ptr<FaceFactory<ndim>> _ffac;
     
-        ParticleSet<ndim> _vertexParticles;
-        ParticleSet<ndim> _edgeParticles;
-        ParticleSet<ndim> _faceParticles;
-        EdgeSet<ndim> _edges;
-        FaceSet<ndim> _faces;
+        std::unique_ptr<ParticleSet<ndim>> _vertexParticles;
+        std::unique_ptr<ParticleSet<ndim>> _edgeParticles;
+        std::unique_ptr<ParticleSet<ndim>> _faceParticles;
+        std::unique_ptr<EdgeSet<ndim>> _edges;
+        std::unique_ptr<FaceSet<ndim>> _faces;
         
         index_type nRootFaces;
         

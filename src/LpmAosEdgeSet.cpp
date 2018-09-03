@@ -45,7 +45,7 @@ template <int ndim> scalar_type EdgeSet<ndim>::minSphLength(const ParticleSet<nd
 
 template <int ndim> void EdgeSet<ndim>::insert(const index_type origID, const index_type destID, const index_type leftID, const index_type rightID, 
     const std::array<index_type,2>& mids) {
-    if (_edges.size() + 1 >= _nMax) {
+    if (_edges.size() + 1 > _nMax) {
         throw std::out_of_range("EdgeSet::insert _nMax exceeded.");
     }
     _edges.push_back(_factory->createEdge(origID, destID, leftID, rightID, mids));
@@ -53,7 +53,7 @@ template <int ndim> void EdgeSet<ndim>::insert(const index_type origID, const in
 }
 
 template <int ndim> void EdgeSet<ndim>::divide(const index_type ind, ParticleSet<ndim>& particles, const scalar_type radius) {
-    if (_edges.size() + 2 >= _nMax) {
+    if (_edges.size() + 2 > _nMax) {
         throw std::out_of_range("EdgeSet::divide _nMax exceeded.");
     }
     

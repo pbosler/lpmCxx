@@ -63,7 +63,7 @@ template <int ndim> std::string FaceSet<ndim>::infoString(const bool printAll) c
 
 
 template <int ndim> void FaceSet<ndim>::divide(const index_type ind, ParticleSet<ndim>& particles, EdgeSet<ndim>& edges) {
-    if (_faces.size() + 4 >= _nMax) {
+    if (_faces.size() + 4 > _nMax) {
         throw std::out_of_range("FaceSet::divide nMax exceeded.");
     }
     
