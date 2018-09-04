@@ -3,6 +3,9 @@
 #include <fstream>
 #include <exception>
 #include "LpmAosParticleSet.hpp"
+#ifdef HAVE_VTK
+#include "vtkDoubleArray.h"
+#endif
 
 namespace Lpm {
 namespace Aos {
@@ -237,9 +240,162 @@ template <int ndim> vtkSmartPointer<vtkPoints> ParticleSet<ndim>::toVtkPoints(co
 		return result;
 	}
 	
-template <int ndim>	vtkSmartPointer<vtkPointData> ParticleSet<ndim>::fieldToVtkPointData(const std::string name) const{
-	
+template <int ndim>	vtkSmartPointer<vtkPointData> ParticleSet<ndim>::fieldsToVtkPointData() const{
+	vtkSmartPointer<vtkPointData> result = vtkSmartPointer<vtkPointData>::New();
+	// add geometric data
+// 	switch (ndim) {
+// 	    case (1) : {
+	        vtkSmartPointer<vtkDoubleArray> len = vtkSmartPointer<vtkDoubleArray>::New();
+	        len->SetName("length");
+	        len->SetNumberOfComponents(1);
+	        len->SetNumberOfTuples(_nActive);
+	        for (index_type j=0; j<_nActive; ++j) {
+	            len->InsertTuple1(j, _particles[j]->_length);
+	        }
+	        result->AddArray(len);
+// 	        break;
+// 	    }
+// 	    case (2) : {
+	        vtkSmartPointer<vtkDoubleArray> area = vtkSmartPointer<vtkDoubleArray>::New();
+	        area->SetName("area");
+	        area->SetNumberOfComponents(1);
+	        area->SetNumberOfTuples(_nActive);
+	        for (index_type j=0; j<_nActive; ++j) {
+	            area->InsertTuple1(j, _particles[j]->_area);
+	        }
+	        result->AddArray(area);
+// 	        break;
+// 	    }
+// 	    case (3) : {
+	        vtkSmartPointer<vtkDoubleArray> vol = vtkSmartPointer<vtkDoubleArray>::New();
+	        vol->SetName("volume");
+	        vol->SetNumberOfComponents(1);
+	        vol->SetNumberOfTuples(_nActive);
+	        for (index_type j=0; j<_nActive; ++j ){
+	            vol->InsertTuple1(j, _particles[j]->_volume);
+	        }
+	        result->AddArray(vol);
+// 	        break;
+// 	    }
+// 	}
+	// collect field names
+	const std::vector<std::string> sfields = getScalarFieldNames();
+	const std::vector<std::string> vfields = getVectorFieldNames();
+	// add field data
+	for (int i=0; i<sfields.size(); ++i) {
+	    vtkSmartPointer<vtkDoubleArray> data = vtkSmartPointer<vtkDoubleArray>::New();
+	    data->SetName(sfields[i].c_str());
+	    data->SetNumberOfComponents(1);
+	    data->SetNumberOfTuples(_nActive);
+	    for (index_type j=0; j<_nActive; ++j) {
+	        data->InsertTuple1(j, _particles[j]->getScalar(sfields[i]));
+	    }
+	    result->AddArray(data);
+	}   
+	for (int i=0; i<vfields.size(); ++i) {
+	    vtkSmartPointer<vtkDoubleArray> data = vtkSmartPointer<vtkDoubleArray>::New();
+	    data->SetName(vfields[i].c_str());
+	    data->SetNumberOfComponents(ndim);
+	    data->SetNumberOfTuples(_nActive);
+	    switch (ndim) {
+	        case (2) : {
+	            for (index_type j=0; j<_nActive; ++j) {
+	                const std::vector<scalar_type> val = _particles[j]->getVector(vfields[i]);
+	                data->InsertTuple2(j, val[0], val[1]);
+	            }
+	            break;
+	        }
+	        case (3) : {
+	            for (index_type j=0; j<_nActive; ++j) {
+	                const std::vector<scalar_type> val = _particles[j]->getVector(vfields[i]);
+	                data->InsertTuple3(j, val[0], val[1], val[2]);
+	            }
+	            break;
+	        }
+	    }
+	    result->AddArray(data);
+	}
+	return result;
 }
+
+template <int ndim> vtkSmartPointer<vtkCellData> ParticleSet<ndim>::fieldsToVtkCellData() const {
+    vtkSmartPointer<vtkCellData> result = vtkSmartPointer<vtkCellData>::New();
+    // Add geometric quantities
+//     switch (ndim) {
+// 	    case (1) : {
+	        vtkSmartPointer<vtkDoubleArray> len = vtkSmartPointer<vtkDoubleArray>::New();
+	        len->SetName("length");
+	        len->SetNumberOfComponents(1);
+	        len->SetNumberOfTuples(_nActive);
+	        for (index_type j=0; j<_nActive; ++j) {
+	            len->InsertTuple1(j, _particles[j]->_length);
+	        }
+	        result->AddArray(len);
+// 	        break;
+// 	    }
+// 	    case (2) : {
+	        vtkSmartPointer<vtkDoubleArray> area = vtkSmartPointer<vtkDoubleArray>::New();
+	        area->SetName("area");
+	        area->SetNumberOfComponents(1);
+	        area->SetNumberOfTuples(_nActive);
+	        for (index_type j=0; j<_nActive; ++j) {
+	            area->InsertTuple1(j, _particles[j]->_area);
+	        }
+	        result->AddArray(area);
+// 	        break;
+// 	    }
+// 	    case (3) : {
+	        vtkSmartPointer<vtkDoubleArray> vol = vtkSmartPointer<vtkDoubleArray>::New();
+	        vol->SetName("volume");
+	        vol->SetNumberOfComponents(1);
+	        vol->SetNumberOfTuples(_nActive);
+	        for (index_type j=0; j<_nActive; ++j ){
+	            vol->InsertTuple1(j, _particles[j]->_volume);
+	        }
+	        result->AddArray(vol);
+// 	        break;
+// 	    }
+// 	}
+    // collect field names
+    const std::vector<std::string> sfields = getScalarFieldNames();
+	const std::vector<std::string> vfields = getVectorFieldNames();
+	// add field data
+	for (int i=0; i<sfields.size(); ++i) {
+	    vtkSmartPointer<vtkDoubleArray> data = vtkSmartPointer<vtkDoubleArray>::New();
+	    data->SetName(sfields[i].c_str());
+	    data->SetNumberOfComponents(1);
+	    data->SetNumberOfTuples(_nActive);
+	    for (index_type j=0; j<_nActive; ++j) {
+	        data->InsertTuple1(j, _particles[j]->getScalar(sfields[i]));
+	    }
+	    result->AddArray(data);
+	}   
+	for (int i=0; i<vfields.size(); ++i) {
+	    vtkSmartPointer<vtkDoubleArray> data = vtkSmartPointer<vtkDoubleArray>::New();
+	    data->SetName(vfields[i].c_str());
+	    data->SetNumberOfComponents(ndim);
+	    data->SetNumberOfTuples(_nActive);
+	    switch (ndim) {
+	        case (2) : {
+	            for (index_type j=0; j<_nActive; ++j) {
+	                const std::vector<scalar_type> val = _particles[j]->getVector(vfields[i]);
+	                data->InsertTuple2(j, val[0], val[1]);
+	            }
+	            break;
+	        }
+	        case (3) : {
+	            for (index_type j=0; j<_nActive; ++j) {
+	                const std::vector<scalar_type> val = _particles[j]->getVector(vfields[i]);
+	                data->InsertTuple3(j, val[0], val[1], val[2]);
+	            }
+	            break;
+	        }
+	    }
+	    result->AddArray(data);
+	}
+    return result;
+}
+
 #endif
 
 template class ParticleSet<1>;

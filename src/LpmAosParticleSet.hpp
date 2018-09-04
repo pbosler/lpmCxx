@@ -14,6 +14,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkPoints.h"
 #include "vtkPointData.h"
+#include "vtkCellData.h"
 #endif
 
 namespace Lpm {
@@ -40,6 +41,10 @@ template <int ndim> class ParticleSet {
         scalar_type totalLength() const;
         scalar_type totalVolume() const;
         scalar_type totalArea() const;
+        
+//         inline bool particlesHaveLength() const {return _particles[0]->_hasLength;}
+//         inline bool particlesHaveArea() const {return _particles[0]->_hasArea;}
+//         inline bool particlesHaveVolume() const {return _particles[0]->_haveVolume;}
 
         std::vector<std::string> fieldNames() const;
 
@@ -80,7 +85,8 @@ template <int ndim> class ParticleSet {
 
 #ifdef HAVE_VTK
 		vtkSmartPointer<vtkPoints> toVtkPoints(const bool useFieldForHeight = false, const std::string scalarFieldName="") const;
-		vtkSmartPointer<vtkPointData> fieldToVtkPointData(const std::string name) const;
+		vtkSmartPointer<vtkPointData> fieldsToVtkPointData() const;
+		vtkSmartPointer<vtkCellData> fieldsToVtkCellData() const;
 #endif
 
 		friend class PolyMesh2d<ndim>;
@@ -89,6 +95,7 @@ template <int ndim> class ParticleSet {
         index_type _nActive;
         std::shared_ptr<ParticleFactory<ndim>> _factory;
         std::vector<std::unique_ptr<Particle<ndim>>> _particles;
+        
 };
 }
 }

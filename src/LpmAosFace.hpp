@@ -132,7 +132,7 @@ template <int ndim> class Face {
         scalar_type _area;
         
         std::map<std::string, scalar_type> _sfields;
-        std::map<std::string, scalar_type> _vfields;
+        std::map<std::string, std::vector<scalar_type>> _vfields;
 };
 
 template <int ndim> class QuadFace : public Face<ndim> {

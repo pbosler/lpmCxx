@@ -170,48 +170,58 @@ template <int ndim>  vtkSmartPointer<vtkPolyData> PolyMesh2d<ndim>::toVtkPolyDat
         vtkSmartPointer<vtkPolyData> result = vtkSmartPointer<vtkPolyData>::New();
         vtkSmartPointer<vtkPoints> pts = _vertexParticles->toVtkPoints();
         vtkSmartPointer<vtkCellArray> polys = _faces->toVtkCellArray();
+        vtkSmartPointer<vtkPointData> ptdata = _vertexParticles->fieldsToVtkPointData();
+        vtkSmartPointer<vtkCellData> celldata = _faceParticles->fieldsToVtkCellData();
         result->SetPoints(pts);
         result->SetPolys(polys);
-        std::cout << "\tmesh data written." << std::endl;
-        const std::vector<std::string> sfields = _vertexParticles->getScalarFieldNames();
-        std::cout << "\tfound " << sfields.size() << " scalar fields." << std::endl;
-        for (int i=0; i<sfields.size(); ++i) std::cout << sfields[i] << std::endl;
-        for (int i=0; i<sfields.size(); ++i) {
-            std::cout << "\twriting field: " << sfields[i] << std::endl;
-            vtkSmartPointer<vtkDoubleArray> vals = vtkSmartPointer<vtkDoubleArray>::New();
-            vals->SetName(sfields[i].c_str());
-            vals->SetNumberOfComponents(1);
-            vals->SetNumberOfTuples(_vertexParticles->n());
-            for (int j=0; j<_vertexParticles->n(); ++j) {
-                vals->InsertTuple1(i, _vertexParticles->scalarVal(j, sfields[i]));
-            }
-            result->GetPointData()->AddArray(vals);
+        const int nPtFields = ptdata->GetNumberOfArrays();
+        const int nCellFields = celldata->GetNumberOfArrays();
+        for (int i=0; i<nPtFields; ++i) {
+            result->GetPointData()->AddArray(ptdata->GetAbstractArray(i));
         }
-        const std::vector<std::string> vfields = _vertexParticles->getVectorFieldNames();
-        for (int i=0; i<vfields.size(); ++i) {
-            vtkSmartPointer<vtkDoubleArray> vals = vtkSmartPointer<vtkDoubleArray>::New();            
-            vals->SetName(vfields[i].c_str());
-            vals->SetNumberOfComponents(ndim);
-            vals->SetNumberOfTuples(_vertexParticles->n());
-            std::cout << "\twriting field: " << vfields[i] << std::endl;
-            switch (ndim) {
-                case (2) : {
-                    for (index_type j=0; j<_vertexParticles->n(); ++j) {
-                        const std::vector<scalar_type> vecval = _vertexParticles->vectorVal(j, vfields[i]);
-                        vals->InsertTuple2(j, vecval[0], vecval[1]);
-                    }
-                    break;
-                }
-                case (3) : {
-                    for (index_type j=0; j<_vertexParticles->n(); ++j) {
-                        const std::vector<scalar_type> vecval = _vertexParticles->vectorVal(j, vfields[i]);
-                        vals->InsertTuple3(j, vecval[0], vecval[1], vecval[2]);
-                    }
-                    break;
-                }
-            }
-            result->GetPointData()->AddArray(vals);
+        for (int i=0; i<nCellFields; ++i) {
+            result->GetCellData()->AddArray(celldata->GetAbstractArray(i));
         }
+//         std::cout << "\tmesh data written." << std::endl;
+//         const std::vector<std::string> sfields = _vertexParticles->getScalarFieldNames();
+//         std::cout << "\tfound " << sfields.size() << " scalar fields." << std::endl;
+//         for (int i=0; i<sfields.size(); ++i) std::cout << sfields[i] << std::endl;
+//         for (int i=0; i<sfields.size(); ++i) {
+//             std::cout << "\twriting field: " << sfields[i] << std::endl;
+//             vtkSmartPointer<vtkDoubleArray> vals = vtkSmartPointer<vtkDoubleArray>::New();
+//             vals->SetName(sfields[i].c_str());
+//             vals->SetNumberOfComponents(1);
+//             vals->SetNumberOfTuples(_vertexParticles->n());
+//             for (index_type j=0; j<_vertexParticles->n(); ++j) {
+//                 vals->InsertTuple1(j, _vertexParticles->scalarVal(j, sfields[i]));
+//             }
+//             result->GetPointData()->AddArray(vals);
+//         }
+//         const std::vector<std::string> vfields = _vertexParticles->getVectorFieldNames();
+//         for (int i=0; i<vfields.size(); ++i) {
+//             vtkSmartPointer<vtkDoubleArray> vals = vtkSmartPointer<vtkDoubleArray>::New();            
+//             vals->SetName(vfields[i].c_str());
+//             vals->SetNumberOfComponents(ndim);
+//             vals->SetNumberOfTuples(_vertexParticles->n());
+//             std::cout << "\twriting field: " << vfields[i] << std::endl;
+//             switch (ndim) {
+//                 case (2) : {
+//                     for (index_type j=0; j<_vertexParticles->n(); ++j) {
+//                         const std::vector<scalar_type> vecval = _vertexParticles->vectorVal(j, vfields[i]);
+//                         vals->InsertTuple2(j, vecval[0], vecval[1]);
+//                     }
+//                     break;
+//                 }
+//                 case (3) : {
+//                     for (index_type j=0; j<_vertexParticles->n(); ++j) {
+//                         const std::vector<scalar_type> vecval = _vertexParticles->vectorVal(j, vfields[i]);
+//                         vals->InsertTuple3(j, vecval[0], vecval[1], vecval[2]);
+//                     }
+//                     break;
+//                 }
+//             }
+//             result->GetPointData()->AddArray(vals);
+//         }
         return result;
     }
 #endif
