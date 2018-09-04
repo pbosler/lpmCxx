@@ -28,7 +28,7 @@ template <int ndim> class FaceSet {
         FaceSet() : _factory(nullptr), _nMax(0), _nActive(0), _geom(PLANAR_GEOMETRY), _radius(1.0) {}
     
         FaceSet(const std::shared_ptr<FaceFactory<ndim>> fac, const index_type nMax, const GeometryType geom, 
-            const scalar_type r=1.0) : _factory(fac), _nMax(nMax), _geom(geom), _radius(r) 
+            const scalar_type r=1.0) : _factory(fac), _nMax(nMax), _nActive(0), _geom(geom), _radius(r) 
         {
             _faces.reserve(nMax);
         }
@@ -62,7 +62,11 @@ template <int ndim> class FaceSet {
         scalar_type minArea() const;
         scalar_type maxArea() const;
         scalar_type maxLeafArea() const;
-                
+        scalar_type totalArea() const;
+        
+        inline scalar_type area(const index_type ind) const {return _faces[ind]->_area;}
+        inline bool isLeaf(const index_type ind) const {return _faces[ind]->isLeaf();}
+        
         std::string infoString(const bool printAll = false) const;
 
 #ifdef HAVE_VTK

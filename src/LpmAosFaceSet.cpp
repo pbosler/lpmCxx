@@ -46,6 +46,14 @@ template <int ndim> scalar_type FaceSet<ndim>::maxLeafArea() const {
     return result;
 }
 
+template <int ndim> scalar_type FaceSet<ndim>::totalArea() const {
+    scalar_type result = 0.0;
+    for (index_type i=0; i<_faces.size(); ++i) {
+        result += _faces[i]->_area;
+    }
+    return result;
+}
+
 template <int ndim> std::string FaceSet<ndim>::infoString(const bool printAll) const {
     std::ostringstream ss;
     ss << "FaceSet info:" << std::endl;
@@ -53,6 +61,9 @@ template <int ndim> std::string FaceSet<ndim>::infoString(const bool printAll) c
     ss << "\tnMax = " << _nMax << std::endl;
     ss << "\tsize = " << _faces.size() << std::endl;
     ss << "\tnActive = " << _nActive << std::endl;
+    ss << "\ttotalArea = " << totalArea() << std::endl;
+    ss << "\tmaxFaceArea = " << maxArea() << std::endl;
+    ss << "\tminFaceArea = " << minArea() << std::endl;
     if (printAll) {
         for (index_type i=0; i<_faces.size(); ++i) {
             ss << _faces[i]->infoString();
@@ -178,6 +189,8 @@ template <int ndim> void FaceSet<ndim>::divide(const index_type ind, ParticleSet
         }
     }
     else if (dynamic_cast<QuadFace<ndim>*>(_faces[0].get())) {
+        std::cout << "dividing a quad face" << std::endl;
+    
         std::vector<std::vector<index_type>> newFaceVerts(4, std::vector<index_type>(4));
         std::vector<std::vector<index_type>> newFaceEdges(4, std::vector<index_type>(4));
         
@@ -187,7 +200,7 @@ template <int ndim> void FaceSet<ndim>::divide(const index_type ind, ParticleSet
             newFaceVerts[i][i] = pfaceVerts[i];
             newFaceVerts[i][(i+2)%4] = pInteriors[0];
         }
-        
+        std::cout << "parent vertices connected to newFaceVerts" << std::endl;
         // loop over parent edges, divide edges if required
         for (int i=0; i<4; ++i) {
             const index_type parentEdge = pfaceEdges[i];
@@ -223,6 +236,7 @@ template <int ndim> void FaceSet<ndim>::divide(const index_type ind, ParticleSet
                 edges.setRightFace(childedges[0], _faces.size() + (i+1)%4);
             }
         }
+        std::cout << "loop over parent edges done." << std::endl;
         
         std::array<index_type, 4> newFaceInds;
         std::array<index_type, 4> newEdgeInds;
@@ -266,6 +280,8 @@ template <int ndim> void FaceSet<ndim>::divide(const index_type ind, ParticleSet
                 newFaceLagCenters[i] = baryCenter(lagQuadCorners);
             }
         }
+        std::cout << "center particles located" << std::endl;
+        
         // create child faces
         const index_type faceInsert = _faces.size();
         for (int i=0; i<4; ++i) {
@@ -273,9 +289,11 @@ template <int ndim> void FaceSet<ndim>::divide(const index_type ind, ParticleSet
             this->insert(std::vector<index_type>(particles.n()-1), newFaceVerts[i], newFaceEdges[i], ind);
             this->_faces[ind]->_kids[i] = faceInsert  + i;
         }
+        std::cout << "new center particles added." << std::endl;
         for (index_type i=faceInsert; _faces.size(); ++i) {
             this->_faces[i]->setArea(_geom, particles, _radius);
         }
+        std::cout << "child faces added." << std::endl;
     }
     else if (dynamic_cast<QuadCubicFace<ndim>*>(_faces[0].get())) {
         throw std::runtime_error("QuadCubicFaces not implemented.");

@@ -7,6 +7,8 @@
 namespace Lpm {
 
   scalar_type atan4(const scalar_type y, const scalar_type x);
+  
+  std::string weight_name(const int ndim);
 
 }
 #endif

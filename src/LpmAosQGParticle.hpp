@@ -16,11 +16,22 @@ template <int ndim> class QGParticle : public Particle<ndim> {
             this->registerScalarField("potvort");
             this->registerScalarField("relvort");
             this->registerScalarField("streamfn");
+            this->_wgt_name="area";
         }
         
-        QGParticle(const Vec<ndim>& pos, const scalar_type ar=0.0) : Particle<ndim>(pos, ar) {}
+        QGParticle(const Vec<ndim>& pos, const scalar_type ar=0.0) : Particle<ndim>(pos, ar, "area") {}
         
-        QGParticle(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type ar=0.0) : Particle<ndim>(xx, aa, ar) {}
+        QGParticle(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type ar=0.0) : 
+            Particle<ndim>(xx, aa, ar, "area"){}
+        
+        void init(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt=0.0, const std::string& wname="area") override {
+            this->_physCrd=xx;
+            this->_lagCrd=aa;
+            this->_weight=wgt;
+            this->_wgt_name=wname;
+        }
+        
+        
         
 
 };

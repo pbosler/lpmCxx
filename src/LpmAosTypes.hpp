@@ -264,7 +264,7 @@ inline scalar_type triArea(const Vec<3>& vecA, const Vec<3>& vecB, const Vec<3>&
 inline scalar_type triArea(const Vec<2>& vecA, const Vec<2>& vecB, const Vec<2>& vecC) {
     const Vec<2> s1 = vecB - vecA;
     const Vec<2> s2 = vecC - vecA;
-    return 0.5*s1.crossProdComp3(s2);
+    return std::abs(0.5*s1.crossProdComp3(s2));
 }
 
 template <int ndim> scalar_type triArea(const std::vector<Vec<ndim>>& vecs) {

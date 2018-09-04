@@ -34,14 +34,43 @@ namespace Lpm {
     static constexpr scalar_type ZERO_TOL = 1.0e-13;
     
     /// Kinds of geometry used by Lpm classes
-    enum GeometryType {PLANAR_GEOMETRY, SPHERICAL_SURFACE_GEOMETRY, CARTESIAN_3D_GEOMETRY};
+    enum GeometryType {ONED_FREE, ONED_PERIODIC, PLANAR_GEOMETRY, SPHERICAL_SURFACE_GEOMETRY, CARTESIAN_3D_GEOMETRY};
     
     /// Basic face types
     enum FaceType {TRI, QUAD, QUAD_CUBIC, VORONOI};
     
+    inline std::string facekindString(const FaceType& fkind) {
+        switch (fkind) {
+            case (TRI) : {
+                return "TRI";
+                break;
+            }
+            case (QUAD) : {
+                return "QUAD";
+                break;
+            }
+            case (QUAD_CUBIC) : {
+                return "QUAD_CUBIC";
+                break;
+            }
+            case (VORONOI) : {
+                return "VORONOI";
+                break;
+            }
+        }
+    }
+    
     inline std::string geometryString(const GeometryType& geom) {
         std::string result;
         switch (geom) {
+            case (ONED_FREE) : {
+                result = "ONED_FREE";
+                break;
+            }
+            case (ONED_PERIODIC) : {
+                result = "ONED_PERIODIC";
+                break;
+            }
             case (PLANAR_GEOMETRY) : {
                 result = "PLANAR_GEOMETRY";
                 break;
@@ -57,6 +86,31 @@ namespace Lpm {
         }
         return result;
     }
+    
+    inline std::string geom_weight_name(const GeometryType& geom)  {
+        switch(geom) {
+            case (ONED_FREE) : {
+                return "length";
+                break;
+            }
+            case (ONED_PERIODIC) : {
+                return "length";
+                break;
+            }
+            case (PLANAR_GEOMETRY) : {
+                return "area";
+                break;
+            }
+            case (SPHERICAL_SURFACE_GEOMETRY) : {
+                return "area";
+                break;
+            }
+            case (CARTESIAN_3D_GEOMETRY) : {
+                return "volume";
+                break;
+            }
+    }
+  }
     
     /// Kinds of boundary conditions
     enum BoundaryCondition {FREE, DIRICHLET, NEUMANN, PERIODIC};

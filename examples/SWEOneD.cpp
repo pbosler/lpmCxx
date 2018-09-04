@@ -159,7 +159,7 @@ void Output::writePyData(std::ostream& os, const ParticleSet<1>& active, const P
         os << "])" << std::endl;
         os << "active_len = np.array([";
         for (index_type i=0; i<active.n(); ++i) {
-            os << active.getPtr(i)->length() << (i<active.n()-1 ? "," : "");
+            os << active.getPtr(i)->weight() << (i<active.n()-1 ? "," : "");
         }
         os << "])" << std::endl;
         const std::vector<scalar_type> u = active.getScalarFieldValues("velocity");

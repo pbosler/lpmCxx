@@ -44,7 +44,6 @@ template <int ndim> class Face {
         std::string infoString() const;
         
         inline ind_vec interiors() const {return _interiorInds;}
-//         std::vector<Vec<ndim>> interiors(const ParticleSet<ndim>& particles) const;
         inline ind_vec vertices() const {return _vertInds;}
         inline ind_vec edges() const {return _edgeInds;}
         
@@ -65,6 +64,7 @@ template <int ndim> class Face {
         
         scalar_type area() const {return _area;}
         inline void setArea(const scalar_type ar) {_area = ar;}
+        scalar_type computeArea(const ParticleSet<ndim>& vertexParticles, const ParticleSet<ndim>& faceParticles);
         void setArea(const GeometryType geom, const ParticleSet<ndim>& particles, const scalar_type radius=1.0);    
             
         friend class FaceSet<ndim>;
@@ -119,6 +119,9 @@ template <int ndim> class Face {
         inline scalar_type getScalar(const std::string& fname) const {return _sfields.at(fname);}
         
         inline vfield_type getVector(const std::string& fname) const {return _vfields.at(fname);}
+        
+        
+        
         
     protected:
 

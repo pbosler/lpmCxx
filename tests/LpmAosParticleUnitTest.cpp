@@ -66,7 +66,7 @@ int main (int argc, char* argv[]) {
     cubedSphere.initFromParticleSetFile("cubed_sphere/cubedSphere_1.vtk");
     std::cout << cubedSphere.infoString() << std::endl;
 
-    if (std::abs(cubedSphere.totalArea() - 4.0*PI) > ZERO_TOL) {
+    if (std::abs(cubedSphere.totalWeight() - 4.0*PI) > ZERO_TOL) {
         throw std::runtime_error("Surface area unit test FAILED");
     }
 

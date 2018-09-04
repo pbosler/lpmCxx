@@ -75,6 +75,17 @@ template <int ndim> Vec<3> Face<ndim>::lagSphBarycenter(const ParticleSet<ndim>&
     return result;
 }
 
+template <int ndim> scalar_type Face<ndim>::computeArea(const ParticleSet<ndim>& vertexParticles, const ParticleSet<ndim>& faceParticles) {
+	scalar_type result = 0.0;
+	for (int i=0; i<_interiorInds.size(); ++i) {
+		result += faceParticles.weight(_interiorInds[i]);
+	}
+	for (int i=0; i<_vertInds.size(); ++i) {
+		result += vertexParticles.weight(_interiorInds[i]);
+	}
+	return result;
+}
+
 template <int ndim> std::string Face<ndim>::infoString() const {
     std::ostringstream ss;
     ss << "Face info:" << std::endl;

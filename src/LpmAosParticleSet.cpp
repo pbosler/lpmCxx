@@ -20,9 +20,7 @@ template <int ndim> std::string ParticleSet<ndim>::infoString() const {
     std::vector<std::string> fields = fieldNames();
     for (int i=0; i<fields.size(); ++i)
         oss << "\t\t" << fields[i] << std::endl;
-    oss << "\ttotalLength = " << totalLength() << std::endl;
-    oss << "\ttotalArea = " << totalArea() << std::endl;
-    oss << "\ttotalVolume = " << totalVolume() << std::endl;
+    oss << "\ttotal "<< _particles[0]->_wgt_name << " = " << totalWeight() << std::endl;
     return oss.str();
 }
 
@@ -33,25 +31,11 @@ template <int ndim> std::vector<std::string> ParticleSet<ndim>::particlesInfoStr
     return result;
 }
 
-template <int ndim> scalar_type ParticleSet<ndim>::totalLength() const {
+template <int ndim> scalar_type ParticleSet<ndim>::totalWeight() const {
     scalar_type result = 0.0;
     for (index_type i=0; i<_particles.size(); ++i) {
-        result += _particles[i]->length();
+        result += _particles[i]->_weight;
     }
-    return result;
-}
-
-template <int ndim> scalar_type ParticleSet<ndim>::totalArea() const {
-    scalar_type result = 0.0;
-    for (index_type i=0; i<_particles.size(); ++i)
-        result += _particles[i]->area();
-    return result;
-}
-
-template <int ndim> scalar_type ParticleSet<ndim>::totalVolume() const {
-    scalar_type result = 0.0;
-    for (index_type i=0; i<_particles.size(); ++i)
-        result += _particles[i]->volume();
     return result;
 }
 
@@ -62,7 +46,7 @@ template <int ndim> std::vector<std::string> ParticleSet<ndim>::fieldNames() con
 template <int ndim> scalar_type ParticleSet<ndim>::scalarIntegral(const std::string& field_name) const {
     scalar_type result = 0.0;
     for (index_type i=0; i<_particles.size(); ++i)
-        result += _particles[i]->getScalar(field_name) * _particles[i]->area();
+        result += _particles[i]->getScalar(field_name) * _particles[i]->_weight;
     return result;
 }
 
@@ -98,12 +82,11 @@ template <int ndim> void ParticleSet<ndim>::initVectorFieldFromVectoryArray(cons
     }
 }
 
-template <int ndim> void ParticleSet<ndim>::insert(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type len, const scalar_type area,
-    const scalar_type vol) {
+template <int ndim> void ParticleSet<ndim>::insert(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt) {
     if (_particles.size() + 1 > _nMax) {
         throw std::out_of_range("ParticleSet nmax exceeded.");
     }
-    _particles.push_back(_factory->createParticle(xx, aa, len, area, vol));
+    _particles.push_back(_factory->createParticle(xx, aa, wgt));
     _nActive += 1;
 }
 
@@ -111,11 +94,11 @@ template <int ndim> void ParticleSet<ndim>::move(const index_type ind, const Vec
     _particles[ind]->move(xx, aa);
 }
 
-template <int ndim> void ParticleSet<ndim>::insert(const Vec<ndim>& xx, const scalar_type len, const scalar_type ar, const scalar_type vol) {
+template <int ndim> void ParticleSet<ndim>::insert(const Vec<ndim>& xx, const scalar_type wgt) {
     if (_particles.size() + 1 > _nMax) {
         throw std::out_of_range("ParticleSet nmax exceeded.");
     }
-    _particles.push_back(_factory->createParticle(xx, len, ar, vol));    
+    _particles.push_back(_factory->createParticle(xx, wgt));    
     _nActive += 1;
 }
 
@@ -198,10 +181,10 @@ template <int ndim> void ParticleSet<ndim>::initFromParticleSetFile(const std::s
                 throw std::ios_base::failure(oss.str());
             }
             if (areaFound) {
-                _particles[particleID++]->setArea(weight);
+                _particles[particleID++]->setWeight(weight);
             }
             else if (volumeFound) {
-                _particles[particleID++]->setVolume(weight);
+                _particles[particleID++]->setWeight(weight);
             }
         }
     }
@@ -243,41 +226,15 @@ template <int ndim> vtkSmartPointer<vtkPoints> ParticleSet<ndim>::toVtkPoints(co
 template <int ndim>	vtkSmartPointer<vtkPointData> ParticleSet<ndim>::fieldsToVtkPointData() const{
 	vtkSmartPointer<vtkPointData> result = vtkSmartPointer<vtkPointData>::New();
 	// add geometric data
-// 	switch (ndim) {
-// 	    case (1) : {
-	        vtkSmartPointer<vtkDoubleArray> len = vtkSmartPointer<vtkDoubleArray>::New();
-	        len->SetName("length");
-	        len->SetNumberOfComponents(1);
-	        len->SetNumberOfTuples(_nActive);
-	        for (index_type j=0; j<_nActive; ++j) {
-	            len->InsertTuple1(j, _particles[j]->_length);
-	        }
-	        result->AddArray(len);
-// 	        break;
-// 	    }
-// 	    case (2) : {
-	        vtkSmartPointer<vtkDoubleArray> area = vtkSmartPointer<vtkDoubleArray>::New();
-	        area->SetName("area");
-	        area->SetNumberOfComponents(1);
-	        area->SetNumberOfTuples(_nActive);
-	        for (index_type j=0; j<_nActive; ++j) {
-	            area->InsertTuple1(j, _particles[j]->_area);
-	        }
-	        result->AddArray(area);
-// 	        break;
-// 	    }
-// 	    case (3) : {
-	        vtkSmartPointer<vtkDoubleArray> vol = vtkSmartPointer<vtkDoubleArray>::New();
-	        vol->SetName("volume");
-	        vol->SetNumberOfComponents(1);
-	        vol->SetNumberOfTuples(_nActive);
-	        for (index_type j=0; j<_nActive; ++j ){
-	            vol->InsertTuple1(j, _particles[j]->_volume);
-	        }
-	        result->AddArray(vol);
-// 	        break;
-// 	    }
-// 	}
+	vtkSmartPointer<vtkDoubleArray> wgt = vtkSmartPointer<vtkDoubleArray>::New();
+	wgt->SetName(_particles[0]->_wgt_name.c_str());
+	wgt->SetNumberOfComponents(1);
+	wgt->SetNumberOfTuples(_nActive);
+	for (index_type j=0; j<_nActive; ++j) {
+		wgt->InsertTuple1(j, _particles[j]->_weight);
+	}
+	result->AddArray(wgt);
+
 	// collect field names
 	const std::vector<std::string> sfields = getScalarFieldNames();
 	const std::vector<std::string> vfields = getVectorFieldNames();
@@ -321,41 +278,14 @@ template <int ndim>	vtkSmartPointer<vtkPointData> ParticleSet<ndim>::fieldsToVtk
 template <int ndim> vtkSmartPointer<vtkCellData> ParticleSet<ndim>::fieldsToVtkCellData() const {
     vtkSmartPointer<vtkCellData> result = vtkSmartPointer<vtkCellData>::New();
     // Add geometric quantities
-//     switch (ndim) {
-// 	    case (1) : {
-	        vtkSmartPointer<vtkDoubleArray> len = vtkSmartPointer<vtkDoubleArray>::New();
-	        len->SetName("length");
-	        len->SetNumberOfComponents(1);
-	        len->SetNumberOfTuples(_nActive);
-	        for (index_type j=0; j<_nActive; ++j) {
-	            len->InsertTuple1(j, _particles[j]->_length);
-	        }
-	        result->AddArray(len);
-// 	        break;
-// 	    }
-// 	    case (2) : {
-	        vtkSmartPointer<vtkDoubleArray> area = vtkSmartPointer<vtkDoubleArray>::New();
-	        area->SetName("area");
-	        area->SetNumberOfComponents(1);
-	        area->SetNumberOfTuples(_nActive);
-	        for (index_type j=0; j<_nActive; ++j) {
-	            area->InsertTuple1(j, _particles[j]->_area);
-	        }
-	        result->AddArray(area);
-// 	        break;
-// 	    }
-// 	    case (3) : {
-	        vtkSmartPointer<vtkDoubleArray> vol = vtkSmartPointer<vtkDoubleArray>::New();
-	        vol->SetName("volume");
-	        vol->SetNumberOfComponents(1);
-	        vol->SetNumberOfTuples(_nActive);
-	        for (index_type j=0; j<_nActive; ++j ){
-	            vol->InsertTuple1(j, _particles[j]->_volume);
-	        }
-	        result->AddArray(vol);
-// 	        break;
-// 	    }
-// 	}
+	vtkSmartPointer<vtkDoubleArray> wgt = vtkSmartPointer<vtkDoubleArray>::New();
+	wgt->SetName(_particles[0]->_wgt_name.c_str());
+	wgt->SetNumberOfComponents(1);
+	wgt->SetNumberOfTuples(_nActive);
+	for (index_type j=0; j<_nActive; ++j) {
+		wgt->InsertTuple1(j, _particles[j]->_weight);
+	}
+	result->AddArray(wgt);
     // collect field names
     const std::vector<std::string> sfields = getScalarFieldNames();
 	const std::vector<std::string> vfields = getVectorFieldNames();

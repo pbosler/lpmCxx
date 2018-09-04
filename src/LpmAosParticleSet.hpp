@@ -38,11 +38,9 @@ template <int ndim> class ParticleSet {
         index_type nActive() const {return this->_nActive;}
         index_type nPassive() const {return this->n() - this->_nActive;}
 
-        scalar_type totalLength() const;
-        scalar_type totalVolume() const;
-        scalar_type totalArea() const;
+        scalar_type totalWeight() const;
         
-//         inline bool particlesHaveLength() const {return _particles[0]->_hasLength;}
+//         inline bool particlesHavewgtgth() const {return _particles[0]->_haswgtgth;}
 //         inline bool particlesHaveArea() const {return _particles[0]->_hasArea;}
 //         inline bool particlesHaveVolume() const {return _particles[0]->_haveVolume;}
 
@@ -52,8 +50,8 @@ template <int ndim> class ParticleSet {
 
         void initFromParticleSetFile(const std::string& fname);
 
-        void insert(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type len = 0., const scalar_type area=0.0, const scalar_type vol=0.0);
-        void insert(const Vec<ndim>& xx, const scalar_type len = 0., const scalar_type area = 0.0, const scalar_type vol = 0.0);
+        void insert(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt=0.0);
+        void insert(const Vec<ndim>& xx, const scalar_type wght=0.0);
         void move(const index_type ind, const Vec<ndim>& xx, const Vec<ndim>& aa);
 
         virtual std::string infoString() const;
@@ -82,6 +80,8 @@ template <int ndim> class ParticleSet {
 
         inline Vec<ndim> physCrd(const index_type ind) const {return _particles[ind]->physCrd();}
         inline Vec<ndim> lagCrd(const index_type ind) const {return _particles[ind]->lagCrd();}
+        inline scalar_type weight(const index_type ind) const {return _particles[ind]->weight();}
+        inline void setWeight(const index_type ind, const scalar_type val) { _particles[ind]->_weight=val;}
 
 #ifdef HAVE_VTK
 		vtkSmartPointer<vtkPoints> toVtkPoints(const bool useFieldForHeight = false, const std::string scalarFieldName="") const;
