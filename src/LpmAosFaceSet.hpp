@@ -35,8 +35,10 @@ template <int ndim> class FaceSet {
     
         void insert(const ind_vec& intrs, const ind_vec& verts, const ind_vec& edges, 
             const index_type parent, const scalar_type ar=0.0);
+        
+        void insert(Face<ndim>* fptr);
             
-        void divide(const index_type ind, ParticleSet<ndim>& particles, EdgeSet<ndim>& edges);
+ 		void divide(const index_type ind, ParticleSet<ndim>& particles, EdgeSet<ndim>& edges);
         
         inline void enrich(const index_type ind, ParticleSet<ndim>& particles, EdgeSet<ndim>& edges) {
             _faces[ind]->enrich(particles, edges);

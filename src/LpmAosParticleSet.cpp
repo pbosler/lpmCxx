@@ -20,7 +20,7 @@ template <int ndim> std::string ParticleSet<ndim>::infoString() const {
     std::vector<std::string> fields = fieldNames();
     for (int i=0; i<fields.size(); ++i)
         oss << "\t\t" << fields[i] << std::endl;
-    oss << "\ttotal "<< _particles[0]->_wgt_name << " = " << totalWeight() << std::endl;
+    oss << "\ttotal "<< _particles[0]->weightName() << " = " << totalWeight() << std::endl;
     return oss.str();
 }
 
@@ -34,7 +34,7 @@ template <int ndim> std::vector<std::string> ParticleSet<ndim>::particlesInfoStr
 template <int ndim> scalar_type ParticleSet<ndim>::totalWeight() const {
     scalar_type result = 0.0;
     for (index_type i=0; i<_particles.size(); ++i) {
-        result += _particles[i]->_weight;
+        result += _particles[i]->weight();
     }
     return result;
 }
@@ -46,7 +46,7 @@ template <int ndim> std::vector<std::string> ParticleSet<ndim>::fieldNames() con
 template <int ndim> scalar_type ParticleSet<ndim>::scalarIntegral(const std::string& field_name) const {
     scalar_type result = 0.0;
     for (index_type i=0; i<_particles.size(); ++i)
-        result += _particles[i]->getScalar(field_name) * _particles[i]->_weight;
+        result += _particles[i]->getScalar(field_name) * _particles[i]->weight();
     return result;
 }
 
@@ -90,16 +90,16 @@ template <int ndim> void ParticleSet<ndim>::insert(const Vec<ndim>& xx, const Ve
     _nActive += 1;
 }
 
-template <int ndim> void ParticleSet<ndim>::move(const index_type ind, const Vec<ndim>& xx, const Vec<ndim>& aa) {
-    _particles[ind]->move(xx, aa);
-}
-
 template <int ndim> void ParticleSet<ndim>::insert(const Vec<ndim>& xx, const scalar_type wgt) {
     if (_particles.size() + 1 > _nMax) {
         throw std::out_of_range("ParticleSet nmax exceeded.");
     }
     _particles.push_back(_factory->createParticle(xx, wgt));    
     _nActive += 1;
+}
+
+template <int ndim> void ParticleSet<ndim>::move(const index_type ind, const Vec<ndim>& xx, const Vec<ndim>& aa) {
+    _particles[ind]->move(xx, aa);
 }
 
 template <int ndim> std::vector<scalar_type> ParticleSet<ndim>::getScalarFieldValues(const std::string& field_name) const {
@@ -227,11 +227,11 @@ template <int ndim>	vtkSmartPointer<vtkPointData> ParticleSet<ndim>::fieldsToVtk
 	vtkSmartPointer<vtkPointData> result = vtkSmartPointer<vtkPointData>::New();
 	// add geometric data
 	vtkSmartPointer<vtkDoubleArray> wgt = vtkSmartPointer<vtkDoubleArray>::New();
-	wgt->SetName(_particles[0]->_wgt_name.c_str());
+	wgt->SetName(_particles[0]->weightName().c_str());
 	wgt->SetNumberOfComponents(1);
 	wgt->SetNumberOfTuples(_nActive);
 	for (index_type j=0; j<_nActive; ++j) {
-		wgt->InsertTuple1(j, _particles[j]->_weight);
+		wgt->InsertTuple1(j, _particles[j]->weight());
 	}
 	result->AddArray(wgt);
 
@@ -279,11 +279,11 @@ template <int ndim> vtkSmartPointer<vtkCellData> ParticleSet<ndim>::fieldsToVtkC
     vtkSmartPointer<vtkCellData> result = vtkSmartPointer<vtkCellData>::New();
     // Add geometric quantities
 	vtkSmartPointer<vtkDoubleArray> wgt = vtkSmartPointer<vtkDoubleArray>::New();
-	wgt->SetName(_particles[0]->_wgt_name.c_str());
+	wgt->SetName(_particles[0]->weightName().c_str());
 	wgt->SetNumberOfComponents(1);
 	wgt->SetNumberOfTuples(_nActive);
 	for (index_type j=0; j<_nActive; ++j) {
-		wgt->InsertTuple1(j, _particles[j]->_weight);
+		wgt->InsertTuple1(j, _particles[j]->weight());
 	}
 	result->AddArray(wgt);
     // collect field names

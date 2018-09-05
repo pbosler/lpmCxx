@@ -21,6 +21,7 @@ namespace Lpm {
 namespace Aos {
 
 template <int ndim> class PolyMesh2d;
+template <int ndim> class Edge;
 
 template <int ndim> class ParticleSet {
     public:
@@ -53,6 +54,8 @@ template <int ndim> class ParticleSet {
         void insert(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt=0.0);
         void insert(const Vec<ndim>& xx, const scalar_type wght=0.0);
         void move(const index_type ind, const Vec<ndim>& xx, const Vec<ndim>& aa);
+        
+        inline ParticleFactory<ndim>* getFactory() const {return _factory.get();}
 
         virtual std::string infoString() const;
 
@@ -81,15 +84,15 @@ template <int ndim> class ParticleSet {
         inline Vec<ndim> physCrd(const index_type ind) const {return _particles[ind]->physCrd();}
         inline Vec<ndim> lagCrd(const index_type ind) const {return _particles[ind]->lagCrd();}
         inline scalar_type weight(const index_type ind) const {return _particles[ind]->weight();}
-        inline void setWeight(const index_type ind, const scalar_type val) { _particles[ind]->_weight=val;}
+        inline void setWeight(const index_type ind, const scalar_type val) { _particles[ind]->setWeight(val);}
 
 #ifdef HAVE_VTK
 		vtkSmartPointer<vtkPoints> toVtkPoints(const bool useFieldForHeight = false, const std::string scalarFieldName="") const;
 		vtkSmartPointer<vtkPointData> fieldsToVtkPointData() const;
 		vtkSmartPointer<vtkCellData> fieldsToVtkCellData() const;
 #endif
-
-		friend class PolyMesh2d<ndim>;
+// 		friend class Edge<ndim>;
+// 		friend class PolyMesh2d<ndim>;
     protected:
         index_type _nMax;
         index_type _nActive;

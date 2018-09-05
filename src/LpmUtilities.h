@@ -3,6 +3,7 @@
 
 #include "LpmConfig.h"
 #include "LpmTypeDefs.h"
+#include <string>
 
 namespace Lpm {
 

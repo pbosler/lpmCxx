@@ -21,30 +21,30 @@ template <int ndim> class ParticleFactory {
 
 template <int ndim> class BasicParticleFactory : public ParticleFactory<ndim> {
     public:
-        std::unique_ptr<Particle<ndim>> createParticle() const {
+         std::unique_ptr<Particle<ndim>> createParticle() const {
             return std::unique_ptr<Particle<ndim>>(new Particle<ndim>("nullweight"));
         }
 
-        std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& pos, const scalar_type wgt=0.0, const std::string wname="nullweight") const {
+         std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& pos, const scalar_type wgt=0.0, const std::string wname="nullweight") const {
             return std::unique_ptr<Particle<ndim>>(new Particle<ndim>(pos, wgt, wname));
         }
 
-        std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt=0.0, const std::string wname="nullweight") const {
+         std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt=0.0, const std::string wname="nullweight") const {
             return std::unique_ptr<Particle<ndim>>(new Particle<ndim>(xx, aa, wgt, wname));
         }
 };
 
 template <int ndim> class SWEParticleFactory : public ParticleFactory<ndim> {
     public:
-        std::unique_ptr<Particle<ndim>> createParticle() const {
+         std::unique_ptr<Particle<ndim>> createParticle() const {
             return std::unique_ptr<Particle<ndim>>(new SWEParticle<ndim>((ndim==1 ? "length" : "area")));
         }
 		
-		std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& pos, const scalar_type wgt=0.0, const std::string wname=(ndim==1 ? "length" : "area")) const {
+		 std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& pos, const scalar_type wgt=0.0, const std::string wname=(ndim==1 ? "length" : "area")) const {
 			return std::unique_ptr<Particle<ndim>>(new SWEParticle<ndim>(pos, wgt, (ndim==1 ? "length" : "area")));
 		}
 		
-		std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& pos, const Vec<ndim>& aa, const scalar_type wgt=0.0, const std::string wname=(ndim==1 ? "length" : "area")) const {
+		 std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& pos, const Vec<ndim>& aa, const scalar_type wgt=0.0, const std::string wname=(ndim==1 ? "length" : "area")) const {
 			return std::unique_ptr<Particle<ndim>>(new SWEParticle<ndim>(pos, aa, wgt, wname));
 		}
 		
@@ -60,15 +60,15 @@ template <int ndim> class SWEParticleFactory : public ParticleFactory<ndim> {
 
 template <int ndim> class QGParticleFactory : public ParticleFactory<ndim> {
 	public:
-		std::unique_ptr<Particle<ndim>> createParticle() const {
+		 std::unique_ptr<Particle<ndim>> createParticle() const {
 			return std::unique_ptr<Particle<ndim>>(new QGParticle<ndim>((ndim==1 ? "length" : "area")));
 		}
 		
-		std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& pos, const scalar_type wgt=0.0, const std::string wname="area") const {
+		 std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& pos, const scalar_type wgt=0.0, const std::string wname="area") const {
 			return std::unique_ptr<Particle<ndim>>(new QGParticle<ndim>(pos, wgt, wname));
 		}
 		
-		std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt=0.0, const std::string wname="area") const {
+		 std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt=0.0, const std::string wname="area") const {
 			return std::unique_ptr<Particle<ndim>>(new QGParticle<ndim>(xx, aa, wgt, wname));
 		}
 		

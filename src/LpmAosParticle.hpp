@@ -14,6 +14,11 @@ namespace Aos {
 
 template <int ndim> class ParticleSet;
 
+/// Basic discretization unit; A particle may represent any data distributed in R^d, where d \in {1,2,3}.
+/*
+    Data are carried by particles.  First, each data field must be "registered," as either a scalar or a vector.
+    Then its values may be initialized.  They may then be modified by other classes (solvers, e.g.)
+*/
 template <int ndim=3> class Particle {
     typedef std::vector<scalar_type>  vfield_type;
 
@@ -27,7 +32,7 @@ template <int ndim=3> class Particle {
         std::map<std::string, vfield_type> _vFields;
 
     public:
-        friend class ParticleSet<ndim>;
+        //friend class ParticleSet<ndim>;
 
         Particle(const std::string& wname="nullweight") : _physCrd(), _lagCrd(), _weight(0.0), _wgt_name(wname) {}
         Particle(const Vec<ndim>& pos, const scalar_type wgt = 0.0, const std::string wname="nullweight") : _physCrd(pos), _lagCrd(pos), _weight(wgt), _wgt_name(wname) {}

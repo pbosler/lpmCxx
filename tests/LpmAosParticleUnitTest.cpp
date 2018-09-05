@@ -42,11 +42,11 @@ int main (int argc, char* argv[]) {
         ss.str(nullstr);
     }
 
-    BasicParticleFactory<2> planeFactory;
+    std::shared_ptr<BasicParticleFactory<2>> planeFactory(new BasicParticleFactory<2>());
 
     std::shared_ptr<ParticleFactory<3>> sphereFactory(new SWEParticleFactory<3>());
 
-    std::unique_ptr<Particle<2>> base_particle = planeFactory.createParticle();
+    std::unique_ptr<Particle<2>> base_particle = planeFactory->createParticle();
     std::unique_ptr<Particle<3>> swe_particle = sphereFactory->createParticle();
 
     Vec<2> oneone(1.0, 1.0);
@@ -61,6 +61,13 @@ int main (int argc, char* argv[]) {
     std::cout << "swe_particle->infoString()" << std::endl;
     swe_particle->init(sphpoint);
     std::cout << swe_particle->infoString() << std::endl;
+    
+    ParticleSet<2> pset(planeFactory, 10);
+    pset.insert(oneone, oneone);
+    std::cout << pset.infoString();
+    const std::vector<std::string> istrs = pset.particlesInfoStrings();
+    for (int i=0; i<istrs.size(); ++i)
+    	std::cout << istrs[i] << std::endl;
 
     ParticleSet<3> cubedSphere(sphereFactory, 100);
     cubedSphere.initFromParticleSetFile("cubed_sphere/cubedSphere_1.vtk");

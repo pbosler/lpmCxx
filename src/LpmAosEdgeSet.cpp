@@ -139,12 +139,14 @@ template <int ndim> std::string EdgeSet<ndim>::infoString(const bool printAll) c
 template <int ndim> vtkSmartPointer<vtkCellArray> EdgeSet<ndim>::toVtkCellArray() const {
 	vtkSmartPointer<vtkCellArray> result = vtkSmartPointer<vtkCellArray>::New();
 	const index_type ptsPerEdge = _edges[0]->ptsPerEdge();
+	std::array<index_type,2> midpts;
 	for (index_type i=0; i<_edges.size(); ++i) {
 		if (_edges[i]->isLeaf()) {
 			result->InsertNextCell(ptsPerEdge);
 			result->InsertCellPoint(_edges[i]->orig());
-			if (_edges[i]->_midpts[0] >= 0) result->InsertCellPoint(_edges[i]->_midpts[0]);
-			if (_edges[i]->_midpts[1] >= 0) result->InsertCellPoint(_edges[i]->_midpts[1]);
+			midpts = _edges[i]->midpts();
+			if (midpts[0] >= 0) result->InsertCellPoint(midpts[0]);
+			if (midpts[1] >= 0) result->InsertCellPoint(midpts[1]);
 			result->InsertCellPoint(_edges[i]->dest());
 		}
 	}

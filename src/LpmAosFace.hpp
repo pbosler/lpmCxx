@@ -16,6 +16,16 @@ namespace Aos {
 typedef std::vector<index_type> ind_vec;
 template <int ndim> class FaceSet;
 
+struct KidFaceArrays {
+	std::vector<ind_vec> newFaceVerts;
+	std::vector<ind_vec> newFaceEdges;
+	std::vector<ind_vec> newFaceInteriors;
+	index_type parent;
+	
+	KidFaceArrays() : newFaceVerts(ind_vec(4)), newFaceEdges(ind_vec(4)), 
+	newFaceInteriors(ind_vec(4)) {}
+};	
+
 template <int ndim> class Face {
     typedef std::vector<scalar_type> vfield_type;
 
@@ -30,6 +40,7 @@ template <int ndim> class Face {
         virtual ~Face() {}
         
         virtual void enrich(ParticleSet<ndim>& particles, EdgeSet<ndim>& edges) {};
+        virtual KidFaceArrays<ndim> divide(ParticleSet<ndim>& particles, EdgeSet<ndim>& edges)=0;
         
         inline bool hasKids() const {return _kids[0] >= 0;}
         inline bool isDivided() const {return hasKids();}
@@ -61,7 +72,7 @@ template <int ndim> class Face {
         
         inline index_type parent() const {return _parent;}
         inline void setParent(const index_type ind) {_parent = ind;}
-        
+
         scalar_type area() const {return _area;}
         inline void setArea(const scalar_type ar) {_area = ar;}
         scalar_type computeArea(const ParticleSet<ndim>& vertexParticles, const ParticleSet<ndim>& faceParticles);
@@ -69,60 +80,58 @@ template <int ndim> class Face {
             
         friend class FaceSet<ndim>;
         
-        inline void registerScalarField(const std::string& field_name) {
-            this->_sfields.emplace(field_name, 0.0);
-        }
-        
-        inline void registerVectorField(const std::string& field_name) {
-            this->_vfields.emplace(field_name, vfield_type(ndim,0.0));
-        }
-        
-        inline std::vector<std::string> scalarFieldNames() const {
-            std::vector<std::string> result;
-            for (auto& sf : _sfields) {
-                result.push_back(sf.first);
-            }
-            return result;
-        }
-        
-        inline std::vector<std::string> vectorFieldNames() const {
-            std::vector<std::string> result;
-            for (auto& vf : _vfields) {
-                result.push_back(vf.first);
-            }
-            return result;
-        }
-        
-        inline std::vector<std::string> fieldNames() const {
-            std::vector<std::string> result;
-            for (auto& sf : _sfields) {
-                result.push_back(sf.first);
-            }
-            for (auto& vf : _vfields) {
-                result.push_back(vf.first);
-            }
-            return result;
-        }
-        
-        inline void setScalar(const std::string& fname, const scalar_type val) {
-            _sfields.at(fname) = val;
-        }
-        
-        inline void setVector(const std::string& fname, const vfield_type& val) {
-            _vfields.at(fname) = val;
-        }
-        
-        inline void setVector(const std::string& fname, const Vec<ndim>& val) {
-            _vfields.at(fname) = val.toStdVec();
-        }
-        
-        inline scalar_type getScalar(const std::string& fname) const {return _sfields.at(fname);}
-        
-        inline vfield_type getVector(const std::string& fname) const {return _vfields.at(fname);}
-        
-        
-        
-        
+//         inline void registerScalarField(const std::string& field_name) {
+//             this->_sfields.emplace(field_name, 0.0);
+//         }
+//         
+//         inline void registerVectorField(const std::string& field_name) {
+//             this->_vfields.emplace(field_name, vfield_type(ndim,0.0));
+//         }
+//         
+//         inline std::vector<std::string> scalarFieldNames() const {
+//             std::vector<std::string> result;
+//             for (auto& sf : _sfields) {
+//                 result.push_back(sf.first);
+//             }
+//             return result;
+//         }
+//         
+//         inline std::vector<std::string> vectorFieldNames() const {
+//             std::vector<std::string> result;
+//             for (auto& vf : _vfields) {
+//                 result.push_back(vf.first);
+//             }
+//             return result;
+//         }
+//         
+//         inline std::vector<std::string> fieldNames() const {
+//             std::vector<std::string> result;
+//             for (auto& sf : _sfields) {
+//                 result.push_back(sf.first);
+//             }
+//             for (auto& vf : _vfields) {
+//                 result.push_back(vf.first);
+//             }
+//             return result;
+//         }
+//         
+//         inline void setScalar(const std::string& fname, const scalar_type val) {
+//             _sfields.at(fname) = val;
+//         }
+//         
+//         inline void setVector(const std::string& fname, const vfield_type& val) {
+//             _vfields.at(fname) = val;
+//         }
+//         
+//         inline void setVector(const std::string& fname, const Vec<ndim>& val) {
+//             _vfields.at(fname) = val.toStdVec();
+//         }
+//         
+//         inline scalar_type getScalar(const std::string& fname) const {return _sfields.at(fname);}
+//         
+//         inline vfield_type getVector(const std::string& fname) const {return _vfields.at(fname);}
+//         
+//         
     protected:
 
         Face() {}
@@ -133,6 +142,7 @@ template <int ndim> class Face {
         index_type _parent;
         std::array<index_type, 4> _kids;
         scalar_type _area;
+        Vec<ndim> _normal;
         
         std::map<std::string, scalar_type> _sfields;
         std::map<std::string, std::vector<scalar_type>> _vfields;
@@ -143,6 +153,7 @@ template <int ndim> class QuadFace : public Face<ndim> {
         QuadFace(const ind_vec intrs, const ind_vec& verts, const ind_vec& edges, 
             const index_type prnt, const scalar_type ar = 0.0) : 
                 Face<ndim>(intrs, verts, edges, prnt, ar) {}
+
 };
 
 template <int ndim> class TriFace : public Face<ndim> {
@@ -156,6 +167,7 @@ template <int ndim> class QuadCubicFace : public Face<ndim> {
     public: 
         QuadCubicFace(const ind_vec& intInds, const ind_vec& vertInds, const ind_vec& edgeInds, 
             const index_type pt, const scalar_type ar=0.0) : Face<ndim>(intInds, vertInds, edgeInds, pt, ar) {}
+        
 };
 
 }

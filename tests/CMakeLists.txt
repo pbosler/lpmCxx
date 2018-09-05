@@ -90,17 +90,17 @@ add_test(aosParticleUnitTest lpmAosParticleUnitTest.exe)
 ADD_EXECUTABLE(lpmAosEdgeUnitTest.exe LpmAosEdgeUnitTest.cpp)
 TARGET_LINK_LIBRARIES(lpmAosEdgeUnitTest.exe lpm)
 add_test(aosEdgeUnitTest lpmAosEdgeUnitTest.exe)
+#
+#ADD_EXECUTABLE(lpmAosFaceUnitTest.exe LpmAosFaceUnitTest.cpp)
+#TARGET_LINK_LIBRARIES(lpmAosFaceUnitTest.exe lpm)
+#add_test(aosFaceUnitTest lpmAosFaceUnitTest.exe)
 
-ADD_EXECUTABLE(lpmAosFaceUnitTest.exe LpmAosFaceUnitTest.cpp)
-TARGET_LINK_LIBRARIES(lpmAosFaceUnitTest.exe lpm)
-add_test(aosFaceUnitTest lpmAosFaceUnitTest.exe)
+#ADD_EXECUTABLE(lpmAosMeshSeedTest.exe LpmAosMeshSeedUnitTest.cpp)
+#TARGET_LINK_LIBRARIES(lpmAosMeshSeedTest.exe lpm)
+#add_test(aosMeshSeedTest lpmAosMeshSeedTest.exe)
 
-ADD_EXECUTABLE(lpmAosMeshSeedTest.exe LpmAosMeshSeedUnitTest.cpp)
-TARGET_LINK_LIBRARIES(lpmAosMeshSeedTest.exe lpm)
-add_test(aosMeshSeedTest lpmAosMeshSeedTest.exe)
-
-ADD_EXECUTABLE(lpmAosPolyMesh2dUnitTest.exe LpmAosPolyMeshUnitTest.cpp)
-TARGET_LINK_LIBRARIES(lpmAosPolyMesh2dUnitTest.exe lpm)
-add_test(aosPolyMeshTest lpmAosPolyMesh2dUnitTest.exe)
+#ADD_EXECUTABLE(lpmAosPolyMesh2dUnitTest.exe LpmAosPolyMeshUnitTest.cpp)
+#TARGET_LINK_LIBRARIES(lpmAosPolyMesh2dUnitTest.exe lpm)
+#add_test(aosPolyMeshTest lpmAosPolyMesh2dUnitTest.exe)
 
 

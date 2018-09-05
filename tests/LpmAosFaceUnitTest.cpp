@@ -2,6 +2,10 @@
 #include "LpmTypeDefs.h"
 #include "LpmOutputMessage.h"
 #include "LpmLogger.h"
+#include "LpmAosParticleFactory.hpp"
+#include "LpmAosParticleSet.hpp"
+#include "LpmAosEdgeFactory.hpp"
+#include "LpmAosEdgeSet.hpp"
 #include "LpmAosFace.hpp"
 #include "LpmAosFaceFactory.hpp"
 #include "LpmAosFaceSet.hpp"
@@ -54,13 +58,16 @@ int main (int argc, char* argv[]) {
     std::cout << "Quad Face: " << std::endl;
     std::unique_ptr<Face<3>> qf = quadFactory.createFace(ctr, quadverts, quadedges, prt, ar);
     std::cout << qf->infoString();
+    std::unique_ptr<Face<3>> qfcopy = std::unique_ptr<Face<3>>(new QuadFace<3>(*qf));
+    std::cout << "COPY" << std::endl;
+    std::cout << qfcopy->infoString();
 
     std::cout << "Tri face: " << std::endl;
     std::unique_ptr<Face<2>> tf = triFactory.createFace(ctr, triverts, triedges, prt, ar);
     std::cout << tf->infoString();
     
     std::shared_ptr<ParticleFactory<3>> sphereFactory(new SWEParticleFactory<3>());
-    ParticleSet<3> cubedSphere(sphereFactory, 15);
+    ParticleSet<3> cubedSphere(sphereFactory, 100);
     
     cubedSphere.insert(Vec<3>(0.57735026918962584, -0.57735026918962584,  0.57735026918962584));
     cubedSphere.insert(Vec<3>(0.57735026918962584, -0.57735026918962584, -0.57735026918962584));
@@ -78,7 +85,29 @@ int main (int argc, char* argv[]) {
     cubedSphere.insert(Vec<3>(0.0000000000000000,   0.0000000000000000,  -1.0000000000000000), 2.0943951023931948);
 
     std::cout << cubedSphere.infoString() << std::endl;
-
+    
+    std::vector<std::vector<index_type>> edgeRecords(12);
+    edgeRecords[0] = {0,1,0,3};
+    edgeRecords[1] = {1,2,0,5};
+    edgeRecords[2] = {2,3,0,1};
+	edgeRecords[3] = {3,0,0,4};
+	edgeRecords[4] = {2,4,1,5};
+	edgeRecords[5] = {4,5,1,2};
+	edgeRecords[6] = {5,3,1,4};
+	edgeRecords[7] = {4,6,2,5};
+	edgeRecords[8] = {6,7,2,3};
+	edgeRecords[9] = {7,5,2,4};
+	edgeRecords[10] = {6,1,3,5};
+	edgeRecords[11] = {0,7,3,4};
+	
+	std::shared_ptr<EdgeFactory<3>> edgeFac(new LinearEdgeFactory<3>());
+	EdgeSet<3> edges(edgeFac, SPHERICAL_SURFACE_GEOMETRY, 100);
+	for (int i=0; i<12; ++i) {
+		edges.insert(edgeRecords[i][0], edgeRecords[i][1], edgeRecords[i][2], edgeRecords[i][3]);
+	}
+	std::cout << edges.infoString();
+	
+	
     std::vector<std::vector<index_type>> fv(6, std::vector<index_type>(4));
     fv[0] = {1, 2, 3, 4};
     fv[1] = {4, 3, 5, 6};
@@ -100,11 +129,15 @@ int main (int argc, char* argv[]) {
         }
     }
     std::shared_ptr<FaceFactory<3>> csFaceFac = std::shared_ptr<FaceFactory<3>>(new QuadFaceFactory<3>());
-    FaceSet<3> cs(csFaceFac, 6, SPHERICAL_SURFACE_GEOMETRY);
+    FaceSet<3> cs(csFaceFac, 100, SPHERICAL_SURFACE_GEOMETRY);
     const int root_index = -1;
     for (int i=0; i<6; ++i) {
         cs.insert(ind_vec(1, i+8), fv[i], fe[i], root_index);
     }
+    std::cout << "calling divide" << std::endl;
+    
+//     cs.divide(0, cubedSphere, edges);
+    cs.setArea(cubedSphere);
     
     std::cout << cs.infoString() << std::endl;
 #ifdef HAVE_VTK

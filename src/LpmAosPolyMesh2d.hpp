@@ -25,6 +25,13 @@
 namespace Lpm {
 namespace Aos {
 
+///  2D meshes made of vertices, edges, faces; possibly embedded in R3.
+/*
+    All data are carried by particles; there are particles associated with vertices always, and there may be 
+    other particles associated with edges or faces (for variable staggering, e.g.).
+    
+    EdgeSet and FaceSet record connectivity only.
+*/
 template <int ndim> class PolyMesh2d {
     public:
         PolyMesh2d(const std::shared_ptr<MeshSeed<ndim>> seed, const std::shared_ptr<ParticleFactory<ndim>> pfac,
@@ -34,9 +41,6 @@ template <int ndim> class PolyMesh2d {
             _seed(seed), _pfac(pfac), _efac(efac), _ffac(ffac), 
             _initRecursion(initRecursion), _maxRecursion(maxRecursion), _amrLimit(amrLimit), 
             _radius(domainRadius), _tindex(0), _time(0.0), 
-//             _vertexParticles(pfac, nMaxParticles),
-//             _edges(efac, seed->geometryType(), nMaxEdges),
-//             _faces(ffac, nMaxFaces, seed->geometryType(), domainRadius),
             _seedId(seed->idString()), _geom(seed->geometryType()), _facekind(seed->faceType())
             {}
         
@@ -68,13 +72,14 @@ template <int ndim> class PolyMesh2d {
         
         inline GeometryType geometryType() const {return _geom;}
         
+        std::string infoString() const;
 
 #ifdef HAVE_VTK
         vtkSmartPointer<vtkPolyData> toVtkPolyData() const;
 #endif
-    
-        void writePolydataFile(std::ostream& os) const;        
-        
+
+    // ascii
+    void writePolydataFile(std::ostream& os) const; 
     protected:
         std::string _seedId;
         int _amrLimit;
@@ -92,12 +97,12 @@ template <int ndim> class PolyMesh2d {
         void determineMaxAllocations(index_type& nv, index_type& nf, index_type& ne) const;
     
         std::shared_ptr<ParticleFactory<ndim>> _pfac;
+        std::shared_ptr<ParticleFactory<ndim>> _epfac;
+        std::shared_ptr<ParticleFactorY<ndim>> _fpfac;
         std::shared_ptr<EdgeFactory<ndim>> _efac;
         std::shared_ptr<FaceFactory<ndim>> _ffac;
     
-        std::unique_ptr<ParticleSet<ndim>> _vertexParticles;
-        std::unique_ptr<ParticleSet<ndim>> _edgeParticles;
-        std::unique_ptr<ParticleSet<ndim>> _faceParticles;
+        std::unique_ptr<ParticleSet<ndim>> _vertices;
         std::unique_ptr<EdgeSet<ndim>> _edges;
         std::unique_ptr<FaceSet<ndim>> _faces;
         
