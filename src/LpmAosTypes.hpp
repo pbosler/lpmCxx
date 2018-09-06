@@ -79,6 +79,11 @@ template<int ndim=3> struct Vec {
             this->x[i] = xx[i];
     }
     
+	/// Constructor, intialize from scalar_type[]
+    inline Vec(const scalar_type* xx) {
+        for (int i=0; i<ndim; ++i)
+            this->x[i] = xx[i];
+    }    
     /// Basic assignment operator.
     Vec& operator= (const Vec<ndim>& other) {
         if (this != &other) {
@@ -96,59 +101,62 @@ template<int ndim=3> struct Vec {
         return result;
     }
 
+	/// Convert to std::vector<scalar_type>
     inline std::vector<scalar_type> toStdVec() const {
         std::vector<scalar_type> result(ndim);
         for (int i=0; i<ndim; ++i)
             result[i] = this->x[i];
     }
-
-
-
-    inline Vec(const scalar_type* xx) {
-        for (int i=0; i<ndim; ++i)
-            this->x[i] = xx[i];
-    }
-
+	
+	/// += operator (elemental)
     inline Vec<ndim>& operator += (const Vec<ndim>& other) {
         for (int i=0; i<ndim; ++i)
             this->x[i] += other.x[i];
         return *this;
     }
 
+	/// -= operator (elemental)
     inline Vec<ndim>& operator -= (const Vec<ndim>& other) {
         for (int i=0; i<ndim; ++i)
             this->x[i] -= other.x[i];
         return *this;
     }
 
+	/// *= operator (elemental)
    inline  Vec<ndim>& operator *= (const Vec<ndim>& other) {
         for (int i=0; i<ndim; ++i)
             this->x[i] *= other.x[i];
         return *this;
     }
 
+	/// /= operator (elemental)
     inline Vec<ndim>& operator /= (const Vec<ndim>& other) {
         for (int i=0; i<ndim; ++i)
             this->x[i] /= other.x[i];
         return *this;
     }
 
+	/// + operator member function
     inline const Vec<ndim> operator + (const Vec<ndim>& other) const {
         return Vec<ndim>(*this) += other;
     }
 
+	/// - operator member function
     inline const Vec<ndim> operator - (const Vec<ndim>& other) const {
         return Vec<ndim>(*this) -= other;
     }
 
+	/// * operator member function
     inline const Vec<ndim> operator * (const Vec<ndim>& other) const {
         return Vec<ndim>(*this) *= other;
     }
 
+	/// / operator member function
     inline const Vec<ndim> operator / (const Vec<ndim>& other) const {
         return Vec<ndim>(*this) /= other;
     }
 
+	/// compute & return the square of the vector's magnitude
     inline scalar_type magSq() const {
         scalar_type sumsq(0.0);
         for (int i=0; i<ndim; ++i)
@@ -156,10 +164,12 @@ template<int ndim=3> struct Vec {
         return sumsq;
     }
 
+	/// compute and return the vector's magnitude
     inline scalar_type mag() const {
         return std::sqrt(this->magSq());
     }
 
+	/// vector dot product
     inline scalar_type dotProd(const Vec<ndim>& other) const {
         scalar_type dp(0.0);
         for (int i=0; i<ndim; ++i)
@@ -167,10 +177,12 @@ template<int ndim=3> struct Vec {
         return dp;
     }
 
+	/// 2d cross product (returns the only nonzero component as a scalar)
     inline scalar_type crossProdComp3(const Vec<2>& other) const {
         return this->x[0]*other.x[1] - this->x[1]*other.x[0];
     }
 
+	/// Vector cross product
     inline const Vec<ndim> crossProd(const Vec<ndim>& other) const {
         const scalar_type cp[3] = {this->x[1]*other.x[2] - this->x[2]*other.x[1],
                                    this->x[2]*other.x[0] - this->x[0]*other.x[2],
@@ -178,11 +190,13 @@ template<int ndim=3> struct Vec {
         return Vec<ndim>(cp);
     }
 
+	/// Scalar multiply without copy and no return 
     inline void scaleInPlace(const scalar_type mult) {
         for (int i=0; i<ndim; ++i)
             this->x[i] *= mult;
     }
 
+	/// Scalar multiply with copy, return new Vec
     inline const Vec<ndim> scale(const scalar_type mult) const {
         scalar_type sm[ndim];
         for (int i=0; i<ndim; ++i)
@@ -190,29 +204,36 @@ template<int ndim=3> struct Vec {
         return Vec<ndim>(sm);
     }
 
+	/// Normalize vector without copy, no return
     inline void normalizeInPlace() {
         const scalar_type len = this->mag();
         this->scaleInPlace(1.0/len);
     }
 
+	/// Normalize vector with copy, return new Vec
     inline const Vec<ndim> normalize() const {
         const scalar_type len = this->mag();
         return this->scale(1.0/len);
     }
 
+	/// Compute & return the longitude of a vector in R^3
     inline scalar_type longitude() const {return atan4(this->x[1], this->x[0]);}
 
+
+	/// Compute and return the latitude of a vector in R^3
     inline scalar_type latitude() const {
         const scalar_type xy2 = this->x[0]*this->x[0] + this->x[1]*this->x[1];
         return std::atan2(this->x[2] , std::sqrt(xy2));
     }
 
+	/// Compute the midpoint of *this and another Vec<ndim>
     inline const Vec<ndim> midpoint(const Vec<ndim>& other) const {
         Vec<ndim> result = *this + other;
         result.scaleInPlace(0.5);
         return result;
     }
 
+	/// Compute the great-circle midpoint of *this and another Vec<ndim>
     inline const Vec<ndim> sphereMidpoint(const Vec<ndim>& other, const scalar_type radius = 1.0) const {
         Vec<ndim> result = this->midpoint(other);
         result.normalizeInPlace();
@@ -220,6 +241,7 @@ template<int ndim=3> struct Vec {
         return result;
     }
 
+	/// Compute the Euclidean distance between *this and another Vec<ndim>
     inline scalar_type dist(const Vec<ndim>& other) const {
         return (*this - other).mag();
     }
@@ -230,11 +252,19 @@ template<int ndim=3> struct Vec {
         return std::atan2(cp.mag(), dp) * radius;
     }
 
+	/// Compute the great-circle distance between *this and another Vec<ndim>
     inline const bool operator == (const Vec<ndim>& other) const {
         return this->dist(other) < ZERO_TOL;
     }
 };
 
+/** Return the Vec<ndim> along a chord between Vec<ndim> a and Vec<ndim> b.
+	Chord is parameterized by s \in [-1,1]
+	
+	@param a origin of chord vector
+	@param b destination of chord vector
+	@param s parameterization variable
+**/
 template <int ndim> Vec<ndim> pointAlongChord(Vec<ndim> a, Vec<ndim> b, const scalar_type s) {
     a.scaleInPlace(1.0-s);
     b.scaleInPlace(1.0+s);
