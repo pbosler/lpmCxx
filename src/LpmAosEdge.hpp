@@ -22,11 +22,14 @@ template <int ndim> struct KidEdgeArrays {
 	std::vector<index_type> newLefts;
 	std::vector<index_type> newRights;
 	std::vector<std::vector<index_type>> newMids;
-	std::vector<std::unique_ptr<Particle<ndim>>> particles;
+	//std::vector<std::unique_ptr<Particle<ndim>>> particles;
+	std::vector<Vec<ndim>> newPhysCrds;
+	std::vector<Vec<ndim>> newLagCrds;
 	
 	KidEdgeArrays(): newOrigs(std::vector<index_type>(2,-1)), newDests(std::vector<index_type>(2,-1)), 
 		newLefts(std::vector<index_type>(2,-1)), newRights(std::vector<index_type>(2,-1)),
-		newMids(std::vector<std::vector<index_type>>(2,std::vector<index_type>(2,-1))) {particles.reserve(4);}
+		newMids(std::vector<std::vector<index_type>>(2,std::vector<index_type>(2,-1))),
+		newPhysCrds(std::vector<Vec<ndim>>(5)), newLagCrds(std::vector<Vec<ndim>>(5)) {}
 	
 	std::string infoString() const;
 };
@@ -34,7 +37,7 @@ template <int ndim> struct KidEdgeArrays {
 template <int ndim> class Edge {
     public:
         Edge(const index_type origID, const index_type destID, const index_type leftID, const index_type rightID,
-            const std::array<index_type,2>& midpts = std::array<index_type,2>()) :
+            const std::vector<index_type>& midpts = std::vector<index_type>(2,-1)) :
             _orig(origID), _dest(destID), _left(leftID), _right(rightID),
             _parent(-1) {
             _kids[0] = -1;
@@ -77,7 +80,7 @@ template <int ndim> class Edge {
         inline std::array<index_type,2> midpts() const {return _midpts;}
         
         /// Set midpoint indices
-        inline void setMidptIdds(const index_type ind0, const index_type ind1) {
+        inline void setMidptInds(const index_type ind0, const index_type ind1) {
         	_midpts[0] = ind0;
         	_midpts[1] = ind1;
         }
@@ -179,7 +182,7 @@ template <int ndim> class Edge {
 template <int ndim> class QuadraticEdge : public Edge<ndim> {
     public:
         QuadraticEdge(const index_type origID, const index_type destID, const index_type leftID, const index_type rightID,
-            const std::array<index_type,2>& midpts) : Edge<ndim>(origID, destID, leftID, rightID, midpts) {}
+            const std::vector<index_type>& midpts) : Edge<ndim>(origID, destID, leftID, rightID, midpts) {}
 
         
         inline index_type ptsPerEdge() const override {return 3;}
@@ -190,7 +193,7 @@ template <int ndim> class QuadraticEdge : public Edge<ndim> {
 template <int ndim> class CubicEdge : public Edge<ndim> {
     public:
         CubicEdge(const index_type origID, const index_type destID, const index_type leftID, const index_type rightID,
-            const std::array<index_type,2>& midpts) : Edge<ndim>(origID, destID, leftID, rightID, midpts) {}
+            const std::vector<index_type>& midpts) : Edge<ndim>(origID, destID, leftID, rightID, midpts) {}
             
         inline index_type ptsPerEdge() const override {return 4;}
         

@@ -70,7 +70,7 @@ template <int ndim> class EdgeSet {
         inline Edge<ndim>* getPtr(const index_type ind) const {return _edges[ind].get();}
 
         void insert(const index_type origID, const index_type destID, const index_type leftID, const index_type rightID, 
-            const std::array<index_type, 2>& interiorIDs = std::array<index_type,2>());
+            const std::vector<index_type>& interiorIDs = std::vector<index_type>());
         void divide(const index_type ind, ParticleSet<ndim>& particles, const scalar_type radius=1.0);
 
 #ifdef HAVE_VTK

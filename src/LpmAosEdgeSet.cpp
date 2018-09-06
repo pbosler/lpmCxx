@@ -44,7 +44,7 @@ template <int ndim> scalar_type EdgeSet<ndim>::minSphLength(const ParticleSet<nd
 }
 
 template <int ndim> void EdgeSet<ndim>::insert(const index_type origID, const index_type destID, const index_type leftID, const index_type rightID, 
-    const std::array<index_type,2>& mids) {
+    const std::vector<index_type>& mids) {
     if (_edges.size() + 1 > _nMax) {
         throw std::out_of_range("EdgeSet::insert _nMax exceeded.");
     }
@@ -56,55 +56,28 @@ template <int ndim> void EdgeSet<ndim>::divide(const index_type ind, ParticleSet
     if (_edges.size() + 2 > _nMax) {
         throw std::out_of_range("EdgeSet::divide _nMax exceeded.");
     }
-    
-    Vec<ndim> midpt;
-    Vec<ndim> lagMidpt;
-    if (_geom == SPHERICAL_SURFACE_GEOMETRY) {
-        midpt = _edges[ind]->sphMidpoint(particles, radius);
-        lagMidpt = _edges[ind]->sphLagMidpoint(particles, radius);
-    }
-    else if (_geom == PLANAR_GEOMETRY || _geom == CARTESIAN_3D_GEOMETRY) {
-        midpt = _edges[ind]->midpoint(particles);
-        lagMidpt = _edges[ind]->lagMidpoint(particles);
-    }
-    
-    std::array<Vec<ndim>, 4> new_crds;
-    std::array<Vec<ndim>, 4> new_lag_crds;
-    if (dynamic_cast<QuadraticEdge<ndim>*>(_edges[0].get())) {
-        //TODO
-        throw std::runtime_error("EdgeSet::divide ERROR: quadratic edges not implemented.");
+	const KidEdgeArrays<ndim> kids = _edges[ind]->divide(particles, radius, _geom);
+	const index_type edge_insert_pt = _edges.size();
+	if (dynamic_cast<QuadraticEdge<ndim>*>(_edges[0].get())) {
+		for (short i=0; i<2; ++i) {
+			particles.insert(kids.newPhysCrds[i], kids.newLagCrds[i]);
+		}
     }
     else if (dynamic_cast<CubicEdge<ndim>*>(_edges[0].get())) {
-        //TODO
-        throw std::runtime_error("EdgeSet::divide ERROR: cubic edges not implemented.");
-    
-        const Vec<ndim> physOrig = particles.getPtr(_edges[ind]->orig())->physCrd();
-        const Vec<ndim> lagOrig = particles.getPtr(_edges[ind]->orig())->lagCrd();
-        const Vec<ndim> physDest = particles.getPtr(_edges[ind]->dest())->physCrd();
-        const Vec<ndim> lagDest = particles.getPtr(_edges[ind]->dest())->lagCrd();
-        
-        if (_geom == SPHERICAL_SURFACE_GEOMETRY) {
-            
-        }
-        else if (_geom == PLANAR_GEOMETRY || _geom == CARTESIAN_3D_GEOMETRY) {
-        }
-        
+    	particles.move(_edges[ind]->midpt0(), kids.newPhysCrds[0], kids.newLagCrds[0]);
+    	for (short i=1; i<=3; ++i) {
+	    	particles.insert(kids.newPhysCrds[i], kids.newLagCrds[i]);
+	    }
+    	particles.move(_edges[ind]->midpt1(), kids.newPhysCrds[4], kids.newLagCrds[4]);     
     }
     else {
-        Vec<ndim> midpt;
-        Vec<ndim> lagMidpt;
-        const index_type particle_insert = particles.n();
-        const index_type edge_insert = _edges.size();
-        
-        const index_type lface = _edges[ind]->left();
-        const index_type rface = _edges[ind]->right();
-        particles.insert(midpt, lagMidpt);
-        this->insert(_edges[ind]->orig(), particle_insert, lface, rface);
-        this->insert(particle_insert, _edges[ind]->dest(), lface, rface);
-        _edges[ind]->setKids(edge_insert, edge_insert+1);
-        _edges[edge_insert]->setParent(ind);
-        _edges[edge_insert+1]->setParent(ind);
+    	particles.insert(kids.newPhysCrds[0], kids.newLagCrds[0]);
     }
+    for (short i=0; i<2; ++i) {
+		this->insert(kids.newOrigs[i], kids.newDests[i], kids.newLefts[i], kids.newRights[i], kids.newMids[i]);
+		_edges[edge_insert_pt+i]->setParent(ind);
+	}
+    _edges[ind]->setKids(edge_insert_pt, edge_insert_pt+1);
     _nActive -= 1; // parent edge is no longer active.
 }
 

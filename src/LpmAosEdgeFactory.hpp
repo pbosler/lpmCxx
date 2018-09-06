@@ -2,7 +2,7 @@
 #define _LPM_AOS_EDGE_FACTORY_HPP
 
 #include <memory>
-#include <array>
+#include <vector>
 #include "LpmConfig.h"
 #include "LpmTypeDefs.h"
 #include "LpmAosEdge.hpp"
@@ -14,7 +14,7 @@ template <int ndim> class EdgeFactory {
     public:
         virtual std::unique_ptr<Edge<ndim>> createEdge(const index_type origID, const index_type destID,
             const index_type leftID, const index_type rightID, 
-            const std::array<index_type,2>& mipts=std::array<index_type,2>()) const = 0;
+            const std::vector<index_type>& mipts=std::vector<index_type>()) const = 0;
     protected:
 };
 
@@ -22,7 +22,7 @@ template <int ndim> class LinearEdgeFactory : public EdgeFactory<ndim> {
     public:
         std::unique_ptr<Edge<ndim>> createEdge(const index_type origID, const index_type destID,
             const index_type leftID, const index_type rightID, 
-            const std::array<index_type,2>& mipts=std::array<index_type,2>()) const 
+            const std::vector<index_type>& mipts=std::vector<index_type>()) const 
         {
             return std::unique_ptr<Edge<ndim>>(new Edge<ndim>(origID, destID, leftID, rightID));
         }
@@ -33,7 +33,7 @@ template <int ndim> class QuadraticEdgeFactory : public EdgeFactory<ndim> {
     public:
         std::unique_ptr<Edge<ndim>> createEdge(const index_type origID, const index_type destID,
             const index_type leftID, const index_type rightID, 
-            const std::array<index_type,2>& midpts) const {
+            const std::vector<index_type>& midpts) const {
             return std::unique_ptr<Edge<ndim>>(new QuadraticEdge<ndim>(origID, destID, leftID, rightID, midpts));
         }
     protected:
@@ -43,7 +43,7 @@ template <int ndim> class CubicEdgeFactory : public EdgeFactory<ndim> {
     public:
         std::unique_ptr<Edge<ndim>> createEdge(const index_type origID, const index_type destID,
             const index_type leftID, const index_type rightID, 
-            const std::array<index_type,2>& midpts) const {
+            const std::vector<index_type>& midpts) const {
             return std::unique_ptr<Edge<ndim>>(new CubicEdge<ndim>(origID, destID, leftID, rightID, midpts));
         }
     protected:

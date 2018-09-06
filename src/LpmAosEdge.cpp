@@ -1,5 +1,6 @@
 #include "LpmAosEdge.hpp"
 #include "LpmAosParticleFactory.hpp"
+#include "LpmGll.hpp"
 #include <sstream>
 #include <iostream>
 #include <iomanip>
@@ -30,7 +31,8 @@ template <int ndim> KidEdgeArrays<ndim> Edge<ndim>::divide(const ParticleSet<ndi
 	result.newLefts[1] = this->_left;
 	result.newRights[1] = this->_right;
 	
-	result.particles.push_back(particles.getFactory()->createParticle(midpt, lagmidpt));
+	result.newPhysCrds[0] = midpt;
+	result.newLagCrds[0] = lagmidpt;
 	return result;
 }
 
@@ -42,9 +44,11 @@ template <int ndim> std::string KidEdgeArrays<ndim>::infoString() const {
 		std::cout << std::setw(10) << newOrigs[i] << std::setw(10) << newDests[i] << std::setw(10) << newLefts[i] 
 			<< std::setw(10) << newRights[i] << std::setw(10) << newMids[i][0] << std::setw(10) << newMids[i][1] << std::endl;
 	}
-	for (int i=0; i<particles.size(); ++i) {
-		std::cout << particles[i]->infoString();
-	}
+// 	for (int i=0; i<particles.size(); ++i) {
+// 		std::cout << particles[i]->infoString();
+// 	}
+	for (int i=0; i<newPhysCrds.size(); ++i) 
+		std::cout << newPhysCrds[i] << " " << newLagCrds[i] << std::endl;
 	return ss.str();
 }
 
@@ -85,13 +89,84 @@ template <int ndim> KidEdgeArrays<ndim> QuadraticEdge<ndim>::divide(const Partic
 	result.newRights[1] = this->_right;
 	result.newMids[1][0] = particle_insert_point + 1;
 	
-	result.particles.push_back(particles.getFactory()->createParticle(kid0midpt, kid0lagmidpt));
-	result.particles.push_back(particles.getFactory()->createParticle(kid1midpt, kid1lagmidpt));
+// 	result.particles.push_back(particles.getFactory()->createParticle(kid0midpt, kid0lagmidpt));
+// 	result.particles.push_back(particles.getFactory()->createParticle(kid1midpt, kid1lagmidpt));
+	result.newPhysCrds[0] = kid0midpt;
+	result.newLagCrds[0] = kid0lagmidpt;
+	result.newPhysCrds[1] = kid1midpt;
+	result.newLagCrds[1] = kid1lagmidpt;
 	return result;	
 }
 
 template <int ndim> KidEdgeArrays<ndim> CubicEdge<ndim>::divide(const ParticleSet<ndim>& particles, const scalar_type radius, const GeometryType geom) const {
 	KidEdgeArrays<ndim> result;
+	const Vec<ndim> origcrd = this->origCrd(particles);
+	const Vec<ndim> origlagcrd = this->origLagCrd(particles);
+// 	const Vec<ndim> mid0crd = this->mid0Crd(particles);
+// 	const Vec<ndim> mid0lagcrd = this->mid0LagCrd(particles);	
+// 	const Vec<ndim> mid1crd = this->mid1Crd(particles);
+// 	const Vec<ndim> mid1lagcrd = this->mid1LagCrd(particles);		
+	const Vec<ndim> destcrd = this->destCrd(particles);
+	const Vec<ndim> destlagcrd = this->destLagCrd(particles);
+	
+	Vec<ndim> parentmidpt;
+	Vec<ndim> parentlagmidpt;
+	Vec<ndim> kid0mid0crd;
+	Vec<ndim> kid0mid0lagcrd;
+	Vec<ndim> kid0mid1crd;
+	Vec<ndim> kid0mid1lagcrd;
+	Vec<ndim> kid1mid0crd;
+	Vec<ndim> kid1mid0lagcrd;
+	Vec<ndim> kid1mid1crd;
+	Vec<ndim> kid1mid1lagcrd;
+	if (geom == SPHERICAL_SURFACE_GEOMETRY) {
+		parentmidpt = this->sphMidpoint(particles, radius);
+		parentlagmidpt = this->sphLagMidpoint(particles, radius);
+		kid0mid0crd = pointAlongCircle(origcrd, parentmidpt, -CubicGLL::sqrt5);
+		kid0mid0lagcrd = pointAlongCircle(origlagcrd, parentlagmidpt, -CubicGLL::sqrt5);
+		kid0mid1crd = pointAlongCircle(origcrd, parentmidpt, CubicGLL::sqrt5);
+		kid0mid1lagcrd = pointAlongCircle(origlagcrd, parentlagmidpt, CubicGLL::sqrt5);
+		kid1mid0crd = pointAlongCircle(parentmidpt, destcrd, -CubicGLL::sqrt5);
+		kid1mid0lagcrd = pointAlongCircle(parentlagmidpt, destlagcrd, -CubicGLL::sqrt5);
+		kid1mid1crd = pointAlongCircle(parentmidpt, destcrd, CubicGLL::sqrt5);
+		kid1mid1lagcrd = pointAlongCircle(parentlagmidpt, destlagcrd, CubicGLL::sqrt5);		
+	}
+	else if (geom == PLANAR_GEOMETRY or geom == CARTESIAN_3D_GEOMETRY) {
+		parentmidpt = this->midpoint(particles);
+		parentlagmidpt = this->lagMidpoint(particles);
+		kid0mid0crd = pointAlongChord(origcrd, parentmidpt, -CubicGLL::sqrt5);
+		kid0mid0lagcrd = pointAlongChord(origlagcrd, parentlagmidpt, -CubicGLL::sqrt5);
+		kid0mid1crd = pointAlongChord(origcrd, parentmidpt, CubicGLL::sqrt5);
+		kid0mid1lagcrd = pointAlongChord(origlagcrd, parentlagmidpt, CubicGLL::sqrt5);
+		kid1mid0crd = pointAlongChord(parentmidpt, destcrd, -CubicGLL::sqrt5);
+		kid1mid0lagcrd = pointAlongChord(parentlagmidpt, destlagcrd, -CubicGLL::sqrt5);
+		kid1mid1crd = pointAlongChord(parentmidpt, destcrd, CubicGLL::sqrt5);
+		kid1mid1lagcrd = pointAlongChord(parentlagmidpt, destlagcrd, CubicGLL::sqrt5);
+	}
+	result.newPhysCrds[0] = kid0mid0crd;
+	result.newLagCrds[0] = kid0mid0lagcrd;
+	result.newPhysCrds[1] = kid0mid1crd;
+	result.newLagCrds[1] = kid0mid1lagcrd;
+	result.newPhysCrds[2] = parentmidpt;
+	result.newLagCrds[2] = parentlagmidpt;
+	result.newPhysCrds[3] = kid1mid0crd;
+	result.newLagCrds[3] = kid1mid0lagcrd;
+	result.newPhysCrds[4] = kid1mid1crd;
+	result.newLagCrds[4] = kid1mid1lagcrd;
+	
+	const index_type particle_insert_point = particles.n();
+	result.newOrigs[0] = this->_orig;
+	result.newMids[0][0] = this->_midpts[0];
+	result.newMids[0][1] = particle_insert_point;
+	result.newDests[0] = particle_insert_point+1;
+	result.newLefts[0] = this->_left;
+	result.newRights[0] = this->_right;
+	result.newOrigs[1] = particle_insert_point+1;
+	result.newMids[1][0] = particle_insert_point+2;
+	result.newMids[1][1] = this->_midpts[1];
+	result.newDests[1] = this->_dest;
+	result.newLefts[1] = this->_left;
+	result.newRights[1] = this->_right;
 	return result;
 }
 
