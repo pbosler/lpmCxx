@@ -258,8 +258,8 @@ template<int ndim=3> struct Vec {
     }
 };
 
-/** Return the Vec<ndim> along a chord between Vec<ndim> a and Vec<ndim> b.
-	Chord is parameterized by s \in [-1,1]
+/// Return the Vec<ndim> along a chord between Vec<ndim> a and Vec<ndim> b.
+/**	Chord is parameterized by s \in [-1,1]
 	
 	@param a origin of chord vector
 	@param b destination of chord vector
@@ -273,6 +273,13 @@ template <int ndim> Vec<ndim> pointAlongChord(Vec<ndim> a, Vec<ndim> b, const sc
     return result;
 }
 
+/// Return the Vec<ndim> along a great-circle arc (in R^3) between Vec<ndim> a and Vec<ndim> b.
+/**	Chord is parameterized by s \in [-1,1]
+	
+	@param a origin of chord vector
+	@param b destination of chord vector
+	@param s parameterization variable
+**/
 template <int ndim> Vec<ndim> pointAlongCircle(const Vec<ndim>& a, const Vec<ndim>& b, const scalar_type s, 
     const scalar_type radius=1.0) {
     Vec<ndim> result = pointAlongChord(a,b,s);
@@ -281,6 +288,7 @@ template <int ndim> Vec<ndim> pointAlongCircle(const Vec<ndim>& a, const Vec<ndi
     return result;
 }
 
+/// Return the Euclidean barycenter of a collection of Vec<ndim>s
 template <int ndim> const Vec<ndim> baryCenter(const std::vector<Vec<ndim>>& vecs) {
     Vec<ndim> result;
     for (int i=0; i<vecs.size(); ++i)
@@ -289,6 +297,7 @@ template <int ndim> const Vec<ndim> baryCenter(const std::vector<Vec<ndim>>& vec
     return result;
 }
 
+/// Return the barycenter on the spherical surface  of a collection of Vec<ndim>s (using radial projection)
 template <int ndim> const Vec<ndim> sphereBaryCenter(const std::vector<Vec<ndim>>& vecs, const scalar_type radius = 1.0) {
     Vec<3> result;
     for (int i=0; i<vecs.size(); ++i)
@@ -299,33 +308,41 @@ template <int ndim> const Vec<ndim> sphereBaryCenter(const std::vector<Vec<ndim>
     return result;
 }
 
+/// Return the area of a planar triangle defined by 3 vertices
 inline scalar_type triArea(const Vec<3>& vecA, const Vec<3>& vecB, const Vec<3>& vecC) {
     const Vec<3> s1 = vecB - vecA;
     const Vec<3> s2 = vecC - vecA;
     return 0.5*s1.crossProd(s2).mag();
 }
 
+/// Return the area of a planar triangle defined by 3 vertices
 inline scalar_type triArea(const Vec<2>& vecA, const Vec<2>& vecB, const Vec<2>& vecC) {
     const Vec<2> s1 = vecB - vecA;
     const Vec<2> s2 = vecC - vecA;
     return std::abs(0.5*s1.crossProdComp3(s2));
 }
 
+/// Return the area of a planar triangle defined by 3 vertices
 template <int ndim> scalar_type triArea(const std::vector<Vec<ndim>>& vecs) {
     return triArea(vecs[0], vecs[1], vecs[2]);
 }
 
+/// Return the area of a spherical triangle defined by 3 vertices on the surface of a sphere
 scalar_type sphereTriArea(const Vec<3>& a, const Vec<3>& b, const Vec<3>& c, const scalar_type radius = 1.0);
 
+/// Return the area of a spherical triangle defined by 3 vertices on the surface of a sphere
 inline scalar_type sphereTriArea(const std::vector<Vec<3>>& vecs) {
     return sphereTriArea(vecs[0], vecs[1], vecs[2]);
 }
 
+/// Inverse tangent with quadrant information, but with output range in [0, 2*pi) instead of (-pi, pi]
 scalar_type atan4(const scalar_type y, const scalar_type x);
-// template <int ndim> std::ostream& operator << (std::ostream& os, const Vec<ndim>& vec);
 
+/// Basic output to console
 std::ostream& operator << (std::ostream& os, const Vec<1>& vec);
+/// Basic output to console
 std::ostream& operator << (std::ostream& os, const Vec<2>& vec);
+/// Basic output to console
 std::ostream& operator << (std::ostream& os, const Vec<3>& vec);
 
 }
