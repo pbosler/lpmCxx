@@ -17,14 +17,19 @@ namespace Aos {
 
 typedef std::vector<index_type> ind_vec;
 
+/*
+	Struct for handling vector computations in R^d, where typically d = 2,3.
+*/
 template<int ndim=3> struct Vec {
     scalar_type x[ndim];
 
+	/// Constructor, initialize to 0.
     Vec() {
         for (int i=0; i<ndim; ++i)
             this->x[i] = 0.0;
     }
     
+    /// Copy constructor
     template <int ndim2> Vec(const Vec<ndim2>& other){
         if (ndim < ndim2) {
             throw std::runtime_error("Vec<ndim>(Vec<ndim2>&) : cannot convert to smaller type.");
@@ -37,16 +42,19 @@ template<int ndim=3> struct Vec {
         }
     }
 
+	/// Copy constructor
     Vec(const Vec<ndim>& other) {
         for (int i=0; i<ndim; ++i)
             this->x[i] = other.x[i];
     }
 
+	/// Constructor, initialize first two components
     Vec(const scalar_type xx, const scalar_type yy) {
         this->x[0] = xx;
         this->x[1] = yy;
     }
 
+	/// Constructor, initialize 3 components.
     Vec(const scalar_type xx, const scalar_type yy, const scalar_type zz) {
         if (ndim == 2) {
             this->x[0] = xx;
@@ -59,11 +67,19 @@ template<int ndim=3> struct Vec {
         }
     }
 
+	/// Constructor, initialize from std::array<scalar_type, ndim>
     Vec(const std::array<scalar_type, ndim>& arr) {
         for (int i=0; i<ndim; ++i)
             this->x[i] = arr[i];
     }
     
+	/// Constructor, initialize from std::vector<scalar_type>
+    inline Vec(const std::vector<scalar_type>& xx) {
+        for (int i=0; i<ndim; ++i)
+            this->x[i] = xx[i];
+    }
+    
+    /// Basic assignment operator.
     Vec& operator= (const Vec<ndim>& other) {
         if (this != &other) {
             for (int i=0; i<ndim; ++i)
@@ -72,6 +88,7 @@ template<int ndim=3> struct Vec {
         return *this;
     }
 
+	/// Convert to std::array<scalar_type, ndim>
     inline std::array<scalar_type, ndim> toArray() const {
         std::array<scalar_type, ndim> result;
         for (int i=0; i<ndim; ++i)
@@ -85,10 +102,7 @@ template<int ndim=3> struct Vec {
             result[i] = this->x[i];
     }
 
-    inline Vec(const std::vector<scalar_type>& xx) {
-        for (int i=0; i<ndim; ++i)
-            this->x[i] = xx[i];
-    }
+
 
     inline Vec(const scalar_type* xx) {
         for (int i=0; i<ndim; ++i)

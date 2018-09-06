@@ -185,8 +185,6 @@ template <int ndim> class QuadraticEdge : public Edge<ndim> {
         inline index_type ptsPerEdge() const override {return 3;}
         
         KidEdgeArrays<ndim> divide(const ParticleSet<ndim>& particles, const scalar_type radius=1.0, const GeometryType geom=PLANAR_GEOMETRY) const override;
-        
-       // kidsArray divide(const std::shared_ptr<ParticleFactory<ndim>> pfac) const override;
 };
 
 template <int ndim> class CubicEdge : public Edge<ndim> {
@@ -196,7 +194,7 @@ template <int ndim> class CubicEdge : public Edge<ndim> {
             
         inline index_type ptsPerEdge() const override {return 4;}
         
-//         KidEdgeArrays<ndim> divide(ParticleSet<ndim>& particles, const scalar_type radius=1.0, const GeometryType& geom=PLANAR_GEOMETRY) const override;
+        KidEdgeArrays<ndim> divide(const ParticleSet<ndim>& particles, const scalar_type radius=1.0, const GeometryType geom=PLANAR_GEOMETRY) const override;
         
        // kidsArray divide(const std::shared_ptr<ParticleFactory<ndim>> pfac) const override;
 };

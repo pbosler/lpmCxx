@@ -44,7 +44,7 @@ int main (int argc, char* argv[]) {
     // Edge
     std::shared_ptr<ParticleFactory<3>> sphereFactory(new SWEParticleFactory<3>());
     std::shared_ptr<EdgeFactory<3>> linearEdgeFactory(new LinearEdgeFactory<3>());
-//     std::shared_ptr<EdgeFactory<3>> quadraticEdgeFactory(new QuadraticEdgeFactory<3>());
+    std::shared_ptr<EdgeFactory<3>> quadraticEdgeFactory(new QuadraticEdgeFactory<3>());
 //     std::shared_ptr<EdgeFactory<3>> cubicEdgeFactory(new CubicEdgeFactory<3>());
     
     ParticleSet<3> cubedSphere(sphereFactory, 100);
@@ -58,9 +58,11 @@ int main (int argc, char* argv[]) {
     std::cout << "KidEdgeArrays<3> info:" << std::endl;
     std::cout << linearkids.infoString() << std::endl;
     
-//     std::unique_ptr<Edge<3>> quadEdge = quadraticEdgeFactory->createEdge(0,1,2,3, arr_t({4,-1}));
-//     std::cout << "quadEdge info: " << std::endl;
-//     std::cout << quadEdge->infoString() << std::endl;
+    std::unique_ptr<Edge<3>> quadEdge = quadraticEdgeFactory->createEdge(0,1,2,3, arr_t({4,-1}));
+    std::cout << "quadEdge info: " << std::endl;
+    std::cout << quadEdge->infoString() << std::endl;
+    KidEdgeArrays<3> quadkids = quadEdge->divide(cubedSphere, 1.0, SPHERICAL_SURFACE_GEOMETRY);
+    std::cout << quadkids.infoString() << std::endl;
     
 //     KidEdgeArrays<3> quadratickids = quadEdge->divide(cubedSphere, 1.0, SPHERICAL_SURFACE_GEOMETRY);
     

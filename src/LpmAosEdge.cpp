@@ -62,16 +62,16 @@ template <int ndim> KidEdgeArrays<ndim> QuadraticEdge<ndim>::divide(const Partic
 	Vec<ndim> kid0lagmidpt;
 	Vec<ndim> kid1lagmidpt;
 	if (geom == SPHERICAL_SURFACE_GEOMETRY) {
-		kid0midpt = sphereMidpoint(origcrd, midcrd, radius);
-		kid0lagmidpt = sphereMidpoint(origlagcrd, midlagcrd, radius);
-		kid1midpt = sphereMidpoint(midcrd, destcrd, radius);
-		kid1lagmidpt = sphereMidpoint(midlagcrd, destlagcrd, radius);
+		kid0midpt = origcrd.sphereMidpoint(midcrd, radius);
+		kid0lagmidpt = origlagcrd.sphereMidpoint(midlagcrd, radius);
+		kid1midpt = midcrd.sphereMidpoint(destcrd, radius);
+		kid1lagmidpt = midlagcrd.sphereMidpoint(destlagcrd, radius);
 	}
 	else if (geom == PLANAR_GEOMETRY or geom == CARTESIAN_3D_GEOMETRY) {
-		kid0midpt = midpoint(origcrd, midcrd);
-		kid0lagmidpt = midpoint(origlagcrd, midlagcrd);
-		kid1midpt = midpoint(midcrd, destcrd);
-		kid1lagmidpt= midpoint(midlagcrd, destlagcrd);
+		kid0midpt = origcrd.midpoint(midcrd);
+		kid0lagmidpt = origlagcrd.midpoint(midlagcrd);
+		kid1midpt = midcrd.midpoint(destcrd);
+		kid1lagmidpt = midlagcrd.midpoint(destlagcrd);
 	}
 	const index_type particle_insert_point = particles.n();
 	result.newOrigs[0] = this->_orig;
@@ -88,6 +88,11 @@ template <int ndim> KidEdgeArrays<ndim> QuadraticEdge<ndim>::divide(const Partic
 	result.particles.push_back(particles.getFactory()->createParticle(kid0midpt, kid0lagmidpt));
 	result.particles.push_back(particles.getFactory()->createParticle(kid1midpt, kid1lagmidpt));
 	return result;	
+}
+
+template <int ndim> KidEdgeArrays<ndim> CubicEdge<ndim>::divide(const ParticleSet<ndim>& particles, const scalar_type radius, const GeometryType geom) const {
+	KidEdgeArrays<ndim> result;
+	return result;
 }
 
 template <int ndim> Vec<ndim> Edge<ndim>::midpoint(const ParticleSet<ndim>& particles) const {
@@ -168,5 +173,9 @@ template struct KidEdgeArrays<2>;
 template struct KidEdgeArrays<3>;
 template class Edge<2>;
 template class Edge<3>;
+template class QuadraticEdge<2>;
+template class QuadraticEdge<3>;
+template class CubicEdge<2>;
+template class CubicEdge<3>;
 }
 }
