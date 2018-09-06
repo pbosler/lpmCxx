@@ -16,13 +16,16 @@ namespace Aos {
 
 template <int ndim> class EdgeSet;
 
+/// Arrays used to define the children of a divided Edge
+/** 
+	These arrays are used by EdgeSet to define new edges during mesh refinement.
+*/
 template <int ndim> struct KidEdgeArrays {
 	std::vector<index_type> newOrigs;
 	std::vector<index_type> newDests;
 	std::vector<index_type> newLefts;
 	std::vector<index_type> newRights;
 	std::vector<std::vector<index_type>> newMids;
-	//std::vector<std::unique_ptr<Particle<ndim>>> particles;
 	std::vector<Vec<ndim>> newPhysCrds;
 	std::vector<Vec<ndim>> newLagCrds;
 	
@@ -34,6 +37,13 @@ template <int ndim> struct KidEdgeArrays {
 	std::string infoString() const;
 };
 
+/// Base edge class; equivalent to a linear edge between two vertices.
+/** 
+	Edges will be organized by EdgeSet into a binary tree; each edges knows both its children and its parents in the tree.
+	
+	Each edge knows its two vertices (orig and dest, indices to Particle ptrs in a ParticleSet instance) and is directed from orig->dest.
+	Each edge knows its left face and right face (indices to Face ptrs in a FaceSet instance).
+*/
 template <int ndim> class Edge {
     public:
         Edge(const index_type origID, const index_type destID, const index_type leftID, const index_type rightID,
@@ -179,6 +189,7 @@ template <int ndim> class Edge {
         Vec<ndim> _tangent;
 };
 
+/// Quadratic Edge class
 template <int ndim> class QuadraticEdge : public Edge<ndim> {
     public:
         QuadraticEdge(const index_type origID, const index_type destID, const index_type leftID, const index_type rightID,
@@ -190,6 +201,7 @@ template <int ndim> class QuadraticEdge : public Edge<ndim> {
         KidEdgeArrays<ndim> divide(const ParticleSet<ndim>& particles, const scalar_type radius=1.0, const GeometryType geom=PLANAR_GEOMETRY) const override;
 };
 
+/// Cubic Edge class
 template <int ndim> class CubicEdge : public Edge<ndim> {
     public:
         CubicEdge(const index_type origID, const index_type destID, const index_type leftID, const index_type rightID,
@@ -198,8 +210,6 @@ template <int ndim> class CubicEdge : public Edge<ndim> {
         inline index_type ptsPerEdge() const override {return 4;}
         
         KidEdgeArrays<ndim> divide(const ParticleSet<ndim>& particles, const scalar_type radius=1.0, const GeometryType geom=PLANAR_GEOMETRY) const override;
-        
-       // kidsArray divide(const std::shared_ptr<ParticleFactory<ndim>> pfac) const override;
 };
 }
 }
