@@ -112,9 +112,6 @@ template <int ndim> class EdgeSet {
 		/// Convert an EdgeSet to a VTK cell array for use with VTK.
 		vtkSmartPointer<vtkCellArray> toVtkCellArray() const;
 #endif
-
-/* 		friend class PolyMesh2d<ndim>; */
-
     protected:
         GeometryType _geom;
         index_type _nMax;

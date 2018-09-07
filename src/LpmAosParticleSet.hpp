@@ -86,14 +86,19 @@ template <int ndim> class ParticleSet {
 
 		/// Initialize a scalar field on a particle set.
         void initScalarFieldFromFn(const std::string& field_name, const AnalyticFunction* fn);
+        
         /// Intialize a vector field on a particle set.
         void initVectorFieldFromFn(const std::string& field_name, const AnalyticFunction* fn);
+        
         /// Initialize a scalar field on a particle set.
         void initScalarFieldFromVector(const std::string& field_name, const std::vector<scalar_type>& vals);
+        
         /// Intialize a vector field on a particle set.
         void initVectorFieldFromVectoryArray(const std::string& field_name, const std::vector<Vec<ndim>>& vals);
+        
         /// Return a scalar field value associated with a particular particle
         std::vector<scalar_type> getScalarFieldValues(const std::string& field_name) const;
+        
         inline scalar_type scalarVal(const index_type ind, const std::string field_name) const {
         	return _particles[ind]->getScalar(field_name);
         }

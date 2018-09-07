@@ -17,14 +17,6 @@ scalar_type sphereTriArea(const Vec<3>& a, const Vec<3>& b, const Vec<3>& c, con
     return 4.0 * std::atan(std::sqrt(zz)) * radius*radius;
 }
 
-// template <int ndim> std::ostream& operator << (std::ostream& os, const Vec<ndim>& vec) {
-//     os << "( "; 
-//     for (int i=0; i<ndim; ++i) 
-//         os << vec.x[i] << " ";
-//     os << " )";
-//     return os;
-// }
-
 std::ostream& operator << (std::ostream& os, const Vec<1>& vec) {
     os << "(" << vec.x[0] << ")" << std::endl;
 }

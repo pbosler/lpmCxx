@@ -17,24 +17,35 @@ template <int ndim> void FaceSet<ndim>::insert(const ind_vec& intrs, const ind_v
     _nActive += 1;
 }
 
-template <int ndim> void FaceSet<ndim>::insert(Face<ndim>* fptr) {
-    if (_faces.size() + 1 > _nMax) {
-        throw std::out_of_range("FaceSet::insert (ptr) _nMax exceeded");
-    }
-  // _faces.push_back(std::unique_ptr<Face<ndim>>&)
-}
-
 template <int ndim> void FaceSet<ndim>::divide(const index_type ind, ParticleSet<ndim>& particles, EdgeSet<ndim>& edges) {
     if (_faces.size() + 4 > _nMax) {
         throw std::out_of_range("FaceSet::divide _nMax exceeded");
     }
-    //this->insert(_faces[ind]->divide(particles, edges));
+    const KidFaceArrays<ndim> kids = _faces[ind]->divide(particles, edges, ind, _faces.size(), _radius, _geom);
+    if (dynamic_cast<QuadFace<ndim>*>(_faces[0].get())) {
+        for (short i=0; i<4; ++i) {
+            this->insert(kids.newFaceInteriors[i], kids.newFaceVerts[i], kids.newFaceEdges[i], ind, 
+                kids.newInteriorWeights[i][0]);
+            this->setKid(ind, i, _faces.size());
+        }
+    }
+    else if (dynamic_cast<TriFace<ndim>*>(_faces[0].get())) {
+        for (short i=0; i<4; ++i) {
+            this->insert(kids.newFaceEdges[i], kids.newFaceVerts[i], kids.newFaceEdges[i], ind, 
+                kids.newInteriorWeights[i][0]);
+            this->setKid(ind, i, _faces.size());
+        }
+    }
+    else if (dynamic_cast<QuadCubicFace<ndim>*>(_faces[0].get())) {
+    }
+    _nActive -= 1; 
+    std::cout << "nActive = " << _nActive << std::endl;
 }
 
 template <int ndim> scalar_type FaceSet<ndim>::minArea() const {
     scalar_type result = std::numeric_limits<scalar_type>::max();
     for (index_type i=0; i<_faces.size(); ++i) {
-        if (_faces[i]->area() < result)
+        if (_faces[i]->isLeaf() && _faces[i]->area() < result)
             result = _faces[i]->area();
     }
     return result;
@@ -63,7 +74,7 @@ template <int ndim> scalar_type FaceSet<ndim>::maxLeafArea() const {
 template <int ndim> scalar_type FaceSet<ndim>::totalArea() const {
     scalar_type result = 0.0;
     for (index_type i=0; i<_faces.size(); ++i) {
-        result += _faces[i]->_area;
+        result += _faces[i]->area();
     }
     return result;
 }
@@ -80,7 +91,7 @@ template <int ndim> std::string FaceSet<ndim>::infoString(const bool printAll) c
     ss << "\tminFaceArea = " << minArea() << std::endl;
     if (printAll) {
         for (index_type i=0; i<_faces.size(); ++i) {
-            ss << _faces[i]->infoString();
+            ss << i << ": " << _faces[i]->infoString();
         }
     }
     return ss.str();

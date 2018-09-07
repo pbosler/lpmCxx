@@ -81,19 +81,6 @@ template <int ndim> void EdgeSet<ndim>::divide(const index_type ind, ParticleSet
     _nActive -= 1; // parent edge is no longer active.
 }
 
-// template <int ndim> void EdgeSet<ndim>::initFromVtkPolydataFile(const std::string& fname) {
-//     std::string fullfname(LPM_PARTICLE_SET_DIR);
-//     fullfname += "/" + fname;
-//     std::ifstream file(fullfname);
-//     if (!file.is_open()) {
-//         throw std::ios_base::failure("EdgeSet::initFromParticleSetFile ERROR: file " + fullfname + " not found.");
-//     }
-//     
-//     index_type lineNumber = 0;
-//     std::string line;
-//     
-// }
-
 template <int ndim> std::string EdgeSet<ndim>::infoString(const bool printAll) const {
     std::ostringstream ss;
     ss << "EdgeSet info:" << std::endl;
@@ -102,7 +89,7 @@ template <int ndim> std::string EdgeSet<ndim>::infoString(const bool printAll) c
     ss << "\tnActive = " << _nActive << std::endl;
     if (printAll) {
         for (index_type i=0; i<_edges.size(); ++i) {
-            ss << _edges[i]->infoString();
+            ss << i << ": " << _edges[i]->infoString();
         }
     }
     return ss.str();

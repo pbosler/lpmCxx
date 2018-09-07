@@ -335,6 +335,25 @@ inline scalar_type sphereTriArea(const std::vector<Vec<3>>& vecs) {
     return sphereTriArea(vecs[0], vecs[1], vecs[2]);
 }
 
+template <int ndim> scalar_type polygonArea(const Vec<ndim>& ctr, const std::vector<Vec<ndim>>& ccwcorners){
+	scalar_type result = 0.0;
+	const int nverts = ccwcorners.size();
+	for (int i=0; i<nverts; ++i) {
+		result += triArea(ccwcorners[i], ctr, ccwcorners[(i+1)%nverts]);
+	}
+	return result;
+}
+
+template <int ndim> scalar_type spherePolygonArea(const Vec<ndim>& ctr, const std::vector<Vec<ndim>>& ccwcorners, 
+	const scalar_type radius) {
+	scalar_type result = 0.0;
+	const int nverts = ccwcorners.size();
+	for (int i=0; i<nverts; ++i) {
+		result += sphereTriArea(ccwcorners[i], ctr, ccwcorners[(i+1)%nverts], radius);
+	}
+	return result;
+}
+
 /// Inverse tangent with quadrant information, but with output range in [0, 2*pi) instead of (-pi, pi]
 scalar_type atan4(const scalar_type y, const scalar_type x);
 

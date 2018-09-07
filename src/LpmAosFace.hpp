@@ -16,14 +16,22 @@ namespace Aos {
 typedef std::vector<index_type> ind_vec;
 template <int ndim> class FaceSet;
 
-struct KidFaceArrays {
+template <int ndim> struct KidFaceArrays {
 	std::vector<ind_vec> newFaceVerts;
 	std::vector<ind_vec> newFaceEdges;
 	std::vector<ind_vec> newFaceInteriors;
-	index_type parent;
+	std::vector<std::vector<scalar_type>> newVertWeights;
+	std::vector<std::vector<scalar_type>> newInteriorWeights;
 	
-	KidFaceArrays() : newFaceVerts(ind_vec(4)), newFaceEdges(ind_vec(4)), 
-	newFaceInteriors(ind_vec(4)) {}
+	KidFaceArrays() : newFaceVerts(4,ind_vec(12, -1)), newFaceEdges(4,ind_vec(4,-1)), 
+	newFaceInteriors(4,ind_vec(4,-1)), newVertWeights(4,std::vector<scalar_type>(12,0.0)), 
+		newInteriorWeights(4, std::vector<scalar_type>(4,0.0)) {} 
+	
+	KidFaceArrays(const int nverts, const int nedges, const int ninteriors) : newFaceVerts(4, ind_vec(nverts,-1)), 
+		newFaceEdges(4, ind_vec(nedges,-1)), newFaceInteriors(4, ind_vec(1,-1)), 
+		newVertWeights(4, std::vector<scalar_type>(nverts, 0.0)), newInteriorWeights(4, std::vector<scalar_type>(ninteriors, 0.0)) {}
+
+	std::string infoString() const;
 };	
 
 template <int ndim> class Face {
@@ -40,7 +48,13 @@ template <int ndim> class Face {
         virtual ~Face() {}
         
         virtual void enrich(ParticleSet<ndim>& particles, EdgeSet<ndim>& edges) {};
-        virtual KidFaceArrays<ndim> divide(ParticleSet<ndim>& particles, EdgeSet<ndim>& edges)=0;
+        
+        virtual KidFaceArrays<ndim> divide(ParticleSet<ndim>& particles, EdgeSet<ndim>& edges,
+        	const index_type myIndex, const index_type faceInsertPoint, 
+        	const scalar_type radius=1.0, const GeometryType geom=PLANAR_GEOMETRY) = 0;
+        virtual std::vector<Vec<ndim>> getCorners(const ParticleSet<ndim>& particles) const = 0;
+        virtual scalar_type computeAreaFromCorners(const ParticleSet<ndim>& particles, const GeometryType geom, 
+        	const scalar_type radius) const = 0;
         
         inline bool hasKids() const {return _kids[0] >= 0;}
         inline bool isDivided() const {return hasKids();}
@@ -69,69 +83,21 @@ template <int ndim> class Face {
         inline std::array<index_type, 4> kids() const {return _kids;}
         inline void setKid(const int child, const index_type ind) {_kids[child] = ind;}
         inline void setKids(const std::array<index_type,4>& inds) {_kids = inds;}
+        inline void setKids(const std::vector<index_type>& inds) { for (short i=0; i<4; ++i) _kids[i] = inds[i];}
         
         inline index_type parent() const {return _parent;}
         inline void setParent(const index_type ind) {_parent = ind;}
 
-        scalar_type area() const {return _area;}
+        inline scalar_type area() const {return _area;}
         inline void setArea(const scalar_type ar) {_area = ar;}
-        scalar_type computeArea(const ParticleSet<ndim>& vertexParticles, const ParticleSet<ndim>& faceParticles);
-        void setArea(const GeometryType geom, const ParticleSet<ndim>& particles, const scalar_type radius=1.0);    
-            
-        friend class FaceSet<ndim>;
+        inline void setArea(ParticleSet<ndim>& particles, const GeometryType geom, const scalar_type radius) {
+        	_area = this->computeAreaFromCorners(particles, geom, radius);}
         
-//         inline void registerScalarField(const std::string& field_name) {
-//             this->_sfields.emplace(field_name, 0.0);
-//         }
-//         
-//         inline void registerVectorField(const std::string& field_name) {
-//             this->_vfields.emplace(field_name, vfield_type(ndim,0.0));
-//         }
-//         
-//         inline std::vector<std::string> scalarFieldNames() const {
-//             std::vector<std::string> result;
-//             for (auto& sf : _sfields) {
-//                 result.push_back(sf.first);
-//             }
-//             return result;
-//         }
-//         
-//         inline std::vector<std::string> vectorFieldNames() const {
-//             std::vector<std::string> result;
-//             for (auto& vf : _vfields) {
-//                 result.push_back(vf.first);
-//             }
-//             return result;
-//         }
-//         
-//         inline std::vector<std::string> fieldNames() const {
-//             std::vector<std::string> result;
-//             for (auto& sf : _sfields) {
-//                 result.push_back(sf.first);
-//             }
-//             for (auto& vf : _vfields) {
-//                 result.push_back(vf.first);
-//             }
-//             return result;
-//         }
-//         
-//         inline void setScalar(const std::string& fname, const scalar_type val) {
-//             _sfields.at(fname) = val;
-//         }
-//         
-//         inline void setVector(const std::string& fname, const vfield_type& val) {
-//             _vfields.at(fname) = val;
-//         }
-//         
-//         inline void setVector(const std::string& fname, const Vec<ndim>& val) {
-//             _vfields.at(fname) = val.toStdVec();
-//         }
-//         
-//         inline scalar_type getScalar(const std::string& fname) const {return _sfields.at(fname);}
-//         
-//         inline vfield_type getVector(const std::string& fname) const {return _vfields.at(fname);}
-//         
-//         
+        
+        scalar_type scalarIntegral(const std::string field_name, const ParticleSet<ndim>& particles) const ;
+    
+            
+
     protected:
 
         Face() {}
@@ -153,6 +119,15 @@ template <int ndim> class QuadFace : public Face<ndim> {
         QuadFace(const ind_vec intrs, const ind_vec& verts, const ind_vec& edges, 
             const index_type prnt, const scalar_type ar = 0.0) : 
                 Face<ndim>(intrs, verts, edges, prnt, ar) {}
+                
+        KidFaceArrays<ndim> divide(ParticleSet<ndim>& particles, EdgeSet<ndim>& edges,
+			const index_type myIndex, const index_type faceInsertPoint, 
+        	const scalar_type radius=1.0, const GeometryType geom=PLANAR_GEOMETRY);
+        	
+        std::vector<Vec<ndim>> getCorners(const ParticleSet<ndim>& particles) const;
+        
+        scalar_type computeAreaFromCorners(const ParticleSet<ndim>& particles, const GeometryType geom, 
+        	const scalar_type radius) const;
 
 };
 
@@ -161,12 +136,30 @@ template <int ndim> class TriFace : public Face<ndim> {
         TriFace(const ind_vec& intrs, const ind_vec& verts, const ind_vec& edges, 
             const index_type prnt, const scalar_type ar = 0.0) : 
                 Face<ndim>(intrs, verts, edges, prnt, ar) {}
+       
+        KidFaceArrays<ndim> divide(ParticleSet<ndim>& particles, EdgeSet<ndim>& edges,
+        	const index_type myIndex, const index_type faceN, 
+        	const scalar_type radius=1.0, const GeometryType geom=PLANAR_GEOMETRY);
+        
+        std::vector<Vec<ndim>> getCorners(const ParticleSet<ndim>& particles) const;
+        
+        scalar_type computeAreaFromCorners(const ParticleSet<ndim>& particles, const GeometryType geom, 
+        	const scalar_type radius) const;
 };
 
 template <int ndim> class QuadCubicFace : public Face<ndim> {
     public: 
         QuadCubicFace(const ind_vec& intInds, const ind_vec& vertInds, const ind_vec& edgeInds, 
             const index_type pt, const scalar_type ar=0.0) : Face<ndim>(intInds, vertInds, edgeInds, pt, ar) {}
+        
+        KidFaceArrays<ndim> divide(ParticleSet<ndim>& particles, EdgeSet<ndim>& edges,
+        	const index_type myIndex, const index_type faceInsertPoint, 
+        	const scalar_type radius=1.0, const GeometryType geom=PLANAR_GEOMETRY);
+
+		std::vector<Vec<ndim>> getCorners(const ParticleSet<ndim>& particles) const;
+		        	
+        scalar_type computeAreaFromCorners(const ParticleSet<ndim>& particles, const GeometryType geom, 
+        	const scalar_type radius) const;
         
 };
 

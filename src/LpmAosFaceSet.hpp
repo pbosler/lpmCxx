@@ -35,8 +35,6 @@ template <int ndim> class FaceSet {
     
         void insert(const ind_vec& intrs, const ind_vec& verts, const ind_vec& edges, 
             const index_type parent, const scalar_type ar=0.0);
-        
-        void insert(Face<ndim>* fptr);
             
  		void divide(const index_type ind, ParticleSet<ndim>& particles, EdgeSet<ndim>& edges);
         
@@ -44,15 +42,25 @@ template <int ndim> class FaceSet {
             _faces[ind]->enrich(particles, edges);
         }
         
-        inline void setArea(const ParticleSet<ndim>& particles, const scalar_type radius=1.0) {
+        inline void setArea(const index_type ind, ParticleSet<ndim>& particles) {
+        	if (_faces[ind]->isLeaf()) {
+				_faces[ind]->setArea(particles, _geom, _radius);
+			}
+			else {
+				_faces[ind]->setArea(0.0);
+			}
+        }
+        
+        inline void setArea(ParticleSet<ndim>& particles) {
             for (index_type i=0; i<_faces.size(); ++i) {
-                if (_faces[i]->isLeaf()) {
-                    _faces[i]->setArea(_geom, particles, radius);
-                }
-                else {
-                    _faces[i]->setArea(0.0);
-                }
+                this->setArea(i, particles);
             }
+        }
+        
+        
+        
+        inline void setKid(const index_type parent_index, const short relind, const index_type kid_index){
+        	_faces[parent_index]->setKid(relind, kid_index);   
         }
         
         inline index_type n() const {return _faces.size();}
@@ -66,7 +74,7 @@ template <int ndim> class FaceSet {
         scalar_type maxLeafArea() const;
         scalar_type totalArea() const;
         
-        inline scalar_type area(const index_type ind) const {return _faces[ind]->_area;}
+        inline scalar_type area(const index_type ind) const {return _faces[ind]->area();}
         inline bool isLeaf(const index_type ind) const {return _faces[ind]->isLeaf();}
         
         std::string infoString(const bool printAll = false) const;

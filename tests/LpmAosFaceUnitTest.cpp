@@ -58,13 +58,11 @@ int main (int argc, char* argv[]) {
     std::cout << "Quad Face: " << std::endl;
     std::unique_ptr<Face<3>> qf = quadFactory.createFace(ctr, quadverts, quadedges, prt, ar);
     std::cout << qf->infoString();
-    std::unique_ptr<Face<3>> qfcopy = std::unique_ptr<Face<3>>(new QuadFace<3>(*qf));
-    std::cout << "COPY" << std::endl;
-    std::cout << qfcopy->infoString();
 
     std::cout << "Tri face: " << std::endl;
     std::unique_ptr<Face<2>> tf = triFactory.createFace(ctr, triverts, triedges, prt, ar);
     std::cout << tf->infoString();
+
     
     std::shared_ptr<ParticleFactory<3>> sphereFactory(new SWEParticleFactory<3>());
     ParticleSet<3> cubedSphere(sphereFactory, 100);
@@ -134,13 +132,21 @@ int main (int argc, char* argv[]) {
     for (int i=0; i<6; ++i) {
         cs.insert(ind_vec(1, i+8), fv[i], fe[i], root_index);
     }
-    std::cout << "calling divide" << std::endl;
-    
-//     cs.divide(0, cubedSphere, edges);
-    cs.setArea(cubedSphere);
-    
     std::cout << cs.infoString() << std::endl;
+    cs.setArea(cubedSphere);
+    std::cout << "calling divide" << std::endl;
+    cs.divide(0, cubedSphere, edges);
+
+//     std::cout << "edges:" << std::endl;
+//     std::cout << edges.infoString(true) << std::endl;
+//     std::cout << cs.infoString(true) << std::endl;
+//     cs.setArea(cubedSphere);
+//     std::cout << "returned from set area" << std::endl;
+    std::cout << cs.infoString() << std::endl;
+    
+    
 #ifdef HAVE_VTK
+	std::cout << "Testing VTK" << std::endl;
 	vtkSmartPointer<vtkCellArray> vcells = cs.toVtkCellArray();
 	std::cout << "inserted " << vcells->GetNumberOfCells() << " cells to vtkCellArray." << std::endl;
 #endif    
