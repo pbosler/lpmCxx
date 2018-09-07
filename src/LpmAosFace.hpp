@@ -20,16 +20,14 @@ template <int ndim> struct KidFaceArrays {
 	std::vector<ind_vec> newFaceVerts;
 	std::vector<ind_vec> newFaceEdges;
 	std::vector<ind_vec> newFaceInteriors;
-	std::vector<std::vector<scalar_type>> newVertWeights;
-	std::vector<std::vector<scalar_type>> newInteriorWeights;
+	std::vector<scalar_type> kidsFaceArea;
 	
 	KidFaceArrays() : newFaceVerts(4,ind_vec(12, -1)), newFaceEdges(4,ind_vec(4,-1)), 
-	newFaceInteriors(4,ind_vec(4,-1)), newVertWeights(4,std::vector<scalar_type>(12,0.0)), 
-		newInteriorWeights(4, std::vector<scalar_type>(4,0.0)) {} 
+	newFaceInteriors(4,ind_vec(4,-1)), kidsFaceArea(std::vector<scalar_type>(4,0.0)) {} 
 	
 	KidFaceArrays(const int nverts, const int nedges, const int ninteriors) : newFaceVerts(4, ind_vec(nverts,-1)), 
 		newFaceEdges(4, ind_vec(nedges,-1)), newFaceInteriors(4, ind_vec(1,-1)), 
-		newVertWeights(4, std::vector<scalar_type>(nverts, 0.0)), newInteriorWeights(4, std::vector<scalar_type>(ninteriors, 0.0)) {}
+		kidsFaceArea(std::vector<scalar_type>(4,0.0)){}
 
 	std::string infoString() const;
 };	
@@ -62,6 +60,7 @@ template <int ndim> class Face {
         inline bool hasKids() const {return _kids[0] >= 0;}
         inline bool isDivided() const {return hasKids();}
         inline bool isLeaf() const {return !hasKids();}
+        inline bool isActive() const {return isLeaf();}
         
         Vec<ndim> physBarycenter(const ParticleSet<ndim>& particles) const;
         Vec<ndim> lagBarycenter(const ParticleSet<ndim>& particles) const;

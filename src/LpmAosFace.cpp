@@ -23,12 +23,9 @@ template <int ndim> std::string KidFaceArrays<ndim>::infoString() const {
 		ss << std::endl << "interior particles: ";
 		for (short j=0; j<newFaceInteriors.size(); ++j)
 			ss << newFaceInteriors[i][j] << " ";
-		ss << std::endl << "vertex weights: ";
-		for (short j=0; j<newVertWeights.size(); ++j) 
-			ss << newVertWeights[i][j] << " ";
-		ss << std::endl << "interior weights: ";
-		for (short j=0; j<newInteriorWeights.size(); ++j) 
-			ss << newInteriorWeights[i][j] << " ";
+		ss << std::endl << "child face area:";
+		for (short j=0; j<4; ++j)
+			ss << kidsFaceArea[j] << " ";
 		ss << std::endl;
 	}
 	return ss.str();
@@ -140,7 +137,8 @@ template <int ndim> KidFaceArrays<ndim> QuadFace<ndim>::divide(ParticleSet<ndim>
 		}
 		particles.insert(pcenter, lcenter, ar);
 		result.newFaceInteriors[i][0] = particle_insert_point+i;
-		result.newInteriorWeights[i][0] = ar;
+		result.kidsFaceArea[i] = ar;
+		this->_kids[i] = faceInsertPoint+i;
 	}
 	this->_area = 0.0;
 	particles.setWeight(this->_interiorInds[0], 0.0);
@@ -253,7 +251,8 @@ template <int ndim> KidFaceArrays<ndim> TriFace<ndim>::divide(ParticleSet<ndim>&
 		}
 		particles.insert(pcenter, lcenter, ar);
 		result.newFaceInteriors[i][0] = particle_insert_point+i;
-		result.newInteriorWeights[i][0] = ar;
+		result.kidsFaceArea[i] = ar;
+		this->_kids[i] = faceInsertPoint+i;
 	}
 	// TriFace only: move parent center particle to child 3 center particle
 	for (short j=0; j<3; ++j) {
@@ -272,6 +271,8 @@ template <int ndim> KidFaceArrays<ndim> TriFace<ndim>::divide(ParticleSet<ndim>&
 	}
 	particles.move(this->_interiorInds[0], pcenter, lcenter);
 	particles.setWeight(this->_interiorInds[0], ar);
+	this->_kids[3] = faceInsertPoint+3;
+	result.kidsFaceArea[3] = ar;
 	this->_area = 0.0;
 	return result;
 }
@@ -449,7 +450,8 @@ template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<
 		else if (geom == SPHERICAL_SURFACE_GEOMETRY) {
 			area = spherePolygonArea(pctr, pcorners, radius);
 		}
-		
+		result.kidsFaceArea[i] = area;
+		this->_kids[i] = faceInsertPoint+i;
 		const std::vector<Vec<ndim>> pintcrds = gll.template quad16interiors<ndim>(pcorners, geom, radius);
 		const std::vector<Vec<ndim>> lintcrds = gll.template quad16interiors<ndim>(lcorners, geom, radius);
 		particles.move(this->_interiorInds[i], pintcrds[i], lintcrds[i]);
@@ -460,11 +462,9 @@ template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<
 			}
 		}
 		for (short j=0; j<12; ++j) {
-			result.newVertWeights[i][j] = area*CubicGLL::quad16edgeqw[j];
 			particles.setWeight(result.newFaceVerts[i][j], area*CubicGLL::quad16edgeqw[j]);
 		}
 		for (short j=0; j<4; ++j) {
-			result.newInteriorWeights[i][j] = area*CubicGLL::quad16centerqw[j];
 			particles.setWeight(result.newFaceInteriors[i][j], area*CubicGLL::quad16centerqw[j]);
 		}
 	}
@@ -481,7 +481,6 @@ template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<
 		}
 	}
 	this->_area = 0.0;
-	this->_kids = std::array<index_type,4>({faceInsertPoint, faceInsertPoint+1, faceInsertPoint+2, faceInsertPoint+3});
 	return result;
 }
 

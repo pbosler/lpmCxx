@@ -22,22 +22,9 @@ template <int ndim> void FaceSet<ndim>::divide(const index_type ind, ParticleSet
         throw std::out_of_range("FaceSet::divide _nMax exceeded");
     }
     const KidFaceArrays<ndim> kids = _faces[ind]->divide(particles, edges, ind, _faces.size(), _radius, _geom);
-    if (dynamic_cast<QuadFace<ndim>*>(_faces[0].get())) {
-        for (short i=0; i<4; ++i) {
-            this->insert(kids.newFaceInteriors[i], kids.newFaceVerts[i], kids.newFaceEdges[i], ind, 
-                kids.newInteriorWeights[i][0]);
-            this->setKid(ind, i, _faces.size());
-        }
-    }
-    else if (dynamic_cast<TriFace<ndim>*>(_faces[0].get())) {
-        for (short i=0; i<4; ++i) {
-            this->insert(kids.newFaceEdges[i], kids.newFaceVerts[i], kids.newFaceEdges[i], ind, 
-                kids.newInteriorWeights[i][0]);
-            this->setKid(ind, i, _faces.size());
-        }
-    }
-    else if (dynamic_cast<QuadCubicFace<ndim>*>(_faces[0].get())) {
-    }
+    for (short i=0; i<4; ++i) {
+        this->insert(kids.newFaceInteriors[i], kids.newFaceVerts[i], kids.newFaceEdges[i], ind, kids.kidsFaceArea[i]);
+    }   
     _nActive -= 1; 
     std::cout << "nActive = " << _nActive << std::endl;
 }

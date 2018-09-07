@@ -11,7 +11,7 @@ add_library( lpm LpmXyzVector.cpp LpmUtilities.cpp LpmOutputMessage.cpp LpmLogge
              LpmBox3d.cpp LpmOctree.cpp LpmSakajo2009.cpp
              LpmTreeSum.cpp
              LpmAosTypes.cpp LpmAosParticleSet.cpp LpmAosEdge.cpp LpmAosEdgeSet.cpp 
-             LpmAosFace.cpp LpmAosFaceSet.cpp #LpmAosMeshSeed.cpp #LpmAosPolyMesh2d.cpp
+             LpmAosFace.cpp LpmAosFaceSet.cpp LpmAosMeshSeed.cpp #LpmAosPolyMesh2d.cpp
 )
 TARGET_LINK_LIBRARIES(lpm ${VTK_LIBRARIES})
 
