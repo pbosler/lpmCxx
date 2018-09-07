@@ -52,7 +52,10 @@ template <int ndim> class Face {
         virtual KidFaceArrays<ndim> divide(ParticleSet<ndim>& particles, EdgeSet<ndim>& edges,
         	const index_type myIndex, const index_type faceInsertPoint, 
         	const scalar_type radius=1.0, const GeometryType geom=PLANAR_GEOMETRY) = 0;
+        	
         virtual std::vector<Vec<ndim>> getCorners(const ParticleSet<ndim>& particles) const = 0;
+        virtual std::vector<Vec<ndim>> getLagCorners(const ParticleSet<ndim>& particles) const = 0;
+        
         virtual scalar_type computeAreaFromCorners(const ParticleSet<ndim>& particles, const GeometryType geom, 
         	const scalar_type radius) const = 0;
         
@@ -128,7 +131,8 @@ template <int ndim> class QuadFace : public Face<ndim> {
         
         scalar_type computeAreaFromCorners(const ParticleSet<ndim>& particles, const GeometryType geom, 
         	const scalar_type radius) const;
-
+        
+        std::vector<Vec<ndim>> getLagCorners(const ParticleSet<ndim>& particles) const;
 };
 
 template <int ndim> class TriFace : public Face<ndim> {
@@ -145,6 +149,8 @@ template <int ndim> class TriFace : public Face<ndim> {
         
         scalar_type computeAreaFromCorners(const ParticleSet<ndim>& particles, const GeometryType geom, 
         	const scalar_type radius) const;
+        
+        std::vector<Vec<ndim>> getLagCorners(const ParticleSet<ndim>& particles) const;
 };
 
 template <int ndim> class QuadCubicFace : public Face<ndim> {
@@ -160,7 +166,7 @@ template <int ndim> class QuadCubicFace : public Face<ndim> {
 		        	
         scalar_type computeAreaFromCorners(const ParticleSet<ndim>& particles, const GeometryType geom, 
         	const scalar_type radius) const;
-        
+        std::vector<Vec<ndim>> getLagCorners(const ParticleSet<ndim>& particles) const;
 };
 
 }

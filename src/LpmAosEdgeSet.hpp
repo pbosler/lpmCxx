@@ -69,6 +69,10 @@ template <int ndim> class EdgeSet {
         inline index_type orig(const index_type ind) const {return _edges[ind]->orig();}
         /// Return the destination index of an edge (the index is associated with a ParticleSet instance)
         inline index_type dest(const index_type ind) const {return _edges[ind]->dest();}
+        /// Return the index of the particle at the edge's first interior point (the index is associated with a ParticleSet instance)
+        inline index_type midpt0(const index_type ind) const {return _edges[ind]->midpt0();}
+        /// Return the index of the particle at the edge's second interior point (the index is associated with a ParticleSet instance)
+        inline index_type midpt1(const index_type ind) const {return _edges[ind]->midpt1();}
 
 		/// Collect info about an EdgeSet, output to string.
         std::string infoString(const bool printAll = false) const;
