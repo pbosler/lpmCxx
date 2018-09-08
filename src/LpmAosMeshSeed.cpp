@@ -19,10 +19,20 @@ template <int ndim> std::string MeshSeed<ndim>::infoString() const {
     ss << std::endl;
     ss << "\tedges :" << std::endl;
     ss << std::setw(20) << "orig" << std::setw(20) <<  "dest"<< std::setw(20)  << "left"
-        << std::setw(20) << "right" << std::endl;
+        << std::setw(20) << "right";
+    if (!edgeInteriors.empty()) {
+        ss << std::setw(20) << "midpt0" << std::setw(20) << "midpt1";
+    }
+    ss << std::endl;
     for (index_type i=0; i<_nEdges; ++i) {
         ss << std::setw(20) << edgeOrigs[i] << std::setw(20) << edgeDests[i] << std::setw(20) << edgeLefts[i]
-            << std::setw(20) << edgeRights[i] << std::endl;
+            << std::setw(20) << edgeRights[i];
+        if (!edgeInteriors.empty()) {
+            for (int j=0; j<edgeInteriors[i].size(); ++j) {
+                ss << std::setw(20) << edgeInteriors[i][j];
+            }
+        }
+        ss << std::endl;
     }
     ss << "\tface vertices:" << std::endl;
     for (index_type i=0; i<_nFaces; ++i) {
@@ -40,6 +50,16 @@ template <int ndim> std::string MeshSeed<ndim>::infoString() const {
         }
         ss << std::endl;
     }
+    if (!faceInteriors.empty() > 0) {
+        ss << "\tface centers:" <<  faceInteriors.size() << std::endl;
+        for (int i=0; i<_nFaces; ++i) {
+            ss << "\t";
+            for (int j=0; j<faceInteriors[i].size(); ++j) {
+                ss << faceInteriors[i][j] << " ";
+            }
+            ss << std::endl;
+        }
+    }
     return ss.str();
 }
 
@@ -49,7 +69,7 @@ template <int ndim> void MeshSeed<ndim>::determineMaxAllocations(index_type& nv,
     ne = 0;
     for (int k=0; k<=maxRec; ++k) {
         nf += this->nFacesAfterUniformRefinement(k);
-        ne += this->nEdgesAfterUniformRefinement(nVerticesAfterUniformRefinement(k), nFacesAfterUniformRefinement(k));
+        ne += this->nEdgesAfterUniformRefinement(nVerticesAfterUniformRefinement(k), nFacesAfterUniformRefinement(k), k);
     }
 }
 
@@ -62,13 +82,14 @@ template <int ndim> void MeshSeed<ndim>::initFromFile() {
     edgeRights.clear();
     faceVerts.clear();
     faceEdges.clear();
+    edgeInteriors.clear();
+    faceInteriors.clear();
     
     // open mesh seed data file
     std::string fullFilename(LPM_MESH_SEED_DIR);
     fullFilename += "/";
     fullFilename += _fname;
     _fname = fullFilename;
-    
     
     std::ifstream seedFile(fullFilename);
     if (!seedFile.is_open()) {
@@ -79,17 +100,27 @@ template <int ndim> void MeshSeed<ndim>::initFromFile() {
     else {
         std::cout << "MeshSeed::initFromFile: reading mesh seed data from file " << fullFilename << std::endl;
     }
+    bool cubicFace = false;
+    if (fullFilename.find("Cubic") != std::string::npos) {
+        cubicFace = true;
+        std::cout << "cubic data found in file " << fullFilename << std::endl;
+    }
+    
     // parse file
     std::string line;
     index_type lineNumber=0;
     index_type edgeSectionHeaderLine = -1;
+    bool edgeInteriorsIncluded = false;
     index_type faceVertHeaderLine = -1;
-    index_type faceSectionHeaderLine = -1;
-    index_type vertexDegreeHeaderLine = -1;
+    index_type faceEdgeHeaderLine = -1;
+    index_type faceCenterHeaderLine = -1;
     while (std::getline(seedFile, line)) {
         ++lineNumber;
         if (line.find("edgeO") != std::string::npos) {
             edgeSectionHeaderLine = lineNumber;
+            if (line.find("edgeInts") != std::string::npos) {
+                edgeInteriorsIncluded = true;
+            }
 //std::cout << edgeSectionHeaderLine << std::endl;
         }
         if (line.find("faceverts") != std::string::npos) {
@@ -97,14 +128,12 @@ template <int ndim> void MeshSeed<ndim>::initFromFile() {
 //             std::cout << faceVertHeaderLine << std::endl;
         }
         if (line.find("faceedges") != std::string::npos) {
-            faceSectionHeaderLine = lineNumber;
-//             std::cout << faceSectionHeaderLine << std::endl;
+            faceEdgeHeaderLine = lineNumber;
+//             std::cout << faceEdgeHeaderLine << std::endl;
         }
-        if (line.find("vertexdegree")!= std::string::npos) {
-            vertexDegreeHeaderLine = lineNumber;
-//            std::cout << vertexDegreeHeaderLine << std::endl;
+        if (line.find("facecenters") != std::string::npos) {
+            faceCenterHeaderLine = lineNumber;
         }
-        
         std::istringstream iss(line);
         if (lineNumber>1 && lineNumber < _nCrds+2) {
             scalar_type x,y,z;
@@ -139,14 +168,27 @@ template <int ndim> void MeshSeed<ndim>::initFromFile() {
             index_type destInd;
             index_type leftInd;
             index_type rightInd;
-            if (!(iss >> origInd >> destInd >> leftInd >> rightInd)) {
-                edgeErr = true;
+            index_type mid0;
+            index_type mid1;
+            ind_vec_type edgeints;
+            if (edgeInteriorsIncluded) {
+                if (!(iss >> origInd >> destInd >> leftInd >> rightInd >> mid0 >> mid1)) {
+                    edgeErr = true;
+                }
+                edgeints = {mid0, mid1};
+            }
+            else {
+                if (!(iss >> origInd >> destInd >> leftInd >> rightInd)) {
+                    edgeErr = true;
+                }
+                edgeints = {-1,-1};
             }
             //std::cout << origInd << " " << destInd << " " << leftInd << " " << rightInd << std::endl;
             edgeOrigs.push_back(origInd);
             edgeDests.push_back(destInd);
             edgeLefts.push_back(leftInd);
             edgeRights.push_back(rightInd);
+            edgeInteriors.push_back(edgeints);
             
             if (edgeErr) {
                 std::ostringstream ss;
@@ -187,8 +229,8 @@ template <int ndim> void MeshSeed<ndim>::initFromFile() {
                 throw std::ios_base::failure(ss.str());
             }
        }
-       else if (faceSectionHeaderLine>0 && lineNumber > faceSectionHeaderLine && 
-        lineNumber < faceSectionHeaderLine + _nFaces +1) {
+       else if (faceEdgeHeaderLine>0 && lineNumber > faceEdgeHeaderLine && 
+        lineNumber < faceEdgeHeaderLine + _nFaces +1) {
             bool faceErr = false;
             index_type e0;
             index_type e1;
@@ -220,7 +262,35 @@ template <int ndim> void MeshSeed<ndim>::initFromFile() {
                 throw std::ios_base::failure(ss.str());
             }
        }
-           
+        else if (faceCenterHeaderLine>0 && lineNumber > faceCenterHeaderLine && 
+            lineNumber < faceCenterHeaderLine + _nFaces + 1) {
+            bool faceErr = false;
+            ind_vec_type faceints;
+            if (cubicFace) {
+                index_type c0;
+                index_type c1;
+                index_type c2;  
+                index_type c3;
+                if (!(iss >> c0 >> c1 >> c2 >> c3)) {
+                    faceErr = true;
+                }
+                faceints = {c0, c1, c2, c3};
+            }
+            else {
+                index_type c0;
+                if (!(iss >> c0)) {
+                    faceErr = true;
+                }
+                faceints = {c0};
+            }
+//             std::cout << "faceints.size() = " << faceints.size() << std::endl;
+            faceInteriors.push_back(faceints);
+            if (faceErr) {
+                std::ostringstream ss;
+                ss << "error: cannot read face centers from line " << lineNumber << " of file " << fullFilename;
+                throw std::ios_base::failure(ss.str());
+            }
+        }
     }
 }
 
@@ -268,20 +338,43 @@ index_type CubedSphereSeed::nVerticesAfterUniformRefinement(const index_type rec
     return 2 + 6 * std::pow(4, recursionLevel);
 }
 
-index_type TriHexSeed::nEdgesAfterUniformRefinement(const index_type nverts, const index_type nfaces) const {
+index_type TriHexSeed::nEdgesAfterUniformRefinement(const index_type nverts, const index_type nfaces, const index_type recursionLevel) const {
     return nfaces + nverts - 1;
 }
 
-index_type QuadRectSeed::nEdgesAfterUniformRefinement(const index_type nverts, const index_type nfaces) const {
+index_type QuadRectSeed::nEdgesAfterUniformRefinement(const index_type nverts, const index_type nfaces, const index_type recursionLevel) const {
     return nfaces + nverts - 1;
 }
 
-index_type IcosTriSphereSeed::nEdgesAfterUniformRefinement(const index_type nverts, const index_type nfaces) const {
+index_type IcosTriSphereSeed::nEdgesAfterUniformRefinement(const index_type nverts, const index_type nfaces, const index_type recursionLevel) const {
     return nfaces + nverts - 2;
 }
 
-index_type CubedSphereSeed::nEdgesAfterUniformRefinement(const index_type nverts, const index_type nfaces) const {
+index_type CubedSphereSeed::nEdgesAfterUniformRefinement(const index_type nverts, const index_type nfaces, const index_type recursionLevel) const {
     return nfaces + nverts - 2;
+}
+
+index_type QuadCubicSeed::nFacesAfterUniformRefinement(const index_type recursionLevel) const {
+    return 4 * std::pow(4, recursionLevel);
+}
+
+index_type QuadCubicSeed::nEdgesAfterUniformRefinement(const index_type nverts, const index_type nfaces, const index_type recursionLevel) const {
+    const index_type nf = 4*std::pow(4, recursionLevel);
+    index_type nv = 3;
+    for (int i=1; i<=recursionLevel; ++i) {
+        nv = nv + std::pow(2,i);
+    }
+    nv *= nv;
+    return nf + nv - 1;
+}
+
+index_type QuadCubicSeed::nVerticesAfterUniformRefinement(const index_type recursionLevel) const  {
+    index_type result = 49;
+    for (int i=1; i<=recursionLevel; ++i) {
+        result = 2*std::sqrt(scalar_type(result))-1;
+        result *= result;
+    }
+    return result;
 }
 
 template class MeshSeed<2>;

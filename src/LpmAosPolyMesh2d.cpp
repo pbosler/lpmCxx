@@ -8,170 +8,241 @@
 namespace Lpm {
 namespace Aos {
 
-template <int ndim> void PolyMesh2d<ndim>::initFromSeedStaggeredFacesAndVerts() {
-    std::shared_ptr<MeshSeed<ndim>> seed = _seed.lock();
-    const index_type nseedverts = seed->nVerts();
-    const index_type nseededges = seed->nEdges();
-    const index_type nseedfaces = seed->nFaces();
-    const index_type nseedcrds = seed->nCrds();
-    const int nedgesperface = seed->nEdgesPerFace();
-    
-    index_type nMaxVertices;
-    index_type nMaxEdges;
-    index_type nMaxFaces;
-    seed->determineMaxAllocations(nMaxVertices, nMaxEdges, nMaxFaces, _maxRecursion);
-    
-    std::cout << "PolyMesh2d::initFromSeedStaggeredFacesAndVerts using meshSeed " << seed->idString() << "; reserving space for "
-    << nMaxVertices << " vertices, " << nMaxEdges << " edges, and " << nMaxFaces << " faces." << std::endl;
-    
-    _vertexParticles = std::unique_ptr<ParticleSet<ndim>>(new ParticleSet<ndim>(_pfac, nMaxVertices));
-    _faceParticles = std::unique_ptr<ParticleSet<ndim>>(new ParticleSet<ndim>(_pfac, nMaxFaces));
-    _edges = std::unique_ptr<EdgeSet<ndim>>(new EdgeSet<ndim>(_efac, _geom, nMaxEdges));
-    _faces = std::unique_ptr<FaceSet<ndim>>(new FaceSet<ndim>(_ffac, nMaxFaces, _geom, _radius));
-    
-//     std::cout << _edges->infoString();
-
-    for (index_type i=0; i<nseedverts; ++i) {
-        _vertexParticles->insert(seed->crds[i]);
+template <int ndim> void PolyMesh2d<ndim>::initStaggeredVerticesAndFacesFromSeed() {
+    // determine memory allocations
+    index_type nmaxparticles;
+    index_type nmaxedges;
+    index_type nmaxfaces;
+    _seed->determineMaxAllocations(nmaxparticles, nmaxedges, nmaxfaces, _maxnest);
+    // build basic containers
+    const GeometryType geom = _seed->geometryType();
+    _particles = std::unique_ptr<ParticleSet<ndim>>(new ParticleSet<ndim>(_pfac, nmaxparticles+nmaxfaces));
+    _edges = std::unique_ptr<EdgeSet<ndim>>(new EdgeSet<ndim>(_efac, geom, nmaxedges));
+    _faces = std::unique_ptr<FaceSet<ndim>>(new FaceSet<ndim>(_ffac, nmaxfaces, geom, _radius));
+    // build root mesh from seed
+    const int nseedverts = _seed->nVerts();
+    const int nseedfaces = _seed->nFaces();
+    const int nseededges = _seed->nEdges();
+    // insert particles from seed coordinates
+    for (int i=0; i<nseedverts; ++i) {
+        _particles->insert(_seed->crds[i], 0.0, true);
     }
-    
-    if (seed->faceCrdsIncluded()) {
-        for (index_type i=0; i<nseedfaces; ++i) {
-            _faceParticles->insert(seed->crds[i+nseedverts]);    
+    if (_seed->faceCrdsIncluded()) {
+        for (int i=0; i<nseedfaces; ++i) {
+            _particles->insert(_seed->crds[nseedverts + i]);
         }
     }
     else {
-        std::vector<Vec<ndim>> verts(nedgesperface);
-        for (index_type i=0; i<nseedfaces; ++i) {
-            for (index_type j=0; j<nedgesperface; ++j) {
-                verts[j] = seed->crds[seed->faceVerts[i][j]];
+        const short nvertsperface = _seed->faceVerts[0].size();
+        std::vector<Vec<ndim>> corners(nvertsperface);
+        for (int i=0; i<nseedfaces; ++i){
+            for (short j=0; j<nvertsperface; ++j) {
+                corners[j] = _seed->crds[_seed->faceVerts[i][j]];
             }
-            if (_geom == SPHERICAL_SURFACE_GEOMETRY ){
-                _faceParticles->insert(sphereBaryCenter(verts));
+            if (geom == PLANAR_GEOMETRY || geom == CARTESIAN_3D_GEOMETRY) {
+                _particles->insert(baryCenter(corners));
             }
-            else {
-                _faceParticles->insert(baryCenter(verts));
+            else if (geom == SPHERICAL_SURFACE_GEOMETRY) {
+                _particles->insert(sphereBaryCenter(corners, _radius));
             }
         }
     }
-
-    
-    for (index_type i=0; i<nseededges; ++i) {
-        _edges->insert(seed->edgeOrigs[i], seed->edgeDests[i], seed->edgeLefts[i], seed->edgeRights[i]);
+    // insert edges from seed
+    for (int i=0; i<nseededges; ++i) {
+        _edges->insert(_seed->edgeOrigs[i], _seed->edgeDests[i], _seed->edgeLefts[i], _seed->edgeRights[i],
+             _seed->edgeInteriors[i]);
     }
-    std::vector<index_type> interior_ind(1,-1);
-    const index_type root_parent_ind = -1;
-    for (index_type i=0; i<nseedfaces; ++i) {
-        interior_ind[0] = i;
-        _faces->insert(interior_ind, seed->faceVerts[i], seed->faceEdges[i], root_parent_ind, _radius);
+    // insert faces from seed
+    const index_type root_parent = -1;
+    for (int i=0; i<nseedfaces; ++i) {
+        _faces->insert(_seed->faceInteriors[i], _seed->faceVerts[i], _seed->faceEdges[i], root_parent);
     }
-
-    std::cout << "PolyMesh2d::initFromSeedStaggeredFacesAndVerts: starting uniform refinement." << std::endl;
+    _faces->setArea(*_particles);
 }
 
-
-// template <int ndim> void PolyMesh2d<ndim>::initFromSeedStaggeredFacesAndVerts(const MeshSeed* seedptr, 
-//      const std::shared_ptr<ParticleFactory<ndim>> pfac,  const std::shared_ptr<EdgeFactory<ndim>> efac,
-//      const std::shared_ptr<FaceFactory<ndim>> ffac) 
-// {
-//     _seedId = seedptr->idString();
-//     _geom = seedptr->geometryType();
-//     if (!verifyFactories(seedptr, ffac)) {
-//         throw std::runtime_error("mismatched face type.");
-//     }
-//     _facekind = seedptr->faceType();
-//     
-//     index_type nMaxVerts;
-//     index_type nMaxFaces;
-//     index_type nMaxEdges;
-//     seedptr->determineMaxAllocations(nMaxVerts, nMaxEdges, nMaxFaces, _maxRecursion);
-//     
-//     _vertexParticles = ParticleSet<ndim>(pfac, nMaxVerts);
-//     _faceParticles = ParticleSet<ndim>(pfac, nMaxFaces);
-//     //_edgeParticles = nullptr;
-//     
-//     _edges = EdgeSet<ndim>(efac, _geom, nMaxEdges);
-//     _faces = FaceSet<ndim>(ffac, nMaxFaces, _geom, _radius);
-//     
-//     for (index_type i=0; i<seedptr->nCrds(); ++i) {
-//         switch (ndim) {
-//             case (2) : {
-//                 _vertexParticles.insert(seedptr->r2Crds[i]);
-//                 break;
-//             }
-//             case (3) : {
-//                 _vertexParticles.insert(seedptr->r3Crds[i]);
-//                 break;
-//             }
-//         }
-//     }
-//     if (seedptr->faceCrdsIncluded()) {
-//         for (index_type i=0; i<seedptr->nFaces(); ++i) {
-//             switch (ndim) {
-//                 case (2) : {
-//                     _faceParticles.insert(seedptr->r2Crds[seedptr->nVerts()+i]);
-//                     break;
-//                 }
-//                 case (3) : {
-//                     _faceParticles.insert(seedptr->r3Crds[seedptr->nVerts()+i]);
-//                     break;
-//                 }
-//             }
-//         }
-//     }
-//     else {
-//         for (index_type i=0; i<seedptr->nFaces(); ++i) {
-//             switch (ndim) {
-//                 case (2) : {
-//                     std::vector<Vec<2>> verts(seedptr->nEdgesPerFace());
-//                     for (int j=0; j<seedptr->nEdgesPerFace(); ++j) {
-//                         verts[j] = seedptr->r2Crds[seedptr->faceVerts[i][j]];    
-//                     }
-//                     _faceParticles.insert(baryCenter(verts));
-//                     break;
-//                 }
-//                 case (3) : {
-//                     std::vector<Vec<3>> verts(seedptr->nEdgesPerFace());
-//                     for (int j=0; j<seedptr->nEdgesPerFace(); ++j) {
-//                         verts[j] = seedptr->r3Crds[seedptr->faceVerts[i][j]];
-//                     }
-//                     if (_geom == SPHERICAL_SURFACE_GEOMETRY) {
-//                         _faceParticles.insert(sphereBaryCenter(verts));
-//                     }
-//                     else {
-//                         _faceParticles.insert(baryCenter(verts));
-//                     }
-//                     break;
-//                 }
-//             }
-//         }
-//     }
-//     
-//     for (index_type i=0; i<seedptr->nEdges(); ++i) {
-//         _edges.insert(seedptr->edgeOrigs[i], seedptr->edgeDests[i], seedptr->edgeLefts[i], seedptr->edgeRights[i]);
-//         _edges.enrich(i, _vertexParticles);
-//     }
-//     std::vector<index_type> intrs(1,-1);
-//     const index_type root_face_parent_index = -1;
-//     for (index_type i=0; i<seedptr->nFaces(); ++i) {
-//         intrs[0] = i;
-//         _faces.insert(intrs, seedptr->faceVerts[i], seedptr->faceEdges[i], root_face_parent_index);
-//         _faces.enrich(i, _vertexParticles, _edges);
-//     }
-// }
-
-template <int ndim> bool PolyMesh2d<ndim>::verifyFactories(const MeshSeed<ndim>* seed, const std::shared_ptr<FaceFactory<ndim>> ffac) {    
-    return (seed->faceType() == ffac->basicFaceType());
+template <int ndim> std::string PolyMesh2d<ndim>::infoString(const bool printAll) const {
+    std::ostringstream ss;
+    ss << "POLYMESH INFO" << std::endl;
+    ss << _particles->infoString(printAll);
+    ss << _edges->infoString(printAll);
+    ss << _faces->infoString(printAll);
+    return ss.str();
 }
-
 
 #ifdef HAVE_VTK
+template <int ndim> vtkSmartPointer<vtkPoints> PolyMesh2d<ndim>::verticesToVtkPoints(const bool useFieldForHeight,
+    const std::string field_name) const {
+    vtkSmartPointer<vtkPoints> result;
+    index_type ctr = 0;
+    switch (ndim) {
+        case (2) : {
+            for (index_type i=0; i<_particles->n(); ++i) {
+                if (_particles->isVertex(i)) {
+                    const Vec<ndim> pos = _particles->physCrd(i);
+                    result->InsertPoint(ctr++, pos.x[0], pos.x[1], 
+                        (useFieldForHeight ? _particles->scalarVal(i, field_name) : 0.0));
+                }
+            }
+            break;
+        }
+        case (3) : {
+            for (index_type i=0; i<_faces->n(); ++i) {
+                if (_particles->isVertex(i)) {
+                    const Vec<ndim> pos = _particles->physCrd(i);
+                    result->InsertPoint(ctr++, pos.x[0], pos.x[1], pos.x[2]);
+                }
+            }
+            break;
+        }
+    }
+    return result;
+}
+
+template <int ndim> vtkSmartPointer<vtkPointData> PolyMesh2d<ndim>::fieldsToVtkPointData() const {
+    vtkSmartPointer<vtkPointData> result = vtkSmartPointer<vtkPointData>::New();
+    // add geometric weight data
+    vtkSmartPointer<vtkDoubleArray> wgt = vtkSmartPointer<vtkDoubleArray>::New();
+    wgt->SetName("particle_weight");
+    wgt->SetNumberOfComponents(1);
+    const index_type nverts = this->nVertices();
+    std::cout << "adding weights for " << nverts << " vertices." << std::endl;
+    wgt->SetNumberOfTuples(nverts);
+    index_type ctr=0;
+    for (index_type i=0; i<_particles->n(); ++i) {
+        if (_particles->isVertex(i)) {
+            wgt->InsertTuple1(ctr++, _particles->weight(i));
+        }
+    }
+    result->AddArray(wgt);
+    std::cout << "added "<< ctr << " weights to point data." << std::endl;
+    // collect field names
+    const std::vector<std::string> sfields = _particles->getScalarFieldNames();
+    const std::vector<std::string> vfields = _particles->getVectorFieldNames();
+    // add field data
+    for (int i=0; i<sfields.size(); ++i) {
+        vtkSmartPointer<vtkDoubleArray> data = vtkSmartPointer<vtkDoubleArray>::New();
+        data->SetName(sfields[i].c_str());
+        data->SetNumberOfComponents(1);
+        data->SetNumberOfTuples(nverts);
+        ctr=0;
+        for (index_type j=0; j<_faces->n(); ++j) {
+            if (_faces->isLeaf(j)) {
+                const std::vector<index_type> vertinds = _faces->vertices(j);
+                for (index_type k=0; k<vertinds.size(); ++k) {
+                    data->InsertTuple1(ctr++, _particles->scalarVal(vertinds[k], sfields[i]));
+                }
+            }
+        }
+        result->AddArray(data);
+//         std::cout << "added field " << sfields[i] << std::endl;
+    }
+    for (int i=0; i<vfields.size(); ++i) {
+        vtkSmartPointer<vtkDoubleArray> data = vtkSmartPointer<vtkDoubleArray>::New();
+        data->SetName(vfields[i].c_str());
+        data->SetNumberOfComponents(ndim);
+        data->SetNumberOfTuples(nVertices());
+        ctr=0;
+        for (index_type j=0; j<_faces->n(); ++j) {
+            if (_faces->isLeaf(j)) {
+                const std::vector<index_type> vertinds = _faces->vertices(j);
+                for (index_type k=0; k<vertinds.size(); ++k) {
+                    const std::vector<scalar_type> val = _particles->vectorVal(vertinds[k], vfields[i]);
+                    switch (ndim) {
+                        case (2) :{
+                            data->InsertTuple2(ctr++, val[0], val[1]);
+                            break;
+                        }
+                        case (3) : {
+                            data->InsertTuple3(ctr++, val[0], val[1], val[2]);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return result;
+}
+
+template <int ndim> vtkSmartPointer<vtkCellData> PolyMesh2d<ndim>::fieldsToVtkCellData() const {
+    vtkSmartPointer<vtkCellData> result = vtkSmartPointer<vtkCellData>::New();
+    // add geometric data
+    vtkSmartPointer<vtkDoubleArray> area = vtkSmartPointer<vtkDoubleArray>::New();
+    area->SetName("area");
+    area->SetNumberOfComponents(1);
+    area->SetNumberOfTuples(_faces->nActive());
+    index_type ctr=0;
+    for (index_type i=0; i<_faces->n(); ++i) {
+        if (_faces->isLeaf(i)) {
+            area->InsertTuple1(ctr++, _faces->area(i));
+        }
+    }
+    result->AddArray(area);
+    // collect field names
+    const std::vector<std::string> sfields = _particles->getScalarFieldNames();
+    const std::vector<std::string> vfields = _particles->getVectorFieldNames();
+    const index_type nintrs = _faces->nIntrsPerFace();
+    for (int i=0; i<sfields.size(); ++i) {
+        vtkSmartPointer<vtkDoubleArray> data = vtkSmartPointer<vtkDoubleArray>::New();
+        data->SetName(sfields[i].c_str());
+        data->SetNumberOfComponents(1);
+        data->SetNumberOfTuples(_faces->nActive());
+        ctr = 0;
+        for (index_type j=0; j<_faces->n(); ++j) {
+            if (_faces->isLeaf(j)) {
+                scalar_type avg = 0.0;
+                const std::vector<index_type> int_inds = _faces->interiors(j);    
+                for (index_type k=0; k<int_inds.size(); ++k) {
+                    avg += _particles->scalarVal(int_inds[k], sfields[i]);
+                }
+                avg /= nintrs;
+                data->InsertTuple1(ctr++, avg);
+            }
+        }
+        result->AddArray(data);
+    }
+    for (int i=0; i<vfields.size(); ++i) {
+        vtkSmartPointer<vtkDoubleArray> data = vtkSmartPointer<vtkDoubleArray>::New();
+        data->SetName(vfields[i].c_str());
+        data->SetNumberOfComponents(ndim);
+        data->SetNumberOfTuples(_faces->nActive());
+        ctr = 0;
+        for (index_type j=0; j<_faces->n(); ++j) {
+            if (_faces->isLeaf(j)) {
+                Vec<ndim> avg;
+                const std::vector<index_type> int_inds = _faces->interiors(j);    
+                for (index_type k=0; k<int_inds.size(); ++k) {
+                    avg += Vec<ndim>(_particles->vectorVal(int_inds[k], sfields[i]));
+                }
+                avg.scaleInPlace(1.0/nintrs);
+                const std::vector<scalar_type> av = avg.toStdVec();
+                switch (ndim) {
+                    case (2) : {
+                        data->InsertTuple2(ctr++, av[0], av[1]);
+                        break;
+                    }
+                    case (3) : {
+                        data->InsertTuple3(ctr++, av[0], av[1], av[2]);
+                        break;
+                    }
+                }
+            }
+        }
+        result->AddArray(data);
+    }
+    return result;
+}
+
 template <int ndim>  vtkSmartPointer<vtkPolyData> PolyMesh2d<ndim>::toVtkPolyData() const {
         vtkSmartPointer<vtkPolyData> result = vtkSmartPointer<vtkPolyData>::New();
-        vtkSmartPointer<vtkPoints> pts = _vertexParticles->toVtkPoints();
+        vtkSmartPointer<vtkPoints> pts = _particles->toVtkPoints();
+        std::cout << "points defined" << std::endl;
         vtkSmartPointer<vtkCellArray> polys = _faces->toVtkCellArray();
-        vtkSmartPointer<vtkPointData> ptdata = _vertexParticles->fieldsToVtkPointData();
-        vtkSmartPointer<vtkCellData> celldata = _faceParticles->fieldsToVtkCellData();
+        std::cout << "polygons defined." << std::endl;
+        vtkSmartPointer<vtkPointData> ptdata = this->fieldsToVtkPointData();
+        std::cout << "point data defined." << std::endl;
+        vtkSmartPointer<vtkCellData> celldata = this->fieldsToVtkCellData();
+        std::cout << "cell data defined." << std::endl;
         result->SetPoints(pts);
         result->SetPolys(polys);
         const int nPtFields = ptdata->GetNumberOfArrays();
@@ -182,8 +253,8 @@ template <int ndim>  vtkSmartPointer<vtkPolyData> PolyMesh2d<ndim>::toVtkPolyDat
         for (int i=0; i<nCellFields; ++i) {
             result->GetCellData()->AddArray(celldata->GetAbstractArray(i));
         }
-//         std::cout << "\tmesh data written." << std::endl;
-//         const std::vector<std::string> sfields = _vertexParticles->getScalarFieldNames();
+        std::cout << "\tmesh data written." << std::endl;
+//         const std::vector<std::string> sfields = _particles->getScalarFieldNames();
 //         std::cout << "\tfound " << sfields.size() << " scalar fields." << std::endl;
 //         for (int i=0; i<sfields.size(); ++i) std::cout << sfields[i] << std::endl;
 //         for (int i=0; i<sfields.size(); ++i) {

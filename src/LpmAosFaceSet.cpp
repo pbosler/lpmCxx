@@ -4,6 +4,10 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#ifdef HAVE_VTK
+#include "vtkDoubleArray.h"
+#endif
+
 
 namespace Lpm {
 namespace Aos {
@@ -98,6 +102,64 @@ template<int ndim> vtkSmartPointer<vtkCellArray> FaceSet<ndim>::toVtkCellArray()
             result->InsertNextCell(ptsPerFace);
             for(int j=0; j<ptsPerFace; ++j) result->InsertCellPoint(verts[j]);
         }
+    }
+    return result;
+}
+
+template <int ndim> vtkSmartPointer<vtkCellData> FaceSet<ndim>::fieldsToVtkCellData(const ParticleSet<ndim>& particles) const
+{
+    vtkSmartPointer<vtkCellData> result;
+    // add geometric quantities
+    vtkSmartPointer<vtkDoubleArray> ar = vtkSmartPointer<vtkDoubleArray>::New();
+    ar->SetName("area");
+    ar->SetNumberOfComponents(1);
+    ar->SetNumberOfTuples(_nActive);
+    index_type j=0;
+    for (index_type i=0; i<_faces.size(); ++i) {
+        if (_faces[i]->isLeaf()) {
+            ar->InsertTuple1(j++, _faces[i]->area());
+        }
+    }
+    result->AddArray(ar);
+    // collect field names
+    const std::vector<std::string> sfields = particles.getScalarFieldNames();
+    const std::vector<std::string> vfields = particles.getVectorFieldNames();
+    // add field data
+    for (int i=0; i<sfields.size(); ++i) {
+        vtkSmartPointer<vtkDoubleArray> data = vtkSmartPointer<vtkDoubleArray>::New();
+        data->SetName(sfields[i].c_str());
+        data->SetNumberOfComponents(1);
+        data->SetNumberOfTuples(_nActive);
+        index_type jj = 0;
+        for (index_type j=0; j<_faces.size(); ++j) {
+            if (_faces[j]->isLeaf()) {
+                data->InsertTuple1(jj++, particles.scalarVal(j, sfields[i]));
+            }
+        }
+        result->AddArray(data);
+    }
+    for (int i=0; i<vfields.size(); ++i) {
+        vtkSmartPointer<vtkDoubleArray> data = vtkSmartPointer<vtkDoubleArray>::New();
+        data->SetName(vfields[i].c_str());
+        data->SetNumberOfComponents(ndim);
+        data->SetNumberOfTuples(_nActive);
+        index_type jj = 0;
+        for (index_type j=0; j<_faces.size(); ++j) {
+            if (_faces[j]->isLeaf()) {
+                const std::vector<scalar_type> val = particles.vectorVal(j, vfields[i]);
+                switch (ndim) {
+                    case (2) : {
+                        data->InsertTuple2(jj++, val[0], val[1]);
+                        break;
+                    }
+                    case (3) : {
+                        data->InsertTuple3(j++, val[0], val[1], val[2]);
+                        break;
+                    }
+                }
+            }
+        }
+        result->AddArray(data);
     }
     return result;
 }

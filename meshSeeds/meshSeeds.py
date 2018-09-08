@@ -376,7 +376,11 @@ def writeSeedFile(fname, xyz, origs, dests, lefts, rights, ints, faceVerts, face
             f.write(("x   y   z\n"))
             for x, y, z in xyz:
                 f.write(('%.17f  %.17f  %.17f\n'%(x,y,z)))
-        f.write(("edgeO      edgeD       edgeLeft        edgeRight    edgeInts \n"))
+        if (ints is None):
+            f.write(("edgeO      edgeD       edgeLeft        edgeRight\n"))
+        else:
+            f.write(("edgeO      edgeD       edgeLeft        edgeRight    edgeInts \n"))
+    
         if ints is not None:
             for i in range(nedges):
                 f.write((eformat%(origs[i], dests[i], lefts[i], rights[i], ints[i,0], ints[i,1])))

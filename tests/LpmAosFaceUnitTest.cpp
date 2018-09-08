@@ -7,6 +7,9 @@
 #include "LpmAosEdgeFactory.hpp"
 #include "LpmAosEdgeSet.hpp"
 #include "LpmAosFace.hpp"
+#include "LpmAosTriFace.hpp"
+#include "LpmAosQuadFace.hpp"
+#include "LpmAosQuadCubicFace.hpp"
 #include "LpmAosFaceFactory.hpp"
 #include "LpmAosFaceSet.hpp"
 #include <iostream>

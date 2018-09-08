@@ -55,7 +55,7 @@ int main (int argc, char* argv[]) {
     std::shared_ptr<QuadFaceFactory<2>> quadfac_plane(new QuadFaceFactory<2>());
     std::shared_ptr<QuadFaceFactory<3>> quadfac_sphere(new QuadFaceFactory<3>());
 
-    const int initnest = 1;
+    const int initnest = 0;
     const int maxnest = initnest;
     index_type nMaxTriPlaneParticles;
     index_type nMaxTriPlaneEdges;
@@ -78,31 +78,31 @@ int main (int argc, char* argv[]) {
     quadSphereSeed->determineMaxAllocations(nMaxQuadSphereParticles, nMaxQuadSphereEdges, nMaxQuadSphereFaces, maxnest);
     
     PolyMesh2d<2> triplane(triPlaneSeed, pfac_plane, efac_plane, trifac_plane, initnest, maxnest, amrLimit, radius);
-    triplane.initFromSeedStaggeredFacesAndVerts();
+    triplane.initStaggeredVerticesAndFacesFromSeed();
     
     PolyMesh2d<2> quadplane(quadPlaneSeed, pfac_plane, efac_plane, quadfac_plane, initnest, maxnest, amrLimit, radius);
-    quadplane.initFromSeedStaggeredFacesAndVerts();
+    quadplane.initStaggeredVerticesAndFacesFromSeed();
     
     PolyMesh2d<3> trisphere(triSphereSeed, pfac_sphere, efac_sphere, trifac_sphere, initnest, maxnest, amrLimit, radius);
-    trisphere.initFromSeedStaggeredFacesAndVerts();
+    trisphere.initStaggeredVerticesAndFacesFromSeed();
     
     PolyMesh2d<3> quadsphere(quadSphereSeed, pfac_sphere, efac_sphere, quadfac_sphere, initnest, maxnest, amrLimit, radius);
-    quadsphere.initFromSeedStaggeredFacesAndVerts();
+    quadsphere.initStaggeredVerticesAndFacesFromSeed();
     
     std::cout << "all meshes with initnest = " << initnest << " created." << std::endl;
     
     std::cout << std::endl << std::endl;
-    std::cout << triplane.infoString();
+    std::cout << triplane.infoString(true);
     std::cout << std::endl << std::endl;
     
-    std::cout << quadplane.infoString();
-    std::cout << std::endl << std::endl;
-    
-    std::cout << trisphere.infoString();
-    std::cout << std::endl <<std::endl;
-    
-    std::cout << quadsphere.infoString();
-    std::cout << std::endl << std::endl;
+//     std::cout << quadplane.infoString(false);
+//     std::cout << std::endl << std::endl;
+//     
+//     std::cout << trisphere.infoString(false);
+//     std::cout << std::endl <<std::endl;
+//     
+//     std::cout << quadsphere.infoString(false);
+//     std::cout << std::endl << std::endl;
     
 #ifdef HAVE_VTK
     {
@@ -124,12 +124,6 @@ int main (int argc, char* argv[]) {
     writer->Write();
     ss.str(std::string());
     
-    ss << froot << "trisphere_" << initnest << ".vtk";
-    pd = trisphere.toVtkPolyData();
-    writer->SetInputData(pd);
-    writer->SetFileName(ss.str().c_str());
-    writer->Write();
-    ss.str(std::string());
     
     ss << froot << "quadsphere" << initnest << ".vtk";
     pd = quadsphere.toVtkPolyData();
@@ -137,6 +131,14 @@ int main (int argc, char* argv[]) {
     writer->SetFileName(ss.str().c_str());
     writer->Write();
     ss.str(std::string());
+    
+    ss << froot << "trisphere_" << initnest << ".vtk";
+    pd = trisphere.toVtkPolyData();
+    writer->SetInputData(pd);
+    writer->SetFileName(ss.str().c_str());
+    writer->Write();
+    ss.str(std::string());
+    
     }
 #endif    
     

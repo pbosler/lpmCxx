@@ -10,7 +10,7 @@
 namespace Lpm {
 namespace Aos {
 
-template <int ndim> std::string ParticleSet<ndim>::infoString() const {
+template <int ndim> std::string ParticleSet<ndim>::infoString(const bool printAll) const {
     std::ostringstream oss;
     oss << "particle set info:" << std::endl;
     oss << "\tnMax = " << _nMax << std::endl;
@@ -21,6 +21,12 @@ template <int ndim> std::string ParticleSet<ndim>::infoString() const {
     for (int i=0; i<fields.size(); ++i)
         oss << "\t\t" << fields[i] << std::endl;
     oss << "\ttotal "<< _particles[0]->weightName() << " = " << totalWeight() << std::endl;
+    if (printAll) {
+    	oss << "PARTICLES DATA" << std::endl;
+    	for (index_type i=0; i<_particles.size(); ++i) {
+    		oss << i << ": "<< _particles[i]->infoString() << std::endl;
+    	}
+    }
     return oss.str();
 }
 
@@ -82,19 +88,19 @@ template <int ndim> void ParticleSet<ndim>::initVectorFieldFromVectoryArray(cons
     }
 }
 
-template <int ndim> void ParticleSet<ndim>::insert(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt) {
+template <int ndim> void ParticleSet<ndim>::insert(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt, const bool isvert) {
     if (_particles.size() + 1 > _nMax) {
         throw std::out_of_range("ParticleSet nmax exceeded.");
     }
-    _particles.push_back(_factory->createParticle(xx, aa, wgt));
+    _particles.push_back(_factory->createParticle(xx, aa, wgt, isvert));
     _nActive += 1;
 }
 
-template <int ndim> void ParticleSet<ndim>::insert(const Vec<ndim>& xx, const scalar_type wgt) {
+template <int ndim> void ParticleSet<ndim>::insert(const Vec<ndim>& xx, const scalar_type wgt, const bool isvert) {
     if (_particles.size() + 1 > _nMax) {
         throw std::out_of_range("ParticleSet nmax exceeded.");
     }
-    _particles.push_back(_factory->createParticle(xx, wgt));    
+    _particles.push_back(_factory->createParticle(xx, wgt, isvert));    
     _nActive += 1;
 }
 

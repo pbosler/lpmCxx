@@ -52,6 +52,8 @@ template <int ndim> class ParticleSet {
 
 		/// Return the set of all field names registered on these particles
         std::vector<std::string> fieldNames() const;
+        
+        bool isVertex(const index_type ind) const {return _particles[ind]->isVertex();}
 
 		/// Compute the integral of a scalar field defined on a ParticleSet
         virtual scalar_type scalarIntegral(const std::string& field_name) const;
@@ -63,12 +65,12 @@ template <int ndim> class ParticleSet {
 		/**
 			New particles are added to the end of the array
 		*/
-        void insert(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt=0.0);
+        void insert(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt=0.0, const bool isvert=false);
         /// Insert a new particle to the particle set
 		/**
 			New particles are added to the end of the array
 		*/
-        void insert(const Vec<ndim>& xx, const scalar_type wght=0.0);
+        void insert(const Vec<ndim>& xx, const scalar_type wght=0.0, const bool isvert=false);
         /// Move an existing particle to a new location in both physical and material space
         void move(const index_type ind, const Vec<ndim>& xx, const Vec<ndim>& aa);
         
@@ -76,7 +78,7 @@ template <int ndim> class ParticleSet {
         inline ParticleFactory<ndim>* getFactory() const {return _factory.get();}
 
 		/// Collect data abouta ParticleSet, return it in a string.
-        virtual std::string infoString() const;
+        virtual std::string infoString(const bool printAll=false) const;
 
 		/// Return a Particle::infoString for each particle in the set.
         std::vector<std::string> particlesInfoStrings() const;

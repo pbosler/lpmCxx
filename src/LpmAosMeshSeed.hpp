@@ -26,13 +26,15 @@ template <int ndim> class MeshSeed {
         ind_vec_type edgeDests;
         ind_vec_type edgeLefts;
         ind_vec_type edgeRights;
+        std::vector<ind_vec_type> edgeInteriors;
         std::vector<ind_vec_type> faceVerts;
         std::vector<ind_vec_type> faceEdges;
+        std::vector<ind_vec_type> faceInteriors;
         
         virtual ~MeshSeed() {};
         
         virtual index_type nFacesAfterUniformRefinement(const index_type maxRecursion) const = 0;
-        virtual index_type nEdgesAfterUniformRefinement(const index_type nverts, const index_type nfaces) const = 0;
+        virtual index_type nEdgesAfterUniformRefinement(const index_type nverts, const index_type nfaces, const index_type recursionLevel) const = 0;
         virtual index_type nVerticesAfterUniformRefinement(const index_type maxRecursion) const = 0;
         virtual index_type nRootFaces() const = 0;
         virtual std::string idString() const = 0;
@@ -74,7 +76,7 @@ class TriHexSeed : public MeshSeed<2> {
     public:
         TriHexSeed() : MeshSeed("triHexSeed.dat", 7, 13, 12, 6, 3) {initFromFile();}
         index_type nFacesAfterUniformRefinement(const index_type maxRecursion) const;
-        index_type nEdgesAfterUniformRefinement(const index_type nverts, const index_type nfaces) const;
+        index_type nEdgesAfterUniformRefinement(const index_type nverts, const index_type nfaces, const index_type recursionLevel) const;
         index_type nVerticesAfterUniformRefinement(const index_type maxRecursion) const;
         inline index_type nRootFaces() const {return 6;}
         inline std::string idString() const {return "triHexPlane";}
@@ -87,7 +89,7 @@ class QuadRectSeed : public MeshSeed<2> {
     public:
         QuadRectSeed() : MeshSeed("quadRectSeed.dat", 9, 13, 12, 4, 4) {initFromFile();}
         index_type nFacesAfterUniformRefinement(const index_type maxRecursion) const;
-        index_type nEdgesAfterUniformRefinement(const index_type nverts, const index_type nfaces) const;
+        index_type nEdgesAfterUniformRefinement(const index_type nverts, const index_type nfaces, const index_type recursionLevel) const;
         index_type nVerticesAfterUniformRefinement(const index_type maxRecursion) const;
         inline index_type nRootFaces() const {return 4;}
         inline std::string idString() const {return "quadRectPlane";}
@@ -100,26 +102,39 @@ class IcosTriSphereSeed : public MeshSeed<3> {
     public:
         IcosTriSphereSeed() : MeshSeed("icosTriSphereSeed.dat", 12, 12, 30, 20, 3) {initFromFile();}
         index_type nFacesAfterUniformRefinement(const index_type maxRecursion) const;
-        index_type nEdgesAfterUniformRefinement(const index_type nverts, const index_type nfaces) const;
+        index_type nEdgesAfterUniformRefinement(const index_type nverts, const index_type nfaces, const index_type recursionLevel) const;
         index_type nVerticesAfterUniformRefinement(const index_type maxRecursion) const;
         inline index_type nRootFaces() const {return 20;}
         inline std::string idString() const {return "icosTriSphere";}
         inline GeometryType geometryType() const {return SPHERICAL_SURFACE_GEOMETRY;}
         inline FaceType faceType() const {return TRI;}
-        inline bool faceCrdsIncluded() const {return false;}
+        inline bool faceCrdsIncluded() const {return true;}
 };
 
 class CubedSphereSeed : public MeshSeed<3> {
     public:
         CubedSphereSeed() : MeshSeed("cubedSphereSeed.dat", 8, 14, 12, 6, 4) {initFromFile();}
         index_type nFacesAfterUniformRefinement(const index_type maxRecursion) const;
-        index_type nEdgesAfterUniformRefinement(const index_type nverts, const index_type nfaces) const;
+        index_type nEdgesAfterUniformRefinement(const index_type nverts, const index_type nfaces, const index_type recursionLevel) const;
         index_type nVerticesAfterUniformRefinement(const index_type maxRecursion) const;
         inline index_type nRootFaces() const {return 6;}
         inline std::string idString() const {return "cubedSphere";}
         inline GeometryType geometryType() const {return SPHERICAL_SURFACE_GEOMETRY;}
         inline FaceType faceType() const {return QUAD;}
         inline bool faceCrdsIncluded() const {return true;}
+};
+
+class QuadCubicSeed : public MeshSeed<2> {
+    public:
+    QuadCubicSeed() : MeshSeed("quadCubicSeed.dat", 37, 49, 12, 4, 4) {initFromFile();}
+    index_type nFacesAfterUniformRefinement(const index_type maxRecursion) const;
+    index_type nEdgesAfterUniformRefinement(const index_type nverts, const index_type nfaces, const index_type recursionLevel) const;
+    index_type nVerticesAfterUniformRefinement(const index_type maxRecursion) const;
+    inline index_type nRootFaces() const {return 6;}
+    inline std::string idString() const {return "cubedSphere";}
+    inline GeometryType geometryType() const {return SPHERICAL_SURFACE_GEOMETRY;}
+    inline FaceType faceType() const {return QUAD;}
+    inline bool faceCrdsIncluded() const {return true;}
 };
 
 }

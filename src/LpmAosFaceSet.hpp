@@ -16,6 +16,7 @@
 #ifdef HAVE_VTK
 #include "vtkSmartPointer.h"
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
 #endif
 
 namespace Lpm {
@@ -57,7 +58,17 @@ template <int ndim> class FaceSet {
             }
         }
         
+        inline std::vector<index_type> vertices(const index_type ind) const {return _faces[ind]->vertices();}
+        inline std::vector<index_type> interiors(const index_type ind) const {return _faces[ind]->interiors();}
         
+        inline index_type nIntrsPerFace() const {return _faces[0]->nIntrs();}
+        
+        inline std::vector<Vec<ndim>> getCorners(const index_type ind, const ParticleSet<ndim>& particles) const 
+        	{return _faces[ind]->getCorners(particles);
+        }
+        inline std::vector<Vec<ndim>> getVertPhysCrds(const index_type ind, const ParticleSet<ndim>& particles) const {
+        	return _faces[ind]->vertPhysCrds(particles);
+        }
         
         inline void setKid(const index_type parent_index, const short relind, const index_type kid_index){
         	_faces[parent_index]->setKid(relind, kid_index);   
@@ -81,6 +92,7 @@ template <int ndim> class FaceSet {
 
 #ifdef HAVE_VTK
 		vtkSmartPointer<vtkCellArray> toVtkCellArray() const;
+		vtkSmartPointer<vtkCellData> fieldsToVtkCellData(const ParticleSet<ndim>& particles) const;
 #endif
     
     	friend class PolyMesh2d<ndim>;

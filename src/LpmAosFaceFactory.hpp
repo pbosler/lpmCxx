@@ -6,6 +6,9 @@
 #include "LpmConfig.h"
 #include "LpmTypeDefs.h"
 #include "LpmAosFace.hpp"
+#include "LpmAosTriFace.hpp"
+#include "LpmAosQuadFace.hpp"
+#include "LpmAosQuadCubicFace.hpp"
 
 namespace Lpm {
 namespace Aos {

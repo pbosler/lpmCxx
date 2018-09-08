@@ -36,6 +36,9 @@ int main(int argc, char* argv[]) {
     CubedSphereSeed cubedSphere;
 //     cubedSphere.initFromFile();
     std::cout << cubedSphere.infoString();
+    
+    QuadCubicSeed cubicPlane;
+    std::cout << cubicPlane.infoString();
 
     
     std::cout << "TriHexSeed Memory Requirements: " << std::endl;

@@ -31,6 +31,7 @@ template <int ndim=3> class Particle {
         Vec<ndim> _lagCrd;
         scalar_type _weight;
         std::string _wgt_name;
+        bool _is_vertex;
 
         std::map<std::string, scalar_type> _sFields;
         std::map<std::string, vfield_type> _vFields;
@@ -39,12 +40,17 @@ template <int ndim=3> class Particle {
         //friend class ParticleSet<ndim>;
 
         /// Constructor.  Initializes to zero/null.
-        Particle(const std::string& wname="nullweight") : _physCrd(), _lagCrd(), _weight(0.0), _wgt_name(wname) {}
+        Particle(const std::string& wname="nullweight", const bool isvert=false) : _physCrd(), _lagCrd(), _weight(0.0),
+            _wgt_name(wname), _is_vertex(isvert) {}
         /// Constructor.
-        Particle(const Vec<ndim>& pos, const scalar_type wgt = 0.0, const std::string wname="nullweight") : _physCrd(pos), _lagCrd(pos), _weight(wgt), _wgt_name(wname) {}
+        Particle(const Vec<ndim>& pos, const scalar_type wgt = 0.0, const std::string wname="nullweight",
+            const bool isvert=false) : _physCrd(pos), _lagCrd(pos), _weight(wgt), _wgt_name(wname), _is_vertex(isvert) {}
         /// Constructor.
-        Particle(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt=0.0, const std::string wname="nullweight") : _physCrd(xx), _lagCrd(aa), _weight(wgt), _wgt_name(wname){}
+        Particle(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt=0.0, const std::string wname="nullweight", 
+            const bool isvert=false) : _physCrd(xx), _lagCrd(aa), _weight(wgt), _wgt_name(wname), _is_vertex(isvert) {}
 
+
+        bool isVertex() const {return _is_vertex;}
         
         /// Return a particle's physcial coordinate
         inline Vec<ndim> physCrd() const {return _physCrd;}
@@ -169,6 +175,7 @@ template <int ndim=3> class Particle {
                     ss << vf.second[i] << " ";
                 ss << "]" << std::endl;
             }
+            ss << "\tis vertex? " << (_is_vertex ? "yes" : "no") << std::endl;
             return ss.str();
         }
 };
