@@ -62,6 +62,7 @@ template <int ndim> class FaceSet {
         inline std::vector<index_type> interiors(const index_type ind) const {return _faces[ind]->interiors();}
         
         inline index_type nIntrsPerFace() const {return _faces[0]->nIntrs();}
+        inline index_type nVertsPerFace() const {return _faces[0]->nVerts();}
         
         inline std::vector<Vec<ndim>> getCorners(const index_type ind, const ParticleSet<ndim>& particles) const 
         	{return _faces[ind]->getCorners(particles);

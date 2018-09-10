@@ -51,6 +51,8 @@ template <int ndim> class PolyMesh2d {
         inline index_type nLeafEdges() const {return _edges->nLeaves();}
         inline index_type nVertices() const {return _particles->n() - _faces->nIntrsPerFace()*_faces->nLeaves();}
         
+        inline scalar_type surfaceArea() const {return _faces->totalArea();}
+        
 #ifdef HAVE_VTK
         vtkSmartPointer<vtkPolyData> toVtkPolyData(const bool useFieldForHeight=false, 
             const std::string field_name=std::string()) const;
@@ -66,8 +68,8 @@ template <int ndim> class PolyMesh2d {
         index_type _time_index;
         
 #ifdef HAVE_VTK        
-        vtkSmartPointer<vtkPoints> verticesToVtkPoints(const bool useFieldForHeight=false, 
-            const std::string scalarFieldName=std::string()) const;
+//         vtkSmartPointer<vtkPoints> verticesToVtkPoints(const bool useFieldForHeight=false, 
+//             const std::string scalarFieldName=std::string()) const;
         vtkSmartPointer<vtkPointData> fieldsToVtkPointData() const;
         vtkSmartPointer<vtkCellData> fieldsToVtkCellData() const;
 #endif

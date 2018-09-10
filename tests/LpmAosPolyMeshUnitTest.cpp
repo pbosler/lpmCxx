@@ -55,7 +55,7 @@ int main (int argc, char* argv[]) {
     std::shared_ptr<QuadFaceFactory<2>> quadfac_plane(new QuadFaceFactory<2>());
     std::shared_ptr<QuadFaceFactory<3>> quadfac_sphere(new QuadFaceFactory<3>());
 
-    const int initnest = 1;
+    const int initnest = 3;
     const int maxnest = initnest;
     index_type nMaxTriPlaneParticles;
     index_type nMaxTriPlaneEdges;
@@ -103,6 +103,11 @@ int main (int argc, char* argv[]) {
     
     std::cout << quadsphere.infoString(false);
     std::cout << std::endl << std::endl;
+    
+    std::cout << "triplane.surfaceArea = " << triplane.surfaceArea() << std::endl;
+    std::cout << "quadplane.surfaceArea = " << quadplane.surfaceArea() << std::endl;
+    std::cout << "quadsphere.surfaceArea = " << quadsphere.surfaceArea() << std::endl;
+    std::cout << "trisphere.surfaceArea = " << trisphere.surfaceArea() << std::endl;
     
 #ifdef HAVE_VTK
     {

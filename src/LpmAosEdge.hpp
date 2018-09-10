@@ -25,14 +25,15 @@ template <int ndim> struct KidEdgeArrays {
 	std::vector<index_type> newDests;
 	std::vector<index_type> newLefts;
 	std::vector<index_type> newRights;
-	std::vector<std::vector<index_type>> newMids;
-	std::vector<Vec<ndim>> newPhysCrds;
-	std::vector<Vec<ndim>> newLagCrds;
+	std::vector<std::vector<index_type>> newMids;// 
+// 	std::vector<Vec<ndim>> newPhysCrds;
+// 	std::vector<Vec<ndim>> newLagCrds;
 	
 	KidEdgeArrays(): newOrigs(std::vector<index_type>(2,-1)), newDests(std::vector<index_type>(2,-1)), 
 		newLefts(std::vector<index_type>(2,-1)), newRights(std::vector<index_type>(2,-1)),
-		newMids(std::vector<std::vector<index_type>>(2,std::vector<index_type>(2,-1))),
-		newPhysCrds(std::vector<Vec<ndim>>(5)), newLagCrds(std::vector<Vec<ndim>>(5)) {}
+		newMids(std::vector<std::vector<index_type>>(2,std::vector<index_type>(2,-1)))//,
+// 		newPhysCrds(std::vector<Vec<ndim>>(5)), newLagCrds(std::vector<Vec<ndim>>(5)) 
+		{}
 	
 	std::string infoString() const;
 };
@@ -58,7 +59,7 @@ template <int ndim> class Edge {
 
         virtual ~Edge() {}
         
-        virtual KidEdgeArrays<ndim> divide(const ParticleSet<ndim>& particles, const scalar_type radius=1.0, const GeometryType geom=PLANAR_GEOMETRY) const;
+        virtual KidEdgeArrays<ndim> divide(ParticleSet<ndim>& particles, const scalar_type radius=1.0, const GeometryType geom=PLANAR_GEOMETRY) const;
         
         /// Enrich a low-order edge to a higher order edge
         virtual void enrich(ParticleSet<ndim>& particles) {};
@@ -198,7 +199,7 @@ template <int ndim> class QuadraticEdge : public Edge<ndim> {
         
         inline index_type ptsPerEdge() const override {return 3;}
         
-        KidEdgeArrays<ndim> divide(const ParticleSet<ndim>& particles, const scalar_type radius=1.0, const GeometryType geom=PLANAR_GEOMETRY) const override;
+        KidEdgeArrays<ndim> divide(ParticleSet<ndim>& particles, const scalar_type radius=1.0, const GeometryType geom=PLANAR_GEOMETRY) const override;
 };
 
 /// Cubic Edge class
@@ -209,7 +210,7 @@ template <int ndim> class CubicEdge : public Edge<ndim> {
             
         inline index_type ptsPerEdge() const override {return 4;}
         
-        KidEdgeArrays<ndim> divide(const ParticleSet<ndim>& particles, const scalar_type radius=1.0, const GeometryType geom=PLANAR_GEOMETRY) const override;
+        KidEdgeArrays<ndim> divide(ParticleSet<ndim>& particles, const scalar_type radius=1.0, const GeometryType geom=PLANAR_GEOMETRY) const override;
 };
 }
 }
