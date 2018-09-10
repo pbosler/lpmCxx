@@ -605,7 +605,7 @@ def plotPlaneSeed(oname, xyz, origs, dests, lefts, rights, ints, faceVerts, face
         for i in range(3):
             ax2.text(v1[i,0]+0.01,v1[i,1]+0.01,'v'+str(i+indexBase),color='k')
             ax2.text(v2[i,0]+0.01,v2[i,1]+0.01,'v'+str(i+indexBase),color='k')
-            ax2.text(0.5*(v1[i,0]+v1[(i+1)%3,0])+0.02, 0.5*(v1[i,1]+v1[(i+1)%3,1]), 'e'+str(+indexBase),color='r')
+            ax2.text(0.5*(v1[i,0]+v1[(i+1)%3,0])+0.02, 0.5*(v1[i,1]+v1[(i+1)%3,1]), 'e'+str(i+indexBase),color='r')
             ax2.text(0.5*(v2[i,0]+v2[(i+1)%3,0])+0.02, 0.5*(v2[i,1]+v2[(i+1)%3,1]), 'e'+str(i+indexBase),color='r')
         ax2.text(v1[3,0]+0.01,v1[3,1]+0.01,'c'+str(indexBase),color='k')
         ax2.text(v2[3,0]+0.01,v2[3,1]+0.01,'c'+str(indexBase),color='k')
