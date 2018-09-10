@@ -631,7 +631,7 @@ def plotPlaneSeed(oname, xyz, origs, dests, lefts, rights, ints, faceVerts, face
             ax2.plot(0,0,'k.',markersize=8)
             for i in range(4):
                 ax2.text(corners[i,0]+0.01,corners[i,1]+0.01,'v'+str(i+indexBase),color='k')
-            ax2.text(0.01,0.01,'c1')
+            ax2.text(0.01,0.01,'c'+str(indexBase), color='k')
 
     ax0.plot(xyz[:,0], xyz[:,1], 'ko', markersize=m_size)
     ax0.set(title='edges & particles') #, xlabel='x', ylabel='y')
