@@ -55,7 +55,7 @@ int main (int argc, char* argv[]) {
     std::shared_ptr<QuadFaceFactory<2>> quadfac_plane(new QuadFaceFactory<2>());
     std::shared_ptr<QuadFaceFactory<3>> quadfac_sphere(new QuadFaceFactory<3>());
 
-    const int initnest = 0;
+    const int initnest = 1;
     const int maxnest = initnest;
     index_type nMaxTriPlaneParticles;
     index_type nMaxTriPlaneEdges;

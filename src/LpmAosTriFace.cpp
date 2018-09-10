@@ -21,7 +21,7 @@ template <int ndim> KidFaceArrays<ndim> TriFace<ndim>::divide(ParticleSet<ndim>&
 		}
 		else {
 			edgeKids[0] = edges.n();
-			edgeKids[1] = edges.n() + 1;
+			edgeKids[1] = edges.n()+1;
 			edges.divide(parentEdge, particles, radius);
 		}
 		// connect child edges to new faces
@@ -39,14 +39,15 @@ template <int ndim> KidFaceArrays<ndim> TriFace<ndim>::divide(ParticleSet<ndim>&
 			result.newFaceEdges[(i+1)%3][i] = edgeKids[0];
 			edges.setRightFace(edgeKids[0], faceInsertPoint+i+1);
 		}
-		result.newFaceVerts[i][(i+1)%3] = edges.dest(edgeKids[1]);
-		result.newFaceVerts[(i+1)%3][i] = edges.dest(edgeKids[1]);
+// 		std::cout << "edges.dest(["<< edgeKids[1] << "]) = " << edges.dest(edgeKids[1]) << std::endl;
+		result.newFaceVerts[i][(i+1)%3] = edges.dest(edgeKids[0]);
+		result.newFaceVerts[(i+1)%3][i] = edges.dest(edgeKids[0]);
 	}
 	// TriFace only: construct child 3
 	result.newFaceVerts[3][0] = result.newFaceVerts[2][1];
 	result.newFaceVerts[3][1] = result.newFaceVerts[2][0];
 	result.newFaceVerts[3][2] = result.newFaceVerts[1][0];
-	
+// 	std::cout << "check vertex connectivity" << std::endl;
 	// debug: make sure all vertices are set
 	for (short i=0; i<4; ++i) {
 		for (short j=0; j<3; ++j) {
@@ -61,18 +62,19 @@ template <int ndim> KidFaceArrays<ndim> TriFace<ndim>::divide(ParticleSet<ndim>&
 	
 	// create new interior edges
 	const index_type edge_insert_point = edges.n();
-	edges.insert(result.newFaceVerts[4][0], result.newFaceVerts[4][1], faceInsertPoint+3, faceInsertPoint+2);
+	edges.insert(result.newFaceVerts[3][0], result.newFaceVerts[3][1], faceInsertPoint+3, faceInsertPoint+2);
 	result.newFaceEdges[2][0] = edge_insert_point;
 	result.newFaceEdges[3][0] = edge_insert_point;
 	
-	edges.insert(result.newFaceVerts[4][1], result.newFaceVerts[4][2], faceInsertPoint+3, faceInsertPoint);
+	edges.insert(result.newFaceVerts[3][1], result.newFaceVerts[3][2], faceInsertPoint+3, faceInsertPoint);
 	result.newFaceEdges[0][1] = edge_insert_point+1;
 	result.newFaceEdges[3][1] = edge_insert_point+1;
 	
-	edges.insert(result.newFaceVerts[4][2], result.newFaceVerts[4][0], faceInsertPoint+3, faceInsertPoint+1);
+	edges.insert(result.newFaceVerts[3][2], result.newFaceVerts[3][0], faceInsertPoint+3, faceInsertPoint+1);
 	result.newFaceEdges[1][2] = edge_insert_point+2;
 	result.newFaceEdges[3][2] = edge_insert_point+2;
 	
+// 	std::cout << "check edge connectivity" << std::endl;
 	// debug: make sure all edges are set
 	for (short i=0; i<4; ++i) {
 		for (short j=0; j<3; ++j) {
@@ -127,6 +129,7 @@ template <int ndim> KidFaceArrays<ndim> TriFace<ndim>::divide(ParticleSet<ndim>&
 		lcenter = sphereBaryCenter(lcorners, radius);
 		ar = spherePolygonArea(pcenter, pcorners, radius);
 	}
+	result.newFaceInteriors[3][0] = this->_interiorInds[0];
 	particles.move(this->_interiorInds[0], pcenter, lcenter);
 	particles.setWeight(this->_interiorInds[0], ar);
 	this->_kids[3] = faceInsertPoint+3;

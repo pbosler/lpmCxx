@@ -14,6 +14,7 @@ template <int ndim> void PolyMesh2d<ndim>::initStaggeredVerticesAndFacesFromSeed
     index_type nmaxedges;
     index_type nmaxfaces;
     _seed->determineMaxAllocations(nmaxparticles, nmaxedges, nmaxfaces, _maxnest);
+    std::cout << "polymesh memory requirements: " << nmaxparticles << " vertices, " << nmaxedges << " edges, " << nmaxfaces << " faces." << std::endl;
     // build basic containers
     const GeometryType geom = _seed->geometryType();
     _particles = std::unique_ptr<ParticleSet<ndim>>(new ParticleSet<ndim>(_pfac, nmaxparticles+nmaxfaces));
@@ -58,6 +59,18 @@ template <int ndim> void PolyMesh2d<ndim>::initStaggeredVerticesAndFacesFromSeed
         _faces->insert(_seed->faceInteriors[i], _seed->faceVerts[i], _seed->faceEdges[i], root_parent);
     }
     _faces->setArea(*_particles);
+    std::cout << "SEED " << _seed->idString() << " INITIALIZED" << std::endl;
+    std::cout << this->infoString();
+    
+    // refine to desired uniform level
+    index_type start_index = 0;
+    for (index_type i=0; i<_initnest; ++i) {
+        const index_type nfaces_old = _faces->n();
+        for (index_type j=start_index; j<nfaces_old; ++j) {
+            _faces->divide(j, *_particles, *_edges);
+        }
+        start_index = nfaces_old;
+    }
 }
 
 template <int ndim> std::string PolyMesh2d<ndim>::infoString(const bool printAll) const {

@@ -15,35 +15,35 @@ template <int ndim> class ParticleFactory {
     public:
         virtual std::unique_ptr<Particle<ndim>> createParticle() const = 0;
         virtual std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& pos, const scalar_type wgt = 0.0, 
-        	const std::string wname="nullweight", const bool isvert=false) const = 0;
+        	const std::string wname="area", const bool isvert=false) const = 0;
         virtual std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& xx, const Vec<ndim>& aa, 
         	const scalar_type wgt=0.0, const bool isvert=false) const;
         virtual std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& xx, const Vec<ndim>& aa,
-            const scalar_type wgt = 0.0, const std::string wname="nullweight", const bool isvert=false) const = 0;
+            const scalar_type wgt = 0.0, const std::string wname="area", const bool isvert=false) const = 0;
         virtual std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& xx, const scalar_type wgt=0.0, const bool isvert=false) const=0;
 };
 
 template <int ndim> class BasicParticleFactory : public ParticleFactory<ndim> {
     public:
          std::unique_ptr<Particle<ndim>> createParticle() const {
-            return std::unique_ptr<Particle<ndim>>(new Particle<ndim>("nullweight"));
+            return std::unique_ptr<Particle<ndim>>(new Particle<ndim>("area"));
         }
 
-         std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& pos, const scalar_type wgt=0.0, const std::string wname="nullweight", const bool isvert=false) const {
+         std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& pos, const scalar_type wgt=0.0, const std::string wname="area", const bool isvert=false) const {
             return std::unique_ptr<Particle<ndim>>(new Particle<ndim>(pos, wgt, wname, isvert));
         }
         
         std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt=0.0, const bool isvert=false) const {
-        	return std::unique_ptr<Particle<ndim>>(new Particle<ndim>(xx, aa, wgt, "nullweight", isvert));
+        	return std::unique_ptr<Particle<ndim>>(new Particle<ndim>(xx, aa, wgt, "area", isvert));
         }
 
-         std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt=0.0, const std::string wname="nullweight"
+         std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt=0.0, const std::string wname="area"
          	, const bool isvert=false) const {
             return std::unique_ptr<Particle<ndim>>(new Particle<ndim>(xx, aa, wgt, wname, isvert));
         }
         
         std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& xx, const scalar_type wgt=0.0, const bool isvert=false) const {
-        	return std::unique_ptr<Particle<ndim>>(new Particle<ndim>(xx, wgt, "nullweight", isvert));
+        	return std::unique_ptr<Particle<ndim>>(new Particle<ndim>(xx, wgt, "area", isvert));
         }
 };
 

@@ -50,7 +50,8 @@ template <int ndim=3> class Particle {
             const bool isvert=false) : _physCrd(xx), _lagCrd(aa), _weight(wgt), _wgt_name(wname), _is_vertex(isvert) {}
 
 
-        bool isVertex() const {return _is_vertex;}
+        inline bool isVertex() const {return _is_vertex;}
+        inline void isVertex(const bool isvert) {_is_vertex = isvert;}
         
         /// Return a particle's physcial coordinate
         inline Vec<ndim> physCrd() const {return _physCrd;}

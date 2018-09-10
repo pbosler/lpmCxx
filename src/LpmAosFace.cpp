@@ -15,17 +15,16 @@ template <int ndim> std::string KidFaceArrays<ndim>::infoString() const {
 	for (short i=0; i<4; ++i) {
 		ss << "Face " << i << ":" << std::endl;
 		ss << "vertices/edge particles: ";
-		for (short j=0; j<newFaceVerts.size(); ++j)
+		for (short j=0; j<this->newFaceVerts[0].size(); ++j)
 			ss << newFaceVerts[i][j] << " ";
 		ss << std::endl << "edges: ";
-		for (short j=0; j<newFaceEdges.size(); ++j) 
+		for (short j=0; j<this->newFaceEdges[0].size(); ++j) 
 			ss << newFaceEdges[i][j] << " ";
 		ss << std::endl << "interior particles: ";
-		for (short j=0; j<newFaceInteriors.size(); ++j)
+		for (short j=0; j<this->newFaceInteriors[0].size(); ++j)
 			ss << newFaceInteriors[i][j] << " ";
-		ss << std::endl << "child face area:";
-		for (short j=0; j<4; ++j)
-			ss << kidsFaceArea[j] << " ";
+		ss << std::endl << "child face area: ";
+		ss << kidsFaceArea[i];
 		ss << std::endl;
 	}
 	return ss.str();

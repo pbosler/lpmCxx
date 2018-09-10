@@ -23,7 +23,7 @@ template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<
 		lctr = sphereBaryCenter(lcorners, radius);
 	}
 	const index_type ctr_particle = particles.n();
-	particles.insert(pctr, lctr);
+	particles.insert(pctr, lctr, true);
 	// connect parent vertices & interiors to child faces
 	for (short i=0; i<4; ++i) {
 		result.newFaceInteriors[i][i] = this->_interiorInds[i];
@@ -64,8 +64,8 @@ template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<
 			edges.setRightFace(edgeKids[0], faceInsertPoint+i+1);
 			result.newFaceVerts[i][(3*i+10)%12] = edges.midpt1(edgeKids[0]);
 		}
-		result.newFaceVerts[i][(3*i)%12] = edges.dest(edgeKids[1]);
-		result.newFaceVerts[(i+1)%4][(3*i+9)%12] = edges.dest(edgeKids[1]);
+		result.newFaceVerts[i][(3*i)%12] = edges.dest(edgeKids[0]);
+		result.newFaceVerts[(i+1)%4][(3*i+9)%12] = edges.dest(edgeKids[0]);
 	}
 	// create new interior edge particles
 	std::vector<Vec<ndim>> newpcrds(8);
@@ -102,7 +102,7 @@ template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<
 		}
 	}
 	for (short i=0; i<8; ++i) {
-		particles.insert(newpcrds[i], newlcrds[i]);
+		particles.insert(newpcrds[i], newlcrds[i], true);
 	}
 	result.newFaceVerts[0][4] = particles_insert_point;
 	result.newFaceVerts[1][11] = particles_insert_point;

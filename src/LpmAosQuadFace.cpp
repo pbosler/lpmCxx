@@ -13,6 +13,7 @@ template <int ndim> KidFaceArrays<ndim> QuadFace<ndim>::divide(ParticleSet<ndim>
 		result.newFaceVerts[i][i] = this->_vertInds[i];
 		result.newFaceVerts[i][(i+2)%4] = this->_interiorInds[0];
 	}
+	particles.isVertex(this->_interiorInds[0], true);
 	// loop over parent edges
 	for (short i=0; i<4; ++i) {
 		const index_type parentEdge = this->_edgeInds[i];
@@ -41,8 +42,8 @@ template <int ndim> KidFaceArrays<ndim> QuadFace<ndim>::divide(ParticleSet<ndim>
 			result.newFaceEdges[(i+1)%4][i] = edgeKids[0];
 			edges.setRightFace(edgeKids[0], faceInsertPoint+i+1);
 		}
-		result.newFaceVerts[i][(i+1)%4] = edges.dest(edgeKids[1]);
-		result.newFaceVerts[(i+1)%4][i] = edges.dest(edgeKids[1]);
+		result.newFaceVerts[i][(i+1)%4] = edges.dest(edgeKids[0]);
+		result.newFaceVerts[(i+1)%4][i] = edges.dest(edgeKids[0]);
 	}
 	// debug: make sure all vertices are set
 	for (short i=0; i<4; ++i) {
