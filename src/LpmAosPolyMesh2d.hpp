@@ -52,7 +52,8 @@ template <int ndim> class PolyMesh2d {
         inline index_type nVertices() const {return _particles->n() - _faces->nIntrsPerFace()*_faces->nLeaves();}
         
 #ifdef HAVE_VTK
-        vtkSmartPointer<vtkPolyData> toVtkPolyData() const;
+        vtkSmartPointer<vtkPolyData> toVtkPolyData(const bool useFieldForHeight=false, 
+            const std::string field_name=std::string()) const;
 #endif
     
     protected:

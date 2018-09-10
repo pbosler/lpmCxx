@@ -100,7 +100,7 @@ class QuadRectSeed : public MeshSeed<2> {
 
 class IcosTriSphereSeed : public MeshSeed<3> {
     public:
-        IcosTriSphereSeed() : MeshSeed("icosTriSphereSeed.dat", 12, 12, 30, 20, 3) {initFromFile();}
+        IcosTriSphereSeed() : MeshSeed("icosTriSphereSeed.dat", 12, 32, 30, 20, 3) {initFromFile();}
         index_type nFacesAfterUniformRefinement(const index_type maxRecursion) const;
         index_type nEdgesAfterUniformRefinement(const index_type nverts, const index_type nfaces, const index_type recursionLevel) const;
         index_type nVerticesAfterUniformRefinement(const index_type maxRecursion) const;

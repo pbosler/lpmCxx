@@ -106,6 +106,7 @@ template<int ndim=3> struct Vec {
         std::vector<scalar_type> result(ndim);
         for (int i=0; i<ndim; ++i)
             result[i] = this->x[i];
+        return result;
     }
 	
 	/// += operator (elemental)

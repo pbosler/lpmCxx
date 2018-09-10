@@ -63,6 +63,11 @@ template <int ndim> void PolyMesh2d<ndim>::initStaggeredVerticesAndFacesFromSeed
 template <int ndim> std::string PolyMesh2d<ndim>::infoString(const bool printAll) const {
     std::ostringstream ss;
     ss << "POLYMESH INFO" << std::endl;
+    ss << "seed id: " << _seed->idString() << std::endl;
+    ss << "initnest = " << _initnest << std::endl;
+    ss << "maxnest = " << _maxnest << std::endl;
+    ss << "amrlimit = " << _amrlimit << std::endl;
+ss << "radius = " << _radius << std::endl;
     ss << _particles->infoString(printAll);
     ss << _edges->infoString(printAll);
     ss << _faces->infoString(printAll);
@@ -72,29 +77,20 @@ template <int ndim> std::string PolyMesh2d<ndim>::infoString(const bool printAll
 #ifdef HAVE_VTK
 template <int ndim> vtkSmartPointer<vtkPoints> PolyMesh2d<ndim>::verticesToVtkPoints(const bool useFieldForHeight,
     const std::string field_name) const {
-    vtkSmartPointer<vtkPoints> result;
-    index_type ctr = 0;
-    switch (ndim) {
-        case (2) : {
-            for (index_type i=0; i<_particles->n(); ++i) {
-                if (_particles->isVertex(i)) {
-                    const Vec<ndim> pos = _particles->physCrd(i);
-                    result->InsertPoint(ctr++, pos.x[0], pos.x[1], 
-                        (useFieldForHeight ? _particles->scalarVal(i, field_name) : 0.0));
-                }
+    vtkSmartPointer<vtkPoints> result = vtkSmartPointer<vtkPoints>::New();
+    for (index_type i=0; i<_particles->n(); ++i) {
+        if (_particles->isVertex(i)) {
+            const Vec<ndim> pos = _particles->physCrd(i);
+            if (ndim == 2) {
+                result->InsertNextPoint(pos.x[0], pos.x[1], 
+                      (useFieldForHeight ? _particles->scalarVal(i, field_name) : 0.0));
             }
-            break;
-        }
-        case (3) : {
-            for (index_type i=0; i<_faces->n(); ++i) {
-                if (_particles->isVertex(i)) {
-                    const Vec<ndim> pos = _particles->physCrd(i);
-                    result->InsertPoint(ctr++, pos.x[0], pos.x[1], pos.x[2]);
-                }
+            else {
+                result->InsertNextPoint(pos.x[0], pos.x[1], pos.x[2]);
             }
-            break;
         }
     }
+    std::cout << "added " << result->GetNumberOfPoints() << " points (vertices)." << std::endl;
     return result;
 }
 
@@ -114,7 +110,7 @@ template <int ndim> vtkSmartPointer<vtkPointData> PolyMesh2d<ndim>::fieldsToVtkP
         }
     }
     result->AddArray(wgt);
-    std::cout << "added "<< ctr << " weights to point data." << std::endl;
+//     std::cout << "added "<< ctr << " weights to point data." << std::endl;
     // collect field names
     const std::vector<std::string> sfields = _particles->getScalarFieldNames();
     const std::vector<std::string> vfields = _particles->getVectorFieldNames();
@@ -125,12 +121,9 @@ template <int ndim> vtkSmartPointer<vtkPointData> PolyMesh2d<ndim>::fieldsToVtkP
         data->SetNumberOfComponents(1);
         data->SetNumberOfTuples(nverts);
         ctr=0;
-        for (index_type j=0; j<_faces->n(); ++j) {
-            if (_faces->isLeaf(j)) {
-                const std::vector<index_type> vertinds = _faces->vertices(j);
-                for (index_type k=0; k<vertinds.size(); ++k) {
-                    data->InsertTuple1(ctr++, _particles->scalarVal(vertinds[k], sfields[i]));
-                }
+        for (index_type j=0; j<_particles->n(); ++j) {
+            if (_particles->isVertex(j)) {
+                data->InsertTuple1(ctr++, _particles->scalarVal(j, sfields[i]));
             }
         }
         result->AddArray(data);
@@ -142,22 +135,15 @@ template <int ndim> vtkSmartPointer<vtkPointData> PolyMesh2d<ndim>::fieldsToVtkP
         data->SetNumberOfComponents(ndim);
         data->SetNumberOfTuples(nVertices());
         ctr=0;
-        for (index_type j=0; j<_faces->n(); ++j) {
-            if (_faces->isLeaf(j)) {
-                const std::vector<index_type> vertinds = _faces->vertices(j);
-                for (index_type k=0; k<vertinds.size(); ++k) {
-                    const std::vector<scalar_type> val = _particles->vectorVal(vertinds[k], vfields[i]);
-                    switch (ndim) {
-                        case (2) :{
-                            data->InsertTuple2(ctr++, val[0], val[1]);
-                            break;
-                        }
-                        case (3) : {
-                            data->InsertTuple3(ctr++, val[0], val[1], val[2]);
-                            break;
-                        }
-                    }
-                }
+        for (index_type j=0; j<_particles->n(); ++j) {
+            if (_particles->isVertex(j)) {
+                const std::vector<scalar_type> val = _particles->vectorVal(j, vfields[i]);
+                   if (ndim ==2 ) {
+                        data->InsertTuple2(ctr++, val[0], val[1]);
+                   }
+                   else {
+                        data->InsertTuple3(ctr++, val[0], val[1], val[2]);
+                   }
             }
         }
     }
@@ -188,6 +174,7 @@ template <int ndim> vtkSmartPointer<vtkCellData> PolyMesh2d<ndim>::fieldsToVtkCe
         data->SetNumberOfComponents(1);
         data->SetNumberOfTuples(_faces->nActive());
         ctr = 0;
+//         std::cout << i << ": reading scalar field " << sfields[i] << std::endl;
         for (index_type j=0; j<_faces->n(); ++j) {
             if (_faces->isLeaf(j)) {
                 scalar_type avg = 0.0;
@@ -208,23 +195,20 @@ template <int ndim> vtkSmartPointer<vtkCellData> PolyMesh2d<ndim>::fieldsToVtkCe
         data->SetNumberOfTuples(_faces->nActive());
         ctr = 0;
         for (index_type j=0; j<_faces->n(); ++j) {
+//             std::cout << i << ": reading vector(" << ndim << ") field " << vfields[i] << std::endl;
             if (_faces->isLeaf(j)) {
                 Vec<ndim> avg;
                 const std::vector<index_type> int_inds = _faces->interiors(j);    
                 for (index_type k=0; k<int_inds.size(); ++k) {
-                    avg += Vec<ndim>(_particles->vectorVal(int_inds[k], sfields[i]));
+                    avg += Vec<ndim>(_particles->vectorVal(int_inds[k], vfields[i]));
                 }
                 avg.scaleInPlace(1.0/nintrs);
-                const std::vector<scalar_type> av = avg.toStdVec();
-                switch (ndim) {
-                    case (2) : {
-                        data->InsertTuple2(ctr++, av[0], av[1]);
-                        break;
-                    }
-                    case (3) : {
-                        data->InsertTuple3(ctr++, av[0], av[1], av[2]);
-                        break;
-                    }
+//                 std::cout << "vecavg = " << avg << ", ctr = " << ctr << ", j = " << j << std::endl;
+                if (ndim == 2) {
+                    data->InsertTuple2(ctr++, avg.x[0], avg.x[1]);
+                }
+                else if (ndim == 3) {
+                    data->InsertTuple3(ctr++, avg.x[0], avg.x[1], avg.x[2]);
                 }
             }
         }
@@ -233,9 +217,11 @@ template <int ndim> vtkSmartPointer<vtkCellData> PolyMesh2d<ndim>::fieldsToVtkCe
     return result;
 }
 
-template <int ndim>  vtkSmartPointer<vtkPolyData> PolyMesh2d<ndim>::toVtkPolyData() const {
+template <int ndim>  vtkSmartPointer<vtkPolyData> PolyMesh2d<ndim>::toVtkPolyData(const bool useFieldForHeight,
+    const std::string field_name) const {
         vtkSmartPointer<vtkPolyData> result = vtkSmartPointer<vtkPolyData>::New();
-        vtkSmartPointer<vtkPoints> pts = _particles->toVtkPoints();
+        std::cout << "converting vertices to vtk points." << std::endl;
+        vtkSmartPointer<vtkPoints> pts = this->verticesToVtkPoints(useFieldForHeight, field_name);
         std::cout << "points defined" << std::endl;
         vtkSmartPointer<vtkCellArray> polys = _faces->toVtkCellArray();
         std::cout << "polygons defined." << std::endl;
@@ -253,7 +239,8 @@ template <int ndim>  vtkSmartPointer<vtkPolyData> PolyMesh2d<ndim>::toVtkPolyDat
         for (int i=0; i<nCellFields; ++i) {
             result->GetCellData()->AddArray(celldata->GetAbstractArray(i));
         }
-        std::cout << "\tmesh data written." << std::endl;
+        std::cout << "data arrays added." << std::endl;
+//         std::cout << "\tmesh data written." << std::endl;
 //         const std::vector<std::string> sfields = _particles->getScalarFieldNames();
 //         std::cout << "\tfound " << sfields.size() << " scalar fields." << std::endl;
 //         for (int i=0; i<sfields.size(); ++i) std::cout << sfields[i] << std::endl;

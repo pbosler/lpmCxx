@@ -92,17 +92,17 @@ int main (int argc, char* argv[]) {
     std::cout << "all meshes with initnest = " << initnest << " created." << std::endl;
     
     std::cout << std::endl << std::endl;
-    std::cout << triplane.infoString(true);
+    std::cout << triplane.infoString(false);
     std::cout << std::endl << std::endl;
     
-//     std::cout << quadplane.infoString(false);
-//     std::cout << std::endl << std::endl;
-//     
-//     std::cout << trisphere.infoString(false);
-//     std::cout << std::endl <<std::endl;
-//     
-//     std::cout << quadsphere.infoString(false);
-//     std::cout << std::endl << std::endl;
+    std::cout << quadplane.infoString(false);
+    std::cout << std::endl << std::endl;
+    
+    std::cout << trisphere.infoString(false);
+    std::cout << std::endl <<std::endl;
+    
+    std::cout << quadsphere.infoString(false);
+    std::cout << std::endl << std::endl;
     
 #ifdef HAVE_VTK
     {
@@ -115,28 +115,39 @@ int main (int argc, char* argv[]) {
     writer->SetInputData(pd);
     writer->SetFileName(ss.str().c_str());
     writer->Write();
+    std::cout << "wrote file: " << ss.str() << std::endl;
     ss.str(std::string());
     
     ss << froot << "planequad_" << initnest << ".vtk";
     pd = quadplane.toVtkPolyData();
+    std::cout << "returned from vtkPolyData conversion." << std::endl;
     writer->SetInputData(pd);
     writer->SetFileName(ss.str().c_str());
     writer->Write();
+    std::cout << "wrote file: " << ss.str() << std::endl;
     ss.str(std::string());
-    
-    
+    }
+    {
+    const std::string froot = "tmp/polymeshtest_";
+    std::ostringstream ss;
     ss << froot << "quadsphere" << initnest << ".vtk";
-    pd = quadsphere.toVtkPolyData();
+    std::cout << "preparing data for file " << ss.str() << std::endl;
+    vtkSmartPointer<vtkPolyData> pd = quadsphere.toVtkPolyData();
+    std::cout << "returned from vtkPolyData conversion." << std::endl;
+    vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
     writer->SetInputData(pd);
     writer->SetFileName(ss.str().c_str());
     writer->Write();
+    std::cout << "wrote file: " << ss.str() << std::endl;
     ss.str(std::string());
     
     ss << froot << "trisphere_" << initnest << ".vtk";
     pd = trisphere.toVtkPolyData();
+    std::cout << "returned from vtkPolyData conversion." << std::endl;
     writer->SetInputData(pd);
     writer->SetFileName(ss.str().c_str());
     writer->Write();
+    std::cout << "wrote file: " << ss.str() << std::endl;
     ss.str(std::string());
     
     }

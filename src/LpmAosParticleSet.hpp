@@ -53,7 +53,7 @@ template <int ndim> class ParticleSet {
 		/// Return the set of all field names registered on these particles
         std::vector<std::string> fieldNames() const;
         
-        bool isVertex(const index_type ind) const {return _particles[ind]->isVertex();}
+        inline bool isVertex(const index_type ind) const {return _particles[ind]->isVertex();}
 
 		/// Compute the integral of a scalar field defined on a ParticleSet
         virtual scalar_type scalarIntegral(const std::string& field_name) const;
