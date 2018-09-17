@@ -52,7 +52,7 @@ template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<
 			result.newFaceVerts[i][(3*i+2)%12] = edges.midpt1(edgeKids[0]);
 
 			result.newFaceEdges[(i+1)%4][i] = edgeKids[1];
-			edges.setLeftFace(edgeKids[1], faceInsertPoint+i+1);
+			edges.setLeftFace(edgeKids[1], faceInsertPoint+(i+1)%4);
 			result.newFaceVerts[i][(3*i+10)%12] = edges.midpt0(edgeKids[1]);
 		}
 		else {
@@ -61,7 +61,7 @@ template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<
 			result.newFaceVerts[i][(3*i+2)%12] = edges.midpt0(edgeKids[1]);
 			
 			result.newFaceEdges[(i+1)%4][i] = edgeKids[0];
-			edges.setRightFace(edgeKids[0], faceInsertPoint+i+1);
+			edges.setRightFace(edgeKids[0], faceInsertPoint+(i+1)%4);
 			result.newFaceVerts[i][(3*i+10)%12] = edges.midpt1(edgeKids[0]);
 		}
 		result.newFaceVerts[i][(3*i)%12] = edges.dest(edgeKids[0]);
