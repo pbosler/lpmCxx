@@ -26,13 +26,12 @@ template <int ndim> KidEdgeArrays<ndim> Edge<ndim>::divide(ParticleSet<ndim>& pa
 	result.newDests[0] = particle_insert_point;
 	result.newLefts[0] = this->_left;
 	result.newRights[0] = this->_right;
+	
 	result.newOrigs[1] = particle_insert_point;
 	result.newDests[1] = this->_dest;
 	result.newLefts[1] = this->_left;
 	result.newRights[1] = this->_right;
 	
-// 	result.newPhysCrds[0] = midpt; 
-// 	result.newLagCrds[0] = lagmidpt;
 	particles.insert(midpt, lagmidpt, 0.0, true);
 	return result;
 }
@@ -45,11 +44,6 @@ template <int ndim> std::string KidEdgeArrays<ndim>::infoString() const {
 		std::cout << std::setw(10) << newOrigs[i] << std::setw(10) << newDests[i] << std::setw(10) << newLefts[i] 
 			<< std::setw(10) << newRights[i] << std::setw(10) << newMids[i][0] << std::setw(10) << newMids[i][1] << std::endl;
 	}
-// 	for (int i=0; i<particles.size(); ++i) {
-// 		std::cout << particles[i]->infoString();
-// 	}
-// 	for (int i=0; i<newPhysCrds.size(); ++i) 
-// 		std::cout << newPhysCrds[i] << " " << newLagCrds[i] << std::endl;
 	return ss.str();
 }
 

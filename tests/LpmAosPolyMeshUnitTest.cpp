@@ -24,6 +24,7 @@ using Lpm::index_type;
 using Lpm::Logger;
 using Lpm::OutputMessage;
 using Lpm::geometryString;
+using Lpm::PI;
 
 int main (int argc, char* argv[]) {
 
@@ -55,7 +56,7 @@ int main (int argc, char* argv[]) {
     std::shared_ptr<QuadFaceFactory<2>> quadfac_plane(new QuadFaceFactory<2>());
     std::shared_ptr<QuadFaceFactory<3>> quadfac_sphere(new QuadFaceFactory<3>());
 
-    const int initnest = 3;
+    const int initnest = 6;
     const int maxnest = initnest;
     index_type nMaxTriPlaneParticles;
     index_type nMaxTriPlaneEdges;
@@ -104,10 +105,30 @@ int main (int argc, char* argv[]) {
     std::cout << quadsphere.infoString(false);
     std::cout << std::endl << std::endl;
     
-    std::cout << "triplane.surfaceArea = " << triplane.surfaceArea() << std::endl;
-    std::cout << "quadplane.surfaceArea = " << quadplane.surfaceArea() << std::endl;
-    std::cout << "quadsphere.surfaceArea = " << quadsphere.surfaceArea() << std::endl;
-    std::cout << "trisphere.surfaceArea = " << trisphere.surfaceArea() << std::endl;
+    const scalar_type tri_hex_area = 2.59807621135331157;
+    
+    std::cout << "triplane.surfaceArea = " << std::setprecision(18) << triplane.surfaceArea() << std::endl;
+    if (std::abs(triplane.surfaceArea()-tri_hex_area) > 4.5e-13) {
+        std::ostringstream ss;
+        ss << "TriHexPlane surface area error: " << std::abs(triplane.surfaceArea() - tri_hex_area) << std::endl;
+        throw std::runtime_error(ss.str());
+    }
+    std::cout << "quadplane.surfaceArea = " << std::setprecision(18) << quadplane.surfaceArea() << std::endl;
+    if (std::abs(quadplane.surfaceArea()-4.0) > 1.0e-16) {
+        throw std::runtime_error("QuadRectPlane surface area error.");
+    }
+    std::cout << "quadsphere.surfaceArea = " << std::setprecision(18) << quadsphere.surfaceArea() << std::endl;
+    if (std::abs(quadsphere.surfaceArea() - 4.0*PI)> 1.6e-13) {
+        std::ostringstream ss;
+        ss << "cubed sphere surface area error: " << std::abs(quadsphere.surfaceArea() - 4.0*PI) << std::endl;
+        throw std::runtime_error(ss.str());
+    }
+    std::cout << "trisphere.surfaceArea = " << std::setprecision(18) << trisphere.surfaceArea() << std::endl;
+    if (std::abs(trisphere.surfaceArea() - 4.0*PI)>1.5e-13) {
+        std::ostringstream ss;
+        ss << "icos tri sphere surface area error: " << std::abs(trisphere.surfaceArea() - 4.0*PI) << std::endl;
+        throw std::runtime_error(ss.str());
+    }
     
 #ifdef HAVE_VTK
     {

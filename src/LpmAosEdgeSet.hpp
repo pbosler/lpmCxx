@@ -87,7 +87,7 @@ template <int ndim> class EdgeSet {
         /**
         	\warning this does not check to make sure that the edge is connected to the requested face.
         */
-        inline bool positiveOrientation(const index_type edgeInd, const index_type faceInd) const {
+		bool positiveOrientation(const index_type edgeInd, const index_type faceInd) const {
             return (_edges[edgeInd]->left() == faceInd);
         }
         

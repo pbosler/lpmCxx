@@ -30,14 +30,14 @@ template <int ndim> KidFaceArrays<ndim> TriFace<ndim>::divide(ParticleSet<ndim>&
 			edges.setLeftFace(edgeKids[0], faceInsertPoint+i);
 			
 			result.newFaceEdges[(i+1)%3][i] = edgeKids[1];
-			edges.setLeftFace(edgeKids[1], faceInsertPoint+i+1);
+			edges.setLeftFace(edgeKids[1], faceInsertPoint+(i+1)%3);
 		}
 		else {
 			result.newFaceEdges[i][i] = edgeKids[1];
 			edges.setRightFace(edgeKids[1], faceInsertPoint+i);
 			
 			result.newFaceEdges[(i+1)%3][i] = edgeKids[0];
-			edges.setRightFace(edgeKids[0], faceInsertPoint+i+1);
+			edges.setRightFace(edgeKids[0], faceInsertPoint+(i+1)%3);
 		}
 		result.newFaceVerts[i][(i+1)%3] = edges.dest(edgeKids[0]);
 		result.newFaceVerts[(i+1)%3][i] = edges.dest(edgeKids[0]);

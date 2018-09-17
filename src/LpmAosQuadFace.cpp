@@ -33,14 +33,14 @@ template <int ndim> KidFaceArrays<ndim> QuadFace<ndim>::divide(ParticleSet<ndim>
 			edges.setLeftFace(edgeKids[0], faceInsertPoint+i);
 			
 			result.newFaceEdges[(i+1)%4][i] = edgeKids[1];
-			edges.setLeftFace(edgeKids[1], faceInsertPoint+i+1); 
+			edges.setLeftFace(edgeKids[1], faceInsertPoint+(i+1)%4); 
 		}
 		else{
 			result.newFaceEdges[i][i] = edgeKids[1];
 			edges.setRightFace(edgeKids[1], faceInsertPoint+i);
 			
 			result.newFaceEdges[(i+1)%4][i] = edgeKids[0];
-			edges.setRightFace(edgeKids[0], faceInsertPoint+i+1);
+			edges.setRightFace(edgeKids[0], faceInsertPoint+(i+1)%4);
 		}
 		result.newFaceVerts[i][(i+1)%4] = edges.dest(edgeKids[0]);
 		result.newFaceVerts[(i+1)%4][i] = edges.dest(edgeKids[0]);

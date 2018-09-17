@@ -56,25 +56,8 @@ template <int ndim> void EdgeSet<ndim>::divide(const index_type ind, ParticleSet
     if (_edges.size() + 2 > _nMax) {
         throw std::out_of_range("EdgeSet::divide _nMax exceeded.");
     }
+    const index_type edge_insert_pt = _edges.size();
 	const KidEdgeArrays<ndim> kids = _edges[ind]->divide(particles, radius, _geom);
-	const index_type edge_insert_pt = _edges.size();
-	const scalar_type nullarea = 0.0;
-	const bool isvertex=true;
-// 	if (dynamic_cast<QuadraticEdge<ndim>*>(_edges[0].get())) {
-// 		for (short i=0; i<2; ++i) {
-// 			particles.insert(kids.newPhysCrds[i], kids.newLagCrds[i], nullarea, isvertex);
-// 		}
-//     }
-//     else if (dynamic_cast<CubicEdge<ndim>*>(_edges[0].get())) {
-//     	particles.move(_edges[ind]->midpt0(), kids.newPhysCrds[0], kids.newLagCrds[0]);
-//     	for (short i=1; i<=3; ++i) {
-// 	    	particles.insert(kids.newPhysCrds[i], kids.newLagCrds[i], nullarea, isvertex);
-// 	    }
-//     	particles.move(_edges[ind]->midpt1(), kids.newPhysCrds[4], kids.newLagCrds[4]);     
-//     }
-//     else {
-//     	particles.insert(kids.newPhysCrds[0], kids.newLagCrds[0], nullarea, isvertex);
-//     }
     for (short i=0; i<2; ++i) {
 		this->insert(kids.newOrigs[i], kids.newDests[i], kids.newLefts[i], kids.newRights[i], kids.newMids[i]);
 		_edges[edge_insert_pt+i]->setParent(ind);
@@ -82,6 +65,21 @@ template <int ndim> void EdgeSet<ndim>::divide(const index_type ind, ParticleSet
     _edges[ind]->setKids(edge_insert_pt, edge_insert_pt+1);
     _nActive -= 1; // parent edge is no longer active.
 }
+
+// template <int ndim> bool EdgeSet<ndim>::positiveOrientation(const index_type edgeInd, const index_type faceInd) const {
+// 	bool result = false;
+// 	if (_edges[edgeInd]->left() == faceInd) {
+// 		result = true;
+// 	}
+// 	else if (_edges[edgeInd]->right() == faceInd) {
+// 		result = false;
+// 	}           
+// 	else {
+// 		std::ostringstream ss;
+// 		ss << "EdgeSet::positiveOrientation Error: edge " << edgeInd << " and face " << faceInd << std::endl;
+// 		throw std::runtime_error(ss.str());
+// 	}
+// }
 
 template <int ndim> std::string EdgeSet<ndim>::infoString(const bool printAll) const {
     std::ostringstream ss;
