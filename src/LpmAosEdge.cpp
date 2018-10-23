@@ -120,26 +120,26 @@ template <int ndim> KidEdgeArrays<ndim> CubicEdge<ndim>::divide(ParticleSet<ndim
 	if (geom == SPHERICAL_SURFACE_GEOMETRY) {
 		parentmidpt = this->sphMidpoint(particles, radius);
 		parentlagmidpt = this->sphLagMidpoint(particles, radius);
-		kid0mid0crd = pointAlongCircle(origcrd, parentmidpt, -CubicGLL::sqrt5);
-		kid0mid0lagcrd = pointAlongCircle(origlagcrd, parentlagmidpt, -CubicGLL::sqrt5);
-		kid0mid1crd = pointAlongCircle(origcrd, parentmidpt, CubicGLL::sqrt5);
-		kid0mid1lagcrd = pointAlongCircle(origlagcrd, parentlagmidpt, CubicGLL::sqrt5);
-		kid1mid0crd = pointAlongCircle(parentmidpt, destcrd, -CubicGLL::sqrt5);
-		kid1mid0lagcrd = pointAlongCircle(parentlagmidpt, destlagcrd, -CubicGLL::sqrt5);
-		kid1mid1crd = pointAlongCircle(parentmidpt, destcrd, CubicGLL::sqrt5);
-		kid1mid1lagcrd = pointAlongCircle(parentlagmidpt, destlagcrd, CubicGLL::sqrt5);		
+		kid0mid0crd = pointAlongCircle(origcrd, parentmidpt, -CubicGLL<ndim>::sqrt5);
+		kid0mid0lagcrd = pointAlongCircle(origlagcrd, parentlagmidpt, -CubicGLL<ndim>::sqrt5);
+		kid0mid1crd = pointAlongCircle(origcrd, parentmidpt, CubicGLL<ndim>::sqrt5);
+		kid0mid1lagcrd = pointAlongCircle(origlagcrd, parentlagmidpt, CubicGLL<ndim>::sqrt5);
+		kid1mid0crd = pointAlongCircle(parentmidpt, destcrd, -CubicGLL<ndim>::sqrt5);
+		kid1mid0lagcrd = pointAlongCircle(parentlagmidpt, destlagcrd, -CubicGLL<ndim>::sqrt5);
+		kid1mid1crd = pointAlongCircle(parentmidpt, destcrd, CubicGLL<ndim>::sqrt5);
+		kid1mid1lagcrd = pointAlongCircle(parentlagmidpt, destlagcrd, CubicGLL<ndim>::sqrt5);		
 	}
 	else if (geom == PLANAR_GEOMETRY or geom == CARTESIAN_3D_GEOMETRY) {
 		parentmidpt = this->midpoint(particles);
 		parentlagmidpt = this->lagMidpoint(particles);
-		kid0mid0crd = pointAlongChord(origcrd, parentmidpt, -CubicGLL::sqrt5);
-		kid0mid0lagcrd = pointAlongChord(origlagcrd, parentlagmidpt, -CubicGLL::sqrt5);
-		kid0mid1crd = pointAlongChord(origcrd, parentmidpt, CubicGLL::sqrt5);
-		kid0mid1lagcrd = pointAlongChord(origlagcrd, parentlagmidpt, CubicGLL::sqrt5);
-		kid1mid0crd = pointAlongChord(parentmidpt, destcrd, -CubicGLL::sqrt5);
-		kid1mid0lagcrd = pointAlongChord(parentlagmidpt, destlagcrd, -CubicGLL::sqrt5);
-		kid1mid1crd = pointAlongChord(parentmidpt, destcrd, CubicGLL::sqrt5);
-		kid1mid1lagcrd = pointAlongChord(parentlagmidpt, destlagcrd, CubicGLL::sqrt5);
+		kid0mid0crd = pointAlongChord(origcrd, parentmidpt, -CubicGLL<ndim>::sqrt5);
+		kid0mid0lagcrd = pointAlongChord(origlagcrd, parentlagmidpt, -CubicGLL<ndim>::sqrt5);
+		kid0mid1crd = pointAlongChord(origcrd, parentmidpt, CubicGLL<ndim>::sqrt5);
+		kid0mid1lagcrd = pointAlongChord(origlagcrd, parentlagmidpt, CubicGLL<ndim>::sqrt5);
+		kid1mid0crd = pointAlongChord(parentmidpt, destcrd, -CubicGLL<ndim>::sqrt5);
+		kid1mid0lagcrd = pointAlongChord(parentlagmidpt, destlagcrd, -CubicGLL<ndim>::sqrt5);
+		kid1mid1crd = pointAlongChord(parentmidpt, destcrd, CubicGLL<ndim>::sqrt5);
+		kid1mid1lagcrd = pointAlongChord(parentlagmidpt, destlagcrd, CubicGLL<ndim>::sqrt5);
 	}
 // 	result.newPhysCrds[0] = kid0mid0crd;
 // 	result.newLagCrds[0] = kid0mid0lagcrd;

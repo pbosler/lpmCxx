@@ -108,6 +108,11 @@ template<int ndim=3> struct Vec {
             result[i] = this->x[i];
         return result;
     }
+    
+    /// [] operator
+    inline const scalar_type& operator [] (const index_type ind) const {return this->x[ind];}
+    
+    inline scalar_type& operator [] (const index_type ind) {return this->x[ind];}
 	
 	/// += operator (elemental)
     inline Vec<ndim>& operator += (const Vec<ndim>& other) {

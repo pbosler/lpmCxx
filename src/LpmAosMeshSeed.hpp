@@ -131,7 +131,7 @@ class QuadCubicSeed : public MeshSeed<2> {
     index_type nEdgesAfterUniformRefinement(const index_type nverts, const index_type nfaces, const index_type recursionLevel) const;
     index_type nVerticesAfterUniformRefinement(const index_type maxRecursion) const;
     inline index_type nRootFaces() const {return 6;}
-    inline std::string idString() const {return "cubedSphere";}
+    inline std::string idString() const {return "quadCubicSeed";}
     inline GeometryType geometryType() const {return SPHERICAL_SURFACE_GEOMETRY;}
     inline FaceType faceType() const {return QUAD;}
     inline bool faceCrdsIncluded() const {return true;}

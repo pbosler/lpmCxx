@@ -4,6 +4,8 @@
 namespace Lpm {
 namespace Aos {
 
+static CubicGLL gll;
+
 template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<ndim>& particles, EdgeSet<ndim>& edges, 
 	const index_type myIndex, const index_type faceInsertPoint, 
 	const scalar_type radius, const GeometryType geom)  {
@@ -163,7 +165,7 @@ template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<
 			}
 		}
 	}
-	CubicGLL gll;
+	//CubicGLL gll;
 	// create new particles for face interiors
 	for (short i=0; i<4; ++i) {
 		for (short j=0; j<4; ++i) {
@@ -210,6 +212,7 @@ template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<
 	this->_area = 0.0;
 	return result;
 }
+
 
 template <int ndim> void QuadCubicFace<ndim>::setArea(const scalar_type ar, ParticleSet<ndim>& particles) {
 	this->_area = ar;

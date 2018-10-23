@@ -59,6 +59,15 @@ int main(int argc, char* argv[]) {
             << std::setw(20) << nf << std::endl;
     }
 
+    std::cout << "QuadCubicSeed Memory Requirements:" << std::endl;
+    std::cout << std::setw(20) << "refinement level" << std::setw(20) << "nverts" 
+        << std::setw(20) << "nedges" << std::setw(20) << "nfaces" << std::endl;
+    for (int i=0; i<maxRec; ++i) {
+        cubicPlane.determineMaxAllocations(nv, ne, nf, i);
+        std::cout << std::setw(20) << i << std::setw(20) << nv << std::setw(20) << ne  
+            << std::setw(20) << nf << std::endl;
+    }
+
     std::cout << "IcosTriSphereSeed Memory Requirements: " << std::endl;
     std::cout << std::setw(20) << "refinement level" << std::setw(20) << "nverts" 
         << std::setw(20) << "nedges" << std::setw(20) << "nfaces" << std::endl;
@@ -76,6 +85,7 @@ int main(int argc, char* argv[]) {
         std::cout << std::setw(20) << i << std::setw(20) << nv << std::setw(20) << ne  
             << std::setw(20) << nf << std::endl;
     }
+
 
 return 0;
 }

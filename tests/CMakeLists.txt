@@ -79,6 +79,10 @@ ADD_EXECUTABLE(lpmSakajoUnitTest.exe LpmSakajoUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmSakajoUnitTest.exe lpm)
 ADD_TEST(NAME sakajoUnitTest COMMAND mpirun -np 1 lpmSakajoUnitTest.exe)
 
+ADD_EXECUTABLE(lpmGllUnitTest.exe LpmGllUnitTest.cpp)
+TARGET_LINK_LIBRARIES(lpmGllUnitTest.exe lpm)
+add_test(lpmGllTest lpmGllUnitTest.exe)
+
 ADD_EXECUTABLE(lpmAosTypesUnitTest.exe LpmAosUnitTest.cpp)
 TARGET_LINK_LIBRARIES(lpmAosTypesUnitTest.exe lpm)
 add_test(aosTypeUnitTest lpmAosTypesUnitTest.exe)
@@ -98,6 +102,8 @@ add_test(aosFaceUnitTest lpmAosFaceUnitTest.exe)
 ADD_EXECUTABLE(lpmAosMeshSeedTest.exe LpmAosMeshSeedUnitTest.cpp)
 TARGET_LINK_LIBRARIES(lpmAosMeshSeedTest.exe lpm)
 add_test(aosMeshSeedTest lpmAosMeshSeedTest.exe)
+
+
 
 ADD_EXECUTABLE(lpmAosPolyMesh2dUnitTest.exe LpmAosPolyMeshUnitTest.cpp)
 TARGET_LINK_LIBRARIES(lpmAosPolyMesh2dUnitTest.exe lpm)

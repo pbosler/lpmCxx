@@ -42,6 +42,7 @@ int main (int argc, char* argv[]) {
     
     std::shared_ptr<MeshSeed<2>> triPlaneSeed = std::shared_ptr<MeshSeed<2>>(new TriHexSeed());
     std::shared_ptr<MeshSeed<2>> quadPlaneSeed = std::shared_ptr<MeshSeed<2>>(new QuadRectSeed());
+    //std::shared_ptr<MeshSeed<2>> cubicPlaneSeed = std::shared_ptr<MeshSeed<2>>(new QuadCubicSeed());
     std::shared_ptr<MeshSeed<3>> triSphereSeed = std::shared_ptr<MeshSeed<3>>(new IcosTriSphereSeed());
     std::shared_ptr<MeshSeed<3>> quadSphereSeed = std::shared_ptr<MeshSeed<3>>(new CubedSphereSeed());
     
@@ -50,13 +51,15 @@ int main (int argc, char* argv[]) {
     
     std::shared_ptr<LinearEdgeFactory<2>> efac_plane(new LinearEdgeFactory<2>());
     std::shared_ptr<LinearEdgeFactory<3>> efac_sphere(new LinearEdgeFactory<3>());
+    std::shared_ptr<CubicEdgeFactory<2>> efac_cubic(new CubicEdgeFactory<2>());
     
     std::shared_ptr<TriFaceFactory<2>> trifac_plane(new TriFaceFactory<2>());
     std::shared_ptr<TriFaceFactory<3>> trifac_sphere(new TriFaceFactory<3>());
     std::shared_ptr<QuadFaceFactory<2>> quadfac_plane(new QuadFaceFactory<2>());
     std::shared_ptr<QuadFaceFactory<3>> quadfac_sphere(new QuadFaceFactory<3>());
+    //std::shared_ptr<QuadCubicFaceFactory<2>> cubicfac_plane(new QuadCubicFaceFactory<2>());
 
-    const int initnest = 6;
+    const int initnest = 3;
     const int maxnest = initnest;
     index_type nMaxTriPlaneParticles;
     index_type nMaxTriPlaneEdges;
@@ -89,6 +92,9 @@ int main (int argc, char* argv[]) {
     
     PolyMesh2d<3> quadsphere(quadSphereSeed, pfac_sphere, efac_sphere, quadfac_sphere, initnest, maxnest, amrLimit, radius);
     quadsphere.initStaggeredVerticesAndFacesFromSeed();
+    
+//     PolyMesh2d<2> cubicplane(cubicPlaneSeed, pfac_plane, efac_cubic, cubicfac_plane, initnest, maxnest, amrLimit, radius);
+//     cubicplane.initStaggeredVerticesAndFacesFromSeed();
     
     std::cout << "all meshes with initnest = " << initnest << " created." << std::endl;
     
