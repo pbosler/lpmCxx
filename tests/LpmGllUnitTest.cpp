@@ -92,7 +92,6 @@ int main(int argc, char* argv[]) {
         
         std::cout << "refcrd   " << refcrd << " maps to " << mappt << std::endl;
         std::cout << "invmap = " << invpt << ", |err| = " << (refcrd - invpt).mag() << std::endl;
-        std::cout << "jac = " << jj << std::endl;
         if ( (refcrd - invpt).mag() > 1.0e-15) {
             std::ostringstream ss;
             ss << "edge pt " << i << ": inverse map error magnitude = " << (refcrd - invpt).mag();
@@ -109,7 +108,6 @@ int main(int argc, char* argv[]) {
         
         std::cout << "refcrd   " << refcrd << " maps to " << mappt << std::endl;
         std::cout << "invmap = " << invpt << ", |err| = " << (refcrd - invpt).mag() <<  std::endl;
-        std::cout << "jac = " << jj << std::endl;
         if ( (refcrd - invpt).mag() > 1.0e-15) {
             std::ostringstream ss;
             ss << "interior pt " << i << ": inverse map error magnitude = " << (refcrd - invpt).mag();
@@ -120,6 +118,27 @@ int main(int argc, char* argv[]) {
     if (std::abs(quad_area - quad_ar) > 1.0e-15) {
         throw std::runtime_error("Area integral error.");
     }
+    
+    // is (2,2) inside quadrilateral
+    // x^3 + y^2 at (2,2) = 12
+    const scalar_type poly_val = 12;
+    invpt = gll.invertBilinearMap(corners, Aos::Vec<2>(2,2));
+    std::vector<scalar_type> edgevals(12);
+    std::vector<scalar_type> ctrvals(4);
+    for (int i=0; i<12; ++i) {
+        mappt = gll.bilinearMap(corners, gll.quad16edgeqp(i));
+        edgevals[i] = cube(mappt[0]) + square(mappt[1]);
+    }
+    for (int i=0; i<4; ++i) {
+        mappt = gll.bilinearMap(corners, gll.quad16centerqp(i));
+        ctrvals[i] = cube(mappt[0]) + square(mappt[1]);
+    }
+    const scalar_type interpval = gll.quad16interpolation(gll.invertBilinearMap(corners, Aos::Vec<2>(2,2)), edgevals, ctrvals);
+    std::cout << "interp(x^3 + y^2) at (2,2) = " << interpval << ", |err| = " << std::abs(poly_val-interpval)  << std::endl;
+    if (std::abs(poly_val-interpval) > 5.5e-15) {
+        throw std::runtime_error("interpolation error");
+    }
+    
     }// <2>
     {// CubicGLL<3> test
     }

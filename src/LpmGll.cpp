@@ -4,8 +4,6 @@
 
 namespace Lpm {
 
-// static const CubicGLL gll;
-
 template <int ndim> scalar_type CubicGLL<ndim>::qp4(const int id) const {
     switch (id) {
         case(0): {return qp0; break;} 
@@ -24,6 +22,9 @@ template <int ndim> scalar_type CubicGLL<ndim>::qw4(const int id) const {
     }    
 }
 
+/** Inverts bilinearMap to find reference coordinates (r1,r2) in [-1,1]^2
+ Folows C. Hua, 1990, Finite Elem. Anal. Design 7:159--166.
+*/
 template <int ndim> Aos::Vec<ndim> CubicGLL<ndim>::quad16edgeqp(const int id) const {
     switch (id) {
         case(0) : {
@@ -182,24 +183,6 @@ template <int ndim> Aos::Vec<ndim> CubicGLL<ndim>::bilinearMap(const std::vector
 template <int ndim> Aos::Vec<ndim> CubicGLL<ndim>::sphereBilinearMap(const std::vector<Aos::Vec<ndim>>& corners, 
     const scalar_type s1, const scalar_type s2, const scalar_type radius) const {
     return bilinearMap(corners, s1, s2).normalize().scale(radius);
-}
-
-template <int ndim> std::vector<Aos::Vec<ndim>> CubicGLL<ndim>::quad16interiors(const std::vector<Aos::Vec<ndim>>& corners, 
-    const GeometryType geom, const scalar_type radius) const {
-    std::vector<Aos::Vec<ndim>> result(4);
-    if (geom == PLANAR_GEOMETRY || geom == CARTESIAN_3D_GEOMETRY) {
-        result[0] = this->bilinearMap(corners, qp4(1), qp4(2));
-        result[1] = this->bilinearMap(corners, qp4(1), qp4(1));
-        result[2] = this->bilinearMap(corners, qp4(2), qp4(1));
-        result[3] = this->bilinearMap(corners, qp4(2), qp4(2));
-    }
-    else if (geom == SPHERICAL_SURFACE_GEOMETRY) {
-        result[0] = this->sphereBilinearMap(corners, qp4(1), qp4(2), radius);
-        result[1] = this->sphereBilinearMap(corners, qp4(1), qp4(1), radius);
-        result[2] = this->sphereBilinearMap(corners, qp4(2), qp4(1), radius);
-        result[3] = this->sphereBilinearMap(corners, qp4(2), qp4(2), radius);
-    }
-    return result;
 }
 
 template <int ndim> void CubicGLL<ndim>::pickBilinearIJ(int& i, int& j, const std::vector<Aos::Vec<ndim>>& corners) const {

@@ -108,10 +108,6 @@ inline scalar_type latitude(const XyzVector& vec) {
     return latitude(vec.x, vec.y, vec.z);
 }
 
-inline scalar_type square(const scalar_type x) {return x*x;}
-
-inline scalar_type cube(const scalar_type x) {return x*x*x;}
-
 bool operator == ( const XyzVector& vecA, const XyzVector& vecB );
 
 XyzVector midpoint( const XyzVector& vecA, const XyzVector& vecB );

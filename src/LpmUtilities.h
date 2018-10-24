@@ -19,5 +19,11 @@ namespace Lpm {
 
    /// Quadratic formula
    void quadraticRoots(scalar_type& r1, scalar_type& r2, const scalar_type a, const scalar_type b, const scalar_type c);
+   
+   /// square a scalar
+   inline scalar_type square(const scalar_type x) {return x*x;}
+   
+   /// cube a scalar
+   inline scalar_type cube(const scalar_type x) {return x*x*x;}
 }
 #endif
