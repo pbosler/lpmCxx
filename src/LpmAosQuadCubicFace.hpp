@@ -2,6 +2,7 @@
 #define LPM_QUAD_CUBIC_FACE_HPP
 
 #include "LpmAosFace.hpp"
+#include "LpmGll.hpp"
 
 namespace Lpm {
 namespace Aos {
@@ -16,15 +17,20 @@ template <int ndim> class QuadCubicFace : public Face<ndim> {
         	const scalar_type radius=1.0, const GeometryType geom=PLANAR_GEOMETRY);
 
 		std::vector<Vec<ndim>> getCorners(const ParticleSet<ndim>& particles) const;
+		std::vector<Vec<ndim>> getLagCorners(const ParticleSet<ndim>& particles) const;
 		        	
         scalar_type computeAreaFromCorners(const ParticleSet<ndim>& particles, const GeometryType geom, 
         	const scalar_type radius) const;
-        std::vector<Vec<ndim>> getLagCorners(const ParticleSet<ndim>& particles) const;
         
         void setArea(const scalar_type ar, ParticleSet<ndim>& particles) override;
         void setArea(ParticleSet<ndim>& particles, const GeometryType geom, const scalar_type radius) override;
+    
+    protected:
+        static CubicGLL<ndim> gll;
+        std::vector<Vec<ndim>> makeInteriors(const std::vector<Vec<ndim>>& corners, const GeometryType geom, const scalar_type radius=1.0) const;
 };
 
+template <int ndim> CubicGLL<ndim> QuadCubicFace<ndim>::gll = CubicGLL<ndim>();
 
 }
 }

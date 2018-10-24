@@ -45,9 +45,10 @@ int main (int argc, char* argv[]) {
         log->logMessage(introMsg);
         ss.str(nullstr);
     }
-    
+    {
     QuadFaceFactory<3> quadFactory;
     std::shared_ptr<FaceFactory<2>> triFactory(new TriFaceFactory<2>());
+    
     
     const ind_vec ctr = {0};
     const ind_vec triverts = {0, 1, 2};
@@ -134,92 +135,117 @@ int main (int argc, char* argv[]) {
 	std::cout << triedges.infoString(true) << std::endl;
 	std::cout << trihex.infoString(true) << std::endl;
 	
-	
-    
-    
- //    cubedSphere.insert(Vec<3>(0.57735026918962584, -0.57735026918962584,  0.57735026918962584));
-//     cubedSphere.insert(Vec<3>(0.57735026918962584, -0.57735026918962584, -0.57735026918962584));
-//     cubedSphere.insert(Vec<3>(0.57735026918962584,  0.57735026918962584, -0.57735026918962584));
-//     cubedSphere.insert(Vec<3>(0.57735026918962584,  0.57735026918962584,  0.57735026918962584));
-//     cubedSphere.insert(Vec<3>(-0.57735026918962584,  0.57735026918962584, -0.57735026918962584));
-//     cubedSphere.insert(Vec<3>(-0.57735026918962584,  0.57735026918962584,  0.57735026918962584));
-//     cubedSphere.insert(Vec<3>(-0.57735026918962584, -0.57735026918962584, -0.57735026918962584));
-//     cubedSphere.insert(Vec<3>(-0.57735026918962584, -0.57735026918962584,  0.57735026918962584));
-//     cubedSphere.insert(Vec<3>(1.0000000000000000,   0.0000000000000000,   0.0000000000000000), 2.0943951023931948);
-//     cubedSphere.insert(Vec<3>(0.0000000000000000,   1.0000000000000000,   0.0000000000000000), 2.0943951023931948);
-//     cubedSphere.insert(Vec<3>(-1.000000000000000,   0.0000000000000000,   0.0000000000000000), 2.0943951023931948);
-//     cubedSphere.insert(Vec<3>(0.0000000000000000,  -1.0000000000000000,   0.0000000000000000), 2.0943951023931948);
-//     cubedSphere.insert(Vec<3>(0.0000000000000000,   0.0000000000000000,   1.0000000000000000), 2.0943951023931948);
-//     cubedSphere.insert(Vec<3>(0.0000000000000000,   0.0000000000000000,  -1.0000000000000000), 2.0943951023931948);
-// 
-//     std::cout << cubedSphere.infoString() << std::endl;
-//     
-//     
-//     edgeRecords[0] = {0,1,0,3};
-//     edgeRecords[1] = {1,2,0,5};
-//     edgeRecords[2] = {2,3,0,1};
-// 	edgeRecords[3] = {3,0,0,4};
-// 	edgeRecords[4] = {2,4,1,5};
-// 	edgeRecords[5] = {4,5,1,2};
-// 	edgeRecords[6] = {5,3,1,4};
-// 	edgeRecords[7] = {4,6,2,5};
-// 	edgeRecords[8] = {6,7,2,3};
-// 	edgeRecords[9] = {7,5,2,4};
-// 	edgeRecords[10] = {6,1,3,5};
-// 	edgeRecords[11] = {0,7,3,4};
-// 	
-// 	std::shared_ptr<EdgeFactory<3>> edgeFac(new LinearEdgeFactory<3>());
-// 	EdgeSet<3> edges(edgeFac, SPHERICAL_SURFACE_GEOMETRY, 100);
-// 	for (int i=0; i<12; ++i) {
-// 		edges.insert(edgeRecords[i][0], edgeRecords[i][1], edgeRecords[i][2], edgeRecords[i][3]);
-// 	}
-// 	std::cout << edges.infoString();
-// 	
-// 	
-//     std::vector<std::vector<index_type>> fv(6, std::vector<index_type>(4));
-//     fv[0] = {1, 2, 3, 4};
-//     fv[1] = {4, 3, 5, 6};
-//     fv[2] = {6, 5, 7, 8};
-//     fv[3] = {8, 7, 2, 1};
-//     fv[4] = {8, 1, 4, 6};
-//     fv[5] = {2, 7, 5, 3};
-//     std::vector<std::vector<index_type>> fe(6, std::vector<index_type>(4));
-//     fe[0] = {1, 2, 3, 4};
-//     fe[1] = {3, 5, 6, 7};
-//     fe[2] = {6, 8, 9, 10};
-//     fe[3] = {9, 11, 1, 12};
-//     fe[4] = {12, 4, 7, 10};
-//     fe[5] = {11, 8, 5, 2};
-//     for (int i=0; i<6; ++i) {
-//         for (int j=0; j<4; ++j) {
-//             fv[i][j] -= 1;
-//             fe[i][j] -= 1;
-//         }
-//     }
-//     std::shared_ptr<FaceFactory<3>> csFaceFac = std::shared_ptr<FaceFactory<3>>(new QuadFaceFactory<3>());
-//     FaceSet<3> cs(csFaceFac, 100, SPHERICAL_SURFACE_GEOMETRY);
-// 
-//     for (int i=0; i<6; ++i) {
-//         cs.insert(ind_vec(1, i+8), fv[i], fe[i], root_index);
-//     }
-//     std::cout << cs.infoString() << std::endl;
-//     cs.setArea(cubedSphere);
-//     std::cout << "calling divide" << std::endl;
-//     cs.divide(0, cubedSphere, edges);
-// 
-// //     std::cout << "edges:" << std::endl;
-// //     std::cout << edges.infoString(true) << std::endl;
-// //     std::cout << cs.infoString(true) << std::endl;
-// //     cs.setArea(cubedSphere);
-// //     std::cout << "returned from set area" << std::endl;
-//     std::cout << cs.infoString() << std::endl;
-//     
-//     
-// #ifdef HAVE_VTK
-// 	std::cout << "Testing VTK" << std::endl;
-// 	vtkSmartPointer<vtkCellArray> vcells = cs.toVtkCellArray();
-// 	std::cout << "inserted " << vcells->GetNumberOfCells() << " cells to vtkCellArray." << std::endl;
-// #endif    
+	}
+	{ // Cubic section
+		std::shared_ptr<ParticleFactory<2>> cpfac(new SWEParticleFactory<2>());
+		std::shared_ptr<EdgeFactory<2>> cefac(new CubicEdgeFactory<2>());
+		std::shared_ptr<FaceFactory<2>> cffac(new QuadCubicFaceFactory<2>());
+		
+		ParticleSet<2> cps(cpfac, 100);
+		cps.insert(Vec<2>(-1.00000000000000000,1.00000000000000000));
+		cps.insert(Vec<2>(-1.00000000000000000,0.72360679774997894));
+		cps.insert(Vec<2>(-1.00000000000000000,0.27639320225002106));
+		cps.insert(Vec<2>(-1.00000000000000000,0.00000000000000000));
+		cps.insert(Vec<2>(-0.72360679774997894,0.00000000000000000));
+		cps.insert(Vec<2>(-0.27639320225002106,0.00000000000000000));
+		cps.insert(Vec<2>(0.00000000000000000,0.00000000000000000));
+		cps.insert(Vec<2>(0.00000000000000000,0.27639320225002106));
+		cps.insert(Vec<2>(0.00000000000000000,0.72360679774997894));
+		cps.insert(Vec<2>(0.00000000000000000,1.00000000000000000));
+		cps.insert(Vec<2>(-0.27639320225002106,1.00000000000000000));
+		cps.insert(Vec<2>(-0.72360679774997894,1.00000000000000000));
+		cps.insert(Vec<2>(-0.72360679774997894,0.72360679774997894));
+		cps.insert(Vec<2>(-0.72360679774997894,0.27639320225002106));
+		cps.insert(Vec<2>(-0.27639320225002106,0.27639320225002106));
+		cps.insert(Vec<2>(-0.27639320225002106,0.72360679774997894));
+		cps.insert(Vec<2>(-1.00000000000000000,-0.27639320225002106));
+		cps.insert(Vec<2>(-1.00000000000000000,-0.72360679774997894));
+		cps.insert(Vec<2>(-1.00000000000000000,-1.00000000000000000));
+		cps.insert(Vec<2>(-0.72360679774997894,-1.00000000000000000));
+		cps.insert(Vec<2>(-0.27639320225002106,-1.00000000000000000));
+		cps.insert(Vec<2>(0.00000000000000000,-1.00000000000000000));
+		cps.insert(Vec<2>(0.00000000000000000,-0.72360679774997894));
+		cps.insert(Vec<2>(0.00000000000000000,-0.27639320225002106));
+		cps.insert(Vec<2>(-0.72360679774997894,-0.27639320225002106));
+		cps.insert(Vec<2>(-0.72360679774997894,-0.72360679774997894));
+		cps.insert(Vec<2>(-0.27639320225002106,-0.72360679774997894));
+		cps.insert(Vec<2>(-0.27639320225002106,-0.27639320225002106));
+		cps.insert(Vec<2>(0.27639320225002106,-1.00000000000000000));
+		cps.insert(Vec<2>(0.72360679774997894,-1.00000000000000000));
+		cps.insert(Vec<2>(1.00000000000000000,-1.00000000000000000));
+		cps.insert(Vec<2>(1.00000000000000000,-0.72360679774997894));
+		cps.insert(Vec<2>(1.00000000000000000,-0.27639320225002106));
+		cps.insert(Vec<2>(1.00000000000000000,0.00000000000000000));
+		cps.insert(Vec<2>(0.72360679774997894,0.00000000000000000));
+		cps.insert(Vec<2>(0.27639320225002106,0.00000000000000000));
+		cps.insert(Vec<2>(0.27639320225002106,-0.27639320225002106));
+		cps.insert(Vec<2>(0.27639320225002106,-0.72360679774997894));
+		cps.insert(Vec<2>(0.72360679774997894,-0.72360679774997894));
+		cps.insert(Vec<2>(0.72360679774997894,-0.27639320225002106));
+		cps.insert(Vec<2>(1.00000000000000000,0.27639320225002106));
+		cps.insert(Vec<2>(1.00000000000000000,0.72360679774997894));
+		cps.insert(Vec<2>(1.00000000000000000,1.00000000000000000));
+		cps.insert(Vec<2>(0.72360679774997894,1.00000000000000000));
+		cps.insert(Vec<2>(0.27639320225002106,1.00000000000000000));
+		cps.insert(Vec<2>(0.27639320225002106,0.72360679774997894));
+		cps.insert(Vec<2>(0.27639320225002106,0.27639320225002106));
+		cps.insert(Vec<2>(0.72360679774997894,0.27639320225002106));
+		cps.insert(Vec<2>(0.72360679774997894,0.72360679774997894));
+		
+		EdgeSet<2> ces(cefac, PLANAR_GEOMETRY, 100);
+		std::vector<std::vector<index_type>> edge_ints(12,std::vector<index_type>(2,-1));
+		edge_ints[0] = {1,2};
+		edge_ints[1] = {16,17};
+		edge_ints[2] = {19,20};
+		edge_ints[3] = {28,29};
+		edge_ints[4] = {31,32};
+		edge_ints[5] = {40,41};
+		edge_ints[6] = {43,44};
+		edge_ints[7] = {10,11};
+		edge_ints[8] = {4,5};
+		edge_ints[9] = {35,35};
+		edge_ints[10] = {22,23};
+		edge_ints[11] = {7,8};
+		std::vector<index_type> edgeOrigs = {0,3,18,21,30,33,42,9,3,6,21,6};
+		std::vector<index_type> edgeDests ={3,18,21,30,33,42,9,0,6,33,6,9};
+		std::vector<index_type> edgeLefts = {0,1,1,2,2,3,3,0,0,3,1,0};
+		std::vector<index_type> edgeRights = {-1,-1,-1,-1,-1,-1,-1,-1,1,2,2,3};
+		for (int i=0; i<12; ++i) 
+			ces.insert(edgeOrigs[i], edgeDests[i], edgeLefts[i], edgeRights[i], edge_ints[i]);
+		
+		FaceSet<2> cfs(cffac, 100, PLANAR_GEOMETRY);
+		std::vector<std::vector<index_type>> fverts(4);
+		fverts[0] = {0,1,2,3,4,5,6,7,8,9,10,11};
+		fverts[1] = {3,16,17,18,19,20,21,22,23,6,5,4};
+		fverts[2] = {6,23,22,21,28,29,30,31,32,33,34,35};
+		fverts[3] = {9,8,7,6,35,34,33,40,41,42,43,44};
+		
+		std::vector<std::vector<index_type>> fedges(4);
+		fedges[0] = {0,8,11,7};
+		fedges[1] = {1,2,10,8};
+		fedges[2] = {10,3,4,9};
+		fedges[3] = {11,9,5,6};
+		
+		std::vector<std::vector<index_type>> fintrs(4);
+		fintrs[0] = {12,13,14,15};
+		fintrs[1] = {24,25,26,27};
+		fintrs[2] = {36,37,38,39};
+		fintrs[3] = {45,46,47,48};
+		
+		const index_type parent_index = -1;
+		const scalar_type root_area = 1.0;
+		for (int i=0; i<4; ++i) 
+			cfs.insert(fintrs[i], fverts[i], fedges[i], parent_index, root_area);
+		
+		std::cout << "CUBIC PLANE INFO" << std::endl;
+		std::cout << cps.infoString();
+		std::cout << ces.infoString();
+		std::cout << cfs.infoString();
+		
+		cfs.divide(0, cps, ces);
+		std::cout << cfs.infoString();
+	}
+
     
 return 0;
 }

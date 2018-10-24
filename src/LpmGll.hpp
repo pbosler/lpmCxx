@@ -64,6 +64,11 @@ template <int ndim=2>  struct CubicGLL {
     /** Maps reference element to a bilinear surface in R3, circumscribed by the sphere, then projects that surface onto the sphere.*/
     Aos::Vec<ndim> sphereBilinearMap(const std::vector<Aos::Vec<ndim>>& corners, 
         const scalar_type s1, const scalar_type s2, const scalar_type radius=1.0) const;
+        
+    inline Aos::Vec<ndim> sphereBilinearMap(const std::vector<Aos::Vec<ndim>>& corners, const Aos::Vec<ndim>& refcrds,
+         const scalar_type radius=1.0) const {
+         return sphereBilinearMap(corners, refcrds[0], refcrds[1], radius);
+    }
 
     /** Performs cubic interpolation of a scalar using GLL points and basis functions */
     scalar_type quad16interpolation(const Aos::Vec<ndim>& refCrds, const std::vector<scalar_type>& edgeVals, const std::vector<scalar_type>& ctrVals) const;

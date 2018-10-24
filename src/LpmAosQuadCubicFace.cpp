@@ -1,10 +1,22 @@
 #include "LpmAosQuadCubicFace.hpp"
-#include "LpmGll.hpp"
 
 namespace Lpm {
 namespace Aos {
 
-static CubicGLL gll;
+template <int ndim> std::vector<Vec<ndim>> QuadCubicFace<ndim>::makeInteriors(const std::vector<Vec<ndim>>& corners, const GeometryType geom, const scalar_type radius) const {
+    std::vector<Vec<ndim>> result(4);
+    if (geom == SPHERICAL_SURFACE_GEOMETRY) {
+        for (short i=0; i<4; ++i) {
+            result[i] = gll.sphereBilinearMap(corners, gll.quad16centerqp(i), radius);
+        }
+    }
+    else if (geom == PLANAR_GEOMETRY || geom == CARTESIAN_3D_GEOMETRY) {
+        for (short i=0; i<4; ++i) {
+            result[i] = gll.bilinearMap(corners, gll.quad16centerqp(i));
+        }
+    }
+    return result;
+}
 
 template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<ndim>& particles, EdgeSet<ndim>& edges, 
 	const index_type myIndex, const index_type faceInsertPoint, 
@@ -88,19 +100,19 @@ template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<
 	if (geom == PLANAR_GEOMETRY || geom == CARTESIAN_3D_GEOMETRY) {
 		short j=0;
 		for (short i=0; i<4; ++i) {
-			newpcrds[j] = pointAlongChord(origcrds[i], destcrds[i], CubicGLL::qp4[1]);
-			newlcrds[j++] = pointAlongChord(origlcrds[i], destlcrds[i], CubicGLL::qp4[1]);
-			newpcrds[j] = pointAlongChord(origcrds[i], destcrds[i], CubicGLL::qp4[2]);
-			newlcrds[j++] = pointAlongChord(origlcrds[i], destlcrds[i], CubicGLL::qp4[2]);
+			newpcrds[j] = pointAlongChord(origcrds[i], destcrds[i], gll.qp4(1));
+			newlcrds[j++] = pointAlongChord(origlcrds[i], destlcrds[i], gll.qp4(1));
+			newpcrds[j] = pointAlongChord(origcrds[i], destcrds[i], gll.qp4(2));
+			newlcrds[j++] = pointAlongChord(origlcrds[i], destlcrds[i], gll.qp4(2));
 		}
 	}
 	else if (geom == SPHERICAL_SURFACE_GEOMETRY) {
 		short j=0;
 		for (short i=0; i<4; ++i) {
-			newpcrds[j] = pointAlongCircle(origcrds[i], destcrds[i], CubicGLL::qp4[1], radius);
-			newlcrds[j++] = pointAlongCircle(origlcrds[i], destlcrds[i], CubicGLL::qp4[1], radius);
-			newpcrds[j] = pointAlongCircle(origcrds[i], destcrds[i], CubicGLL::qp4[2], radius);
-			newlcrds[j++] = pointAlongCircle(origlcrds[i], destlcrds[i], CubicGLL::qp4[2], radius);
+			newpcrds[j] = pointAlongCircle(origcrds[i], destcrds[i], gll.qp4(1), radius);
+			newlcrds[j++] = pointAlongCircle(origlcrds[i], destlcrds[i], gll.qp4(1), radius);
+			newpcrds[j] = pointAlongCircle(origcrds[i], destcrds[i], gll.qp4(2), radius);
+			newlcrds[j++] = pointAlongCircle(origlcrds[i], destlcrds[i], gll.qp4(2), radius);
 		}
 	}
 	for (short i=0; i<8; ++i) {
@@ -181,8 +193,8 @@ template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<
 		}
 		result.kidsFaceArea[i] = area;
 		this->_kids[i] = faceInsertPoint+i;
-		const std::vector<Vec<ndim>> pintcrds = gll.template quad16interiors<ndim>(pcorners, geom, radius);
-		const std::vector<Vec<ndim>> lintcrds = gll.template quad16interiors<ndim>(lcorners, geom, radius);
+		const std::vector<Vec<ndim>> pintcrds = makeInteriors(pcorners, geom, radius);
+		const std::vector<Vec<ndim>> lintcrds = makeInteriors(lcorners, geom, radius);
 		particles.move(this->_interiorInds[i], pintcrds[i], lintcrds[i]);
 		for (short j=0; j<4; ++j) {
 			if (j != i) {
@@ -191,10 +203,10 @@ template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<
 			}
 		}
 		for (short j=0; j<12; ++j) {
-			particles.setWeight(result.newFaceVerts[i][j], area*CubicGLL::quad16edgeqw[j]);
+			particles.setWeight(result.newFaceVerts[i][j], area*gll.quad16edgeqw(j));
 		}
 		for (short j=0; j<4; ++j) {
-			particles.setWeight(result.newFaceInteriors[i][j], area*CubicGLL::quad16centerqw[j]);
+			particles.setWeight(result.newFaceInteriors[i][j], area*gll.quad16centerqw(j));
 		}
 	}
 	
@@ -217,20 +229,20 @@ template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<
 template <int ndim> void QuadCubicFace<ndim>::setArea(const scalar_type ar, ParticleSet<ndim>& particles) {
 	this->_area = ar;
 	for (int j=0; j<12; ++j) {
-		particles.setWeight(this->_vertInds[j], ar*CubicGLL::quad16edgeqw[j]);
+		particles.setWeight(this->_vertInds[j], ar*gll.quad16edgeqw(j));
 	}
 	for (int j=0; j<4; ++j) {
-		particles.setWeight(this->_vertInds[j], ar*CubicGLL::quad16centerqw[j]);
+		particles.setWeight(this->_vertInds[j], ar*gll.quad16centerqw(j));
 	}
 }
 
 template <int ndim> void QuadCubicFace<ndim>::setArea(ParticleSet<ndim>& particles, const GeometryType geom, const scalar_type radius) {
 	this->_area = this->computeAreaFromCorners(particles, geom, radius);
 	for (int j=0; j<12; ++j) {
-		particles.setWeight(this->_vertInds[j], this->_area*CubicGLL::quad16edgeqw[j]);
+		particles.setWeight(this->_vertInds[j], this->_area*gll.quad16edgeqw(j));
 	}
 	for (int j=0; j<4; ++j) {
-		particles.setWeight(this->_vertInds[j], this->_area*CubicGLL::quad16centerqw[j]);
+		particles.setWeight(this->_vertInds[j], this->_area*gll.quad16centerqw(j));
 	}
 }
 

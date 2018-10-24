@@ -42,7 +42,8 @@ int main (int argc, char* argv[]) {
     
     std::shared_ptr<MeshSeed<2>> triPlaneSeed = std::shared_ptr<MeshSeed<2>>(new TriHexSeed());
     std::shared_ptr<MeshSeed<2>> quadPlaneSeed = std::shared_ptr<MeshSeed<2>>(new QuadRectSeed());
-    //std::shared_ptr<MeshSeed<2>> cubicPlaneSeed = std::shared_ptr<MeshSeed<2>>(new QuadCubicSeed());
+    std::shared_ptr<MeshSeed<2>> cubicPlaneSeed = std::shared_ptr<MeshSeed<2>>(new QuadCubicSeed());
+
     std::shared_ptr<MeshSeed<3>> triSphereSeed = std::shared_ptr<MeshSeed<3>>(new IcosTriSphereSeed());
     std::shared_ptr<MeshSeed<3>> quadSphereSeed = std::shared_ptr<MeshSeed<3>>(new CubedSphereSeed());
     
@@ -57,7 +58,7 @@ int main (int argc, char* argv[]) {
     std::shared_ptr<TriFaceFactory<3>> trifac_sphere(new TriFaceFactory<3>());
     std::shared_ptr<QuadFaceFactory<2>> quadfac_plane(new QuadFaceFactory<2>());
     std::shared_ptr<QuadFaceFactory<3>> quadfac_sphere(new QuadFaceFactory<3>());
-    //std::shared_ptr<QuadCubicFaceFactory<2>> cubicfac_plane(new QuadCubicFaceFactory<2>());
+    std::shared_ptr<QuadCubicFaceFactory<2>> cubicfac_plane(new QuadCubicFaceFactory<2>());
 
     const int initnest = 3;
     const int maxnest = initnest;
