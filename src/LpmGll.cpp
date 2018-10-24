@@ -339,28 +339,36 @@ template <int ndim> scalar_type CubicGLL<ndim>::quad16interpolation(const Aos::V
             edgevals[9]*basis3(refcrds[0])*basis3(refcrds[1]) +
             edgevals[10]*basis2(refcrds[0])*basis3(refcrds[1]) +
             edgevals[11]*basis1(refcrds[0])*basis3(refcrds[1]) +
-            ctrvals[0]*basis1(refcrds[0])*basis2(refcrds[2]) + 
-            ctrvals[1]*basis1(refcrds[0])*basis1(refcrds[2]) +
-            ctrvals[2]*basis2(refcrds[0])*basis1(refcrds[2]) +
-            ctrvals[3]*basis2(refcrds[0])*basis2(refcrds[2]);
+            ctrvals[0]*basis1(refcrds[0])*basis2(refcrds[1]) + 
+            ctrvals[1]*basis1(refcrds[0])*basis1(refcrds[1]) +
+            ctrvals[2]*basis2(refcrds[0])*basis1(refcrds[1]) +
+            ctrvals[3]*basis2(refcrds[0])*basis2(refcrds[1]);
 }
 
 template <int ndim> scalar_type CubicGLL<ndim>::bilinearMapJacobian(const Aos::Vec<ndim>& refcrds, const std::vector<Aos::Vec<ndim>>& corners) const {
-    const scalar_type a = 0.25*(-(1+refcrds[1])*corners[0][0] - (1-refcrds[1])*corners[1][0] +
-        (1-refcrds[1])*corners[2][0] + (1+refcrds[1])*corners[3][0]);
+    const scalar_type a = 0.25*(-(1+refcrds[1])*corners[0][0] - 
+                                 (1-refcrds[1])*corners[1][0] +
+                                 (1-refcrds[1])*corners[2][0] + 
+                                 (1+refcrds[1])*corners[3][0]);
         
-    const scalar_type b = 0.25*(-(1+refcrds[1])*corners[0][1] - (1-refcrds[1])*corners[1][1] +
-        (1-refcrds[1])*corners[2][1] + (1+refcrds[1])*corners[3][1]);
+    const scalar_type b = 0.25*(-(1+refcrds[1])*corners[0][1] - 
+                                 (1-refcrds[1])*corners[1][1] +
+                                 (1-refcrds[1])*corners[2][1] + 
+                                 (1+refcrds[1])*corners[3][1]);
 
-    const scalar_type c = 0.25*( (1-refcrds[0])*corners[0][0] - (1-refcrds[0])*corners[1][0] -
-        (1+refcrds[0])*corners[2][0] + (1+refcrds[0])*corners[3][0]);
+    const scalar_type c = 0.25*( (1-refcrds[0])*corners[0][0] - 
+                                 (1-refcrds[0])*corners[1][0] -
+                                 (1+refcrds[0])*corners[2][0] + 
+                                 (1+refcrds[0])*corners[3][0]);
         
-    const scalar_type d = 0.25*( (1-refcrds[0])*corners[0][1] - (1-refcrds[0])*corners[1][1] -
-        (1+refcrds[0])*corners[3][1] + (1+refcrds[0])*corners[3][1]);
+    const scalar_type d = 0.25*( (1-refcrds[0])*corners[0][1] - 
+                                 (1-refcrds[0])*corners[1][1] -
+                                 (1+refcrds[0])*corners[2][1] + 
+                                 (1+refcrds[0])*corners[3][1]);
         
-//     return std::abs(a*d - b*c);
-    std::cout << "det = " << a*d - b*c << std::endl;
-    return twoByTwoDeterminant(a, b, c, d);
+//      return std::abs(a*d - b*c);
+//     std::cout << "det = " << a*d - b*c << std::endl;
+   return twoByTwoDeterminant(a, b, c, d);
 }
 
 template struct CubicGLL<2>;

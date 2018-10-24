@@ -68,27 +68,31 @@ int main(int argc, char* argv[]) {
         throw std::runtime_error("quadratic root error.");
     }
     
-    std::vector<Aos::Vec<2>> corners;
-    corners.push_back(Aos::Vec<2>(2,3));
-    corners.push_back(Aos::Vec<2>(1.5, 1));
-    corners.push_back(Aos::Vec<2>(2.25, 1.125));
-    corners.push_back(Aos::Vec<2>(2.5, 2.75));
+    std::vector<Aos::Vec<2>> corners(4);
+    corners[0] = Aos::Vec<2>(2,3);
+    corners[1] = Aos::Vec<2>(1.5, 1);
+    corners[2] = Aos::Vec<2>(2.25, 1.125);
+    corners[3] = Aos::Vec<2>(2.5, 2.75);
     const scalar_type quad_area = 1.15625;
+    std::cout << "Corners = " << std::endl;
+    for (int i=0; i<4; ++i) {
+        std::cout << "Vec: " << corners[i] << std::endl;
+        std::cout << "comps: (" << corners[i][0] << ", " << corners[i][1] << ")" << std::endl;
+    }
     
     Aos::Vec<2> mappt;
     Aos::Vec<2> invpt;
     scalar_type quad_ar = 0.0;
-    scalar_type jac_sum = 0.0;
     for (int i=0; i<12; ++i) {
         const Aos::Vec<2> refcrd = gll.quad16edgeqp(i);
         mappt = gll.bilinearMap(corners, refcrd[0], refcrd[1]);
         invpt = gll.invertBilinearMap(corners, mappt);
         const scalar_type jj = gll.bilinearMapJacobian(refcrd, corners);
-        jac_sum += jj;
-        std::cout << "refcrd   " << refcrd << " maps to " << mappt << std::endl;
-        std::cout << "invmap = " << invpt << " " << (refcrd - invpt).mag() << std::endl;
-        std::cout << "jac = " << jj << std::endl;
         quad_ar += jj*gll.quad16edgeqw(i);
+        
+        std::cout << "refcrd   " << refcrd << " maps to " << mappt << std::endl;
+        std::cout << "invmap = " << invpt << ", |err| = " << (refcrd - invpt).mag() << std::endl;
+        std::cout << "jac = " << jj << std::endl;
         if ( (refcrd - invpt).mag() > 1.0e-15) {
             std::ostringstream ss;
             ss << "edge pt " << i << ": inverse map error magnitude = " << (refcrd - invpt).mag();
@@ -101,20 +105,21 @@ int main(int argc, char* argv[]) {
         mappt = gll.bilinearMap(corners, refcrd[0], refcrd[1]);
         invpt = gll.invertBilinearMap(corners, mappt);
         const scalar_type jj = gll.bilinearMapJacobian(refcrd, corners);
-        std::cout << "refcrd   " << refcrd << " maps to " << mappt << std::endl;
-        std::cout << "invmap = " << invpt << " " << (refcrd - invpt).mag() <<  std::endl;
-        std::cout << "jac = " << jj << std::endl;
-        jac_sum += jj;
         quad_ar += jj*gll.quad16centerqw(i);
+        
+        std::cout << "refcrd   " << refcrd << " maps to " << mappt << std::endl;
+        std::cout << "invmap = " << invpt << ", |err| = " << (refcrd - invpt).mag() <<  std::endl;
+        std::cout << "jac = " << jj << std::endl;
         if ( (refcrd - invpt).mag() > 1.0e-15) {
             std::ostringstream ss;
             ss << "interior pt " << i << ": inverse map error magnitude = " << (refcrd - invpt).mag();
             throw std::runtime_error(ss.str());
         }
     }
-    std::cout << "jac_sum = " << jac_sum << std::endl;
-    std::cout << "area = " << quad_ar << std::endl;
-    
+    std::cout << "area = " << quad_ar << ", |err| = " << std::abs(quad_ar-quad_area) << std::endl;
+    if (std::abs(quad_area - quad_ar) > 1.0e-15) {
+        throw std::runtime_error("Area integral error.");
+    }
     }// <2>
     {// CubicGLL<3> test
     }
