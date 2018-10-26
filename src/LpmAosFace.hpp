@@ -26,7 +26,7 @@ template <int ndim> struct KidFaceArrays {
 	newFaceInteriors(4,ind_vec(4,-1)), kidsFaceArea(std::vector<scalar_type>(4,0.0)) {} 
 	
 	KidFaceArrays(const int nverts, const int nedges, const int ninteriors) : newFaceVerts(4, ind_vec(nverts,-1)), 
-		newFaceEdges(4, ind_vec(nedges,-1)), newFaceInteriors(4, ind_vec(1,-1)), 
+		newFaceEdges(4, ind_vec(nedges,-1)), newFaceInteriors(4, ind_vec(ninteriors,-1)), 
 		kidsFaceArea(std::vector<scalar_type>(4,0.0)){}
 
 	std::string infoString() const;
