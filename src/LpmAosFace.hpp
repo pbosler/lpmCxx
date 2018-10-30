@@ -46,7 +46,7 @@ template <int ndim> class Face {
         	
         virtual std::vector<Vec<ndim>> getCorners(const ParticleSet<ndim>& particles) const = 0;
         virtual std::vector<Vec<ndim>> getLagCorners(const ParticleSet<ndim>& particles) const = 0;
-        
+
         virtual scalar_type computeAreaFromCorners(const ParticleSet<ndim>& particles, const GeometryType geom, 
         	const scalar_type radius) const = 0;
         

@@ -23,7 +23,6 @@ template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<
 	const scalar_type radius, const GeometryType geom)  {
 	
 	KidFaceArrays<ndim> result(12,4,4);
-	std::cout << "debug 1" << std::endl;
 	// parent corners and barycenter
 	std::vector<Vec<ndim>> pcorners = this->getCorners(particles);
 	std::vector<Vec<ndim>> lcorners = this->getLagCorners(particles);
@@ -39,7 +38,6 @@ template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<
 	}
 	const index_type ctr_particle = particles.n();
 	particles.insert(pctr, lctr, true);
-	std::cout << "debug 2" << std::endl;
 	// connect parent vertices & interiors to child faces
 	for (short i=0; i<4; ++i) {
 		result.newFaceInteriors[i][i] = this->_interiorInds[i];
@@ -83,35 +81,22 @@ template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<
 		}
         result.newFaceVerts[i][(3*i+3)%12] = edges.dest(edgeKids[0]);
 		result.newFaceVerts[(i+1)%4][(3*i)%12] = edges.dest(edgeKids[0]);
-// 		std::cout << "debug 3: i = " << i  << std::endl;
-	}
-	std::cout << "debug 3 newFaceVerts = " << std::endl;
-	for (short i=0; i<4; ++i) {
-	    for (short j=0; j<12; ++j) {
-	        std::cout << "\t" << result.newFaceVerts[i][j] << " ";
-	    }
-	    std::cout << std::endl;
 	}
 	// create new interior edge particles
 	std::vector<Vec<ndim>> newpcrds(8);
 	std::vector<Vec<ndim>> newlcrds(8);
 	const std::vector<index_type> originds = {result.newFaceVerts[0][3], ctr_particle, result.newFaceVerts[1][6], ctr_particle};
 	const std::vector<index_type> destinds = {ctr_particle, result.newFaceVerts[3][6], ctr_particle, result.newFaceVerts[3][0]};
-	std::cout << "debug 4" << std::endl;
 	std::vector<Vec<ndim>> origcrds(4);
 	std::vector<Vec<ndim>> origlcrds(4);
 	std::vector<Vec<ndim>> destcrds(4);
 	std::vector<Vec<ndim>> destlcrds(4);
-	std::cout << "debug 5" << std::endl;
 	const index_type particles_insert_point = particles.n();
-	std::cout << "debug 6" << std::endl;
 	for (short i=0; i<4; ++i) {
-	    std::cout << "debug 6: i = " << i << " origind[" << i << "] = " << originds[i] << ", destinds[" << i <<"] = " << destinds[i] << std::endl;
 		origcrds[i] = particles.physCrd(originds[i]);
 		origlcrds[i] = particles.lagCrd(originds[i]);
 		destcrds[i] = particles.physCrd(destinds[i]);
 		destlcrds[i] = particles.lagCrd(destinds[i]);
-		std::cout << "debug 7: i = " << i << std::endl;
 	}
 	
 	if (geom == PLANAR_GEOMETRY || geom == CARTESIAN_3D_GEOMETRY) {
@@ -132,8 +117,6 @@ template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<
 			newlcrds[j++] = pointAlongCircle(origlcrds[i], destlcrds[i], gll.qp4(2), radius);
 		}
 	}
-	
-	std::cout << "debug 8" << std::endl;
 	for (short i=0; i<8; ++i) {
 		particles.insert(newpcrds[i], newlcrds[i], true);
 	}
@@ -165,13 +148,6 @@ template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<
 			}
 		}
 	}	
-	std::cout << "debug 9 newFaceVerts = " << std::endl;
-	for (short i=0; i<4; ++i) {
-	    for (short j=0; j<12; ++j) {
-	        std::cout << "\t" << result.newFaceVerts[i][j] << " ";
-	    }
-	    std::cout << std::endl;
-	}
 	// create new interior edges
 	std::vector<std::vector<index_type>> edgeIntInds(4, std::vector<index_type>(2,-1));
 	const std::vector<index_type> edgefacelefts = {faceInsertPoint, faceInsertPoint+3, faceInsertPoint+1, faceInsertPoint};
@@ -184,7 +160,6 @@ template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<
 	for (short i=0; i<4; ++i) {
 		edges.insert(originds[i], destinds[i], edgefacelefts[i], edgefacerights[i], edgeIntInds[i]);
 	}
-	std::cout << "debug 10" << std::endl;
 	result.newFaceEdges[0][1] = edge_insert_point;
 	result.newFaceEdges[1][3] = edge_insert_point;
 	result.newFaceEdges[2][3] = edge_insert_point+1;
@@ -204,15 +179,13 @@ template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<
 			}
 		}
 	}
-	std::cout << "debug 11" << std::endl;
 	//CubicGLL gll;
 	// create new particles for face interiors
 	for (short i=0; i<4; ++i) {
-		for (short j=0; j<4; ++i) {
+		for (short j=0; j<4; ++j) {
 			pcorners[j] = particles.physCrd(result.newFaceVerts[i][(3*j)%12]);
 			lcorners[j] = particles.lagCrd(result.newFaceVerts[i][(3*j)%12]);
 		}
-		std::cout << "debug 12: i = " << i << std::endl;
 		scalar_type area;
 		if (geom == PLANAR_GEOMETRY || geom == CARTESIAN_3D_GEOMETRY) {
 			area = polygonArea(pctr, pcorners);
@@ -228,7 +201,7 @@ template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<
 		for (short j=0; j<4; ++j) {
 			if (j != i) {
 				particles.insert(pintcrds[j], lintcrds[j]);
-				result.newFaceInteriors[i][j] = particles.n();
+				result.newFaceInteriors[i][j] = particles.n()-1;
 			}
 		}
 		for (short j=0; j<12; ++j) {
@@ -238,7 +211,6 @@ template <int ndim> KidFaceArrays<ndim> QuadCubicFace<ndim>::divide(ParticleSet<
 			particles.setWeight(result.newFaceInteriors[i][j], area*gll.quad16centerqw(j));
 		}
 	}
-	std::cout << "debug 10" << std::endl;
 	
 	// debug: make sure all interior indices are set
 	for (short i=0; i<4; ++i) {
@@ -268,11 +240,21 @@ template <int ndim> void QuadCubicFace<ndim>::setArea(const scalar_type ar, Part
 
 template <int ndim> void QuadCubicFace<ndim>::setArea(ParticleSet<ndim>& particles, const GeometryType geom, const scalar_type radius) {
 	this->_area = this->computeAreaFromCorners(particles, geom, radius);
-	for (int j=0; j<12; ++j) {
-		particles.setWeight(this->_vertInds[j], this->_area*gll.quad16edgeqw(j));
+	const std::vector<Vec<ndim>> corners = this->getCorners(particles);
+	if (geom == PLANAR_GEOMETRY) {
+        for (int j=0; j<12; ++j) {
+            const Vec<ndim> refcrd = gll.invertBilinearMap(corners, particles.physCrd(this->_vertInds[j]));
+            const scalar_type jac = gll.bilinearMapJacobian(refcrd, corners);
+            particles.setWeight(this->_vertInds[j], jac*gll.quad16edgeqw(j));
+        }
+        for (int j=0; j<4; ++j) {
+            const Vec<ndim> refcrd = gll.invertBilinearMap(corners, particles.physCrd(this->_interiorInds[j]));
+            const scalar_type jac = gll.bilinearMapJacobian(refcrd, corners);
+            particles.setWeight(this->_vertInds[j], jac*gll.quad16centerqw(j));
+        }
 	}
-	for (int j=0; j<4; ++j) {
-		particles.setWeight(this->_vertInds[j], this->_area*gll.quad16centerqw(j));
+	else if (geom == SPHERICAL_SURFACE_GEOMETRY) {
+	    throw std::runtime_error("SPHERICAL_SURFACE_GEOMETRY not implemented yet for quad cubic faces.");
 	}
 }
 

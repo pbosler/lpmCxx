@@ -12,6 +12,7 @@
 #include "LpmAosQuadCubicFace.hpp"
 #include "LpmAosFaceFactory.hpp"
 #include "LpmAosFaceSet.hpp"
+#include "LpmGll.hpp"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -141,56 +142,59 @@ int main (int argc, char* argv[]) {
 		std::shared_ptr<EdgeFactory<2>> cefac(new CubicEdgeFactory<2>());
 		std::shared_ptr<FaceFactory<2>> cffac(new QuadCubicFaceFactory<2>());
 		
+		Lpm::CubicGLL<2> gll;
+		
 		ParticleSet<2> cps(cpfac, 100);
-		cps.insert(Vec<2>(-1.00000000000000000,1.00000000000000000));
-		cps.insert(Vec<2>(-1.00000000000000000,0.72360679774997894));
-		cps.insert(Vec<2>(-1.00000000000000000,0.27639320225002106));
-		cps.insert(Vec<2>(-1.00000000000000000,0.00000000000000000));
-		cps.insert(Vec<2>(-0.72360679774997894,0.00000000000000000));
-		cps.insert(Vec<2>(-0.27639320225002106,0.00000000000000000));
-		cps.insert(Vec<2>(0.00000000000000000,0.00000000000000000));
-		cps.insert(Vec<2>(0.00000000000000000,0.27639320225002106));
-		cps.insert(Vec<2>(0.00000000000000000,0.72360679774997894));
-		cps.insert(Vec<2>(0.00000000000000000,1.00000000000000000));
-		cps.insert(Vec<2>(-0.27639320225002106,1.00000000000000000));
-		cps.insert(Vec<2>(-0.72360679774997894,1.00000000000000000));
-		cps.insert(Vec<2>(-0.72360679774997894,0.72360679774997894));
-		cps.insert(Vec<2>(-0.72360679774997894,0.27639320225002106));
-		cps.insert(Vec<2>(-0.27639320225002106,0.27639320225002106));
-		cps.insert(Vec<2>(-0.27639320225002106,0.72360679774997894));
-		cps.insert(Vec<2>(-1.00000000000000000,-0.27639320225002106));
-		cps.insert(Vec<2>(-1.00000000000000000,-0.72360679774997894));
-		cps.insert(Vec<2>(-1.00000000000000000,-1.00000000000000000));
-		cps.insert(Vec<2>(-0.72360679774997894,-1.00000000000000000));
-		cps.insert(Vec<2>(-0.27639320225002106,-1.00000000000000000));
-		cps.insert(Vec<2>(0.00000000000000000,-1.00000000000000000));
-		cps.insert(Vec<2>(0.00000000000000000,-0.72360679774997894));
-		cps.insert(Vec<2>(0.00000000000000000,-0.27639320225002106));
-		cps.insert(Vec<2>(-0.72360679774997894,-0.27639320225002106));
-		cps.insert(Vec<2>(-0.72360679774997894,-0.72360679774997894));
-		cps.insert(Vec<2>(-0.27639320225002106,-0.72360679774997894));
-		cps.insert(Vec<2>(-0.27639320225002106,-0.27639320225002106));
-		cps.insert(Vec<2>(0.27639320225002106,-1.00000000000000000));
-		cps.insert(Vec<2>(0.72360679774997894,-1.00000000000000000));
-		cps.insert(Vec<2>(1.00000000000000000,-1.00000000000000000));
-		cps.insert(Vec<2>(1.00000000000000000,-0.72360679774997894));
-		cps.insert(Vec<2>(1.00000000000000000,-0.27639320225002106));
-		cps.insert(Vec<2>(1.00000000000000000,0.00000000000000000));
-		cps.insert(Vec<2>(0.72360679774997894,0.00000000000000000));
-		cps.insert(Vec<2>(0.27639320225002106,0.00000000000000000));
-		cps.insert(Vec<2>(0.27639320225002106,-0.27639320225002106));
-		cps.insert(Vec<2>(0.27639320225002106,-0.72360679774997894));
-		cps.insert(Vec<2>(0.72360679774997894,-0.72360679774997894));
-		cps.insert(Vec<2>(0.72360679774997894,-0.27639320225002106));
-		cps.insert(Vec<2>(1.00000000000000000,0.27639320225002106));
-		cps.insert(Vec<2>(1.00000000000000000,0.72360679774997894));
-		cps.insert(Vec<2>(1.00000000000000000,1.00000000000000000));
-		cps.insert(Vec<2>(0.72360679774997894,1.00000000000000000));
-		cps.insert(Vec<2>(0.27639320225002106,1.00000000000000000));
-		cps.insert(Vec<2>(0.27639320225002106,0.72360679774997894));
-		cps.insert(Vec<2>(0.27639320225002106,0.27639320225002106));
-		cps.insert(Vec<2>(0.72360679774997894,0.27639320225002106));
-		cps.insert(Vec<2>(0.72360679774997894,0.72360679774997894));
+		const scalar_type map_jac = 0.25;
+		cps.insert(Vec<2>(-1.00000000000000000,1.00000000000000000), map_jac*gll.quad16edgeqw(0), true);
+		cps.insert(Vec<2>(-1.00000000000000000,0.72360679774997894), map_jac*gll.quad16edgeqw(1), true);
+		cps.insert(Vec<2>(-1.00000000000000000,0.27639320225002106), map_jac*gll.quad16edgeqw(2), true);
+		cps.insert(Vec<2>(-1.00000000000000000,0.00000000000000000), map_jac*gll.quad16edgeqw(3), true);
+		cps.insert(Vec<2>(-0.72360679774997894,0.00000000000000000), map_jac*gll.quad16edgeqw(4), true);
+		cps.insert(Vec<2>(-0.27639320225002106,0.00000000000000000), map_jac*gll.quad16edgeqw(5), true);
+		cps.insert(Vec<2>(0.00000000000000000,0.00000000000000000), map_jac*gll.quad16edgeqw(6), true);
+		cps.insert(Vec<2>(0.00000000000000000,0.27639320225002106), map_jac*gll.quad16edgeqw(7), true);
+		cps.insert(Vec<2>(0.00000000000000000,0.72360679774997894), map_jac*gll.quad16edgeqw(8), true);
+		cps.insert(Vec<2>(0.00000000000000000,1.00000000000000000), map_jac*gll.quad16edgeqw(9), true);
+		cps.insert(Vec<2>(-0.27639320225002106,1.00000000000000000), map_jac*gll.quad16edgeqw(10), true);
+		cps.insert(Vec<2>(-0.72360679774997894,1.00000000000000000), map_jac*gll.quad16edgeqw(11), true);
+		cps.insert(Vec<2>(-0.72360679774997894,0.72360679774997894), map_jac*gll.quad16centerqw(0));
+		cps.insert(Vec<2>(-0.72360679774997894,0.27639320225002106), map_jac*gll.quad16centerqw(1));
+		cps.insert(Vec<2>(-0.27639320225002106,0.27639320225002106), map_jac*gll.quad16centerqw(2));
+		cps.insert(Vec<2>(-0.27639320225002106,0.72360679774997894), map_jac*gll.quad16centerqw(3));
+		cps.insert(Vec<2>(-1.00000000000000000,-0.27639320225002106), map_jac*gll.quad16edgeqw(1), true);
+		cps.insert(Vec<2>(-1.00000000000000000,-0.72360679774997894), map_jac*gll.quad16edgeqw(2), true);
+		cps.insert(Vec<2>(-1.00000000000000000,-1.00000000000000000), map_jac*gll.quad16edgeqw(3), true);
+		cps.insert(Vec<2>(-0.72360679774997894,-1.00000000000000000), map_jac*gll.quad16edgeqw(4), true);
+		cps.insert(Vec<2>(-0.27639320225002106,-1.00000000000000000), map_jac*gll.quad16edgeqw(5), true);
+		cps.insert(Vec<2>(0.00000000000000000,-1.00000000000000000), map_jac*gll.quad16edgeqw(6), true);
+		cps.insert(Vec<2>(0.00000000000000000,-0.72360679774997894), map_jac*gll.quad16edgeqw(7), true);
+		cps.insert(Vec<2>(0.00000000000000000,-0.27639320225002106), map_jac*gll.quad16edgeqw(8), true);
+		cps.insert(Vec<2>(-0.72360679774997894,-0.27639320225002106), map_jac*gll.quad16centerqw(0));
+		cps.insert(Vec<2>(-0.72360679774997894,-0.72360679774997894), map_jac*gll.quad16centerqw(1));
+		cps.insert(Vec<2>(-0.27639320225002106,-0.72360679774997894), map_jac*gll.quad16centerqw(2));
+		cps.insert(Vec<2>(-0.27639320225002106,-0.27639320225002106), map_jac*gll.quad16centerqw(3));
+		cps.insert(Vec<2>(0.27639320225002106,-1.00000000000000000), map_jac*gll.quad16edgeqw(4), true);
+		cps.insert(Vec<2>(0.72360679774997894,-1.00000000000000000), map_jac*gll.quad16edgeqw(5), true);
+		cps.insert(Vec<2>(1.00000000000000000,-1.00000000000000000), map_jac*gll.quad16edgeqw(6), true);
+		cps.insert(Vec<2>(1.00000000000000000,-0.72360679774997894), map_jac*gll.quad16edgeqw(7), true);
+		cps.insert(Vec<2>(1.00000000000000000,-0.27639320225002106), map_jac*gll.quad16edgeqw(8), true);
+		cps.insert(Vec<2>(1.00000000000000000,0.00000000000000000), map_jac*gll.quad16edgeqw(9), true);
+		cps.insert(Vec<2>(0.72360679774997894,0.00000000000000000), map_jac*gll.quad16edgeqw(10), true);
+		cps.insert(Vec<2>(0.27639320225002106,0.00000000000000000), map_jac*gll.quad16edgeqw(11), true);
+		cps.insert(Vec<2>(0.27639320225002106,-0.27639320225002106), map_jac*gll.quad16centerqw(0));
+		cps.insert(Vec<2>(0.27639320225002106,-0.72360679774997894), map_jac*gll.quad16centerqw(1));
+		cps.insert(Vec<2>(0.72360679774997894,-0.72360679774997894), map_jac*gll.quad16centerqw(2));
+		cps.insert(Vec<2>(0.72360679774997894,-0.27639320225002106), map_jac*gll.quad16centerqw(3));
+		cps.insert(Vec<2>(1.00000000000000000,0.27639320225002106), map_jac*gll.quad16edgeqw(7), true);
+		cps.insert(Vec<2>(1.00000000000000000,0.72360679774997894), map_jac*gll.quad16edgeqw(8), true);
+		cps.insert(Vec<2>(1.00000000000000000,1.00000000000000000), map_jac*gll.quad16edgeqw(9), true);
+		cps.insert(Vec<2>(0.72360679774997894,1.00000000000000000), map_jac*gll.quad16edgeqw(10), true);
+		cps.insert(Vec<2>(0.27639320225002106,1.00000000000000000), map_jac*gll.quad16edgeqw(11), true);
+		cps.insert(Vec<2>(0.27639320225002106,0.72360679774997894), map_jac*gll.quad16centerqw(0));
+		cps.insert(Vec<2>(0.27639320225002106,0.27639320225002106), map_jac*gll.quad16centerqw(1));
+		cps.insert(Vec<2>(0.72360679774997894,0.27639320225002106), map_jac*gll.quad16centerqw(2));
+		cps.insert(Vec<2>(0.72360679774997894,0.72360679774997894), map_jac*gll.quad16centerqw(3));
 		
 		EdgeSet<2> ces(cefac, PLANAR_GEOMETRY, 100);
 		std::vector<std::vector<index_type>> edge_ints(12,std::vector<index_type>(2,-1));
@@ -234,15 +238,19 @@ int main (int argc, char* argv[]) {
 		
 		const index_type parent_index = -1;
 		const scalar_type root_area = 1.0;
-		for (int i=0; i<4; ++i) 
+		for (int i=0; i<4; ++i) {
 			cfs.insert(fintrs[i], fverts[i], fedges[i], parent_index, root_area);
+		}
 		
 		std::cout << "CUBIC PLANE INFO" << std::endl;
 		std::cout << cps.infoString();
 		std::cout << ces.infoString();
 		std::cout << cfs.infoString();
 		
+		std::cout << "CUBIC PLANE INFO  -- after divide face 0" << std::endl;
 		cfs.divide(0, cps, ces);
+		std::cout << cps.infoString();
+		std::cout << ces.infoString();
 		std::cout << cfs.infoString();
 	}
 

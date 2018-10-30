@@ -25,15 +25,12 @@ template <int ndim> void FaceSet<ndim>::divide(const index_type ind, ParticleSet
     if (_faces.size() + 4 > _nMax) {
         throw std::out_of_range("FaceSet::divide _nMax exceeded");
     }
-    std::cout << "Faces::Divide called on face " << ind << std::endl;
     const KidFaceArrays<ndim> kids = _faces[ind]->divide(particles, edges, ind, _faces.size(), _radius, _geom);
     std::cout << kids.infoString() << std::endl;
     for (short i=0; i<4; ++i) {
-        std::cout << "size fint[i] = " << kids.newFaceInteriors[i].size() << std::endl;
         this->insert(kids.newFaceInteriors[i], kids.newFaceVerts[i], kids.newFaceEdges[i], ind, kids.kidsFaceArea[i]);
     }   
     _nActive -= 1; 
-    std::cout << "nActive = " << _nActive << std::endl;
 }
 
 template <int ndim> scalar_type FaceSet<ndim>::minArea() const {
