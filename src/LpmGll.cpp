@@ -22,9 +22,7 @@ template <int ndim> scalar_type CubicGLL<ndim>::qw4(const int id) const {
     }    
 }
 
-/** Inverts bilinearMap to find reference coordinates (r1,r2) in [-1,1]^2
- Folows C. Hua, 1990, Finite Elem. Anal. Design 7:159--166.
-*/
+
 template <int ndim> Aos::Vec<ndim> CubicGLL<ndim>::quad16edgeqp(const int id) const {
     switch (id) {
         case(0) : {
@@ -223,6 +221,9 @@ template <int ndim> scalar_type CubicGLL<ndim>::pickRoot(const scalar_type r1, c
         return r2;
 }
 
+/** Inverts bilinearMap to find reference coordinates (r1,r2) in [-1,1]^2
+ Folows C. Hua, 1990, Finite Elem. Anal. Design 7:159--166.
+*/
 template <int ndim> Aos::Vec<ndim> CubicGLL<ndim>::invertBilinearMap(const std::vector<Aos::Vec<ndim>>& corners, const Aos::Vec<ndim>& queryPt) const {
     Aos::Vec<ndim> aa, bb, cc, dd;
     int i, j;

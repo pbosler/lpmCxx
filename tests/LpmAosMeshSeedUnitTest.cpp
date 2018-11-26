@@ -26,15 +26,12 @@ int main(int argc, char* argv[]) {
     std::cout << triPlane.infoString();
     
     QuadRectSeed quadPlane;
-//     quadPlane.initFromFile();
     std::cout << quadPlane.infoString();
     
-    IcosTriSphereSeed icosTriSphere;
-//     icosTriSphere.initFromFile();
+    IcosTriSphereSeed icosTriSphere;\
     std::cout << icosTriSphere.infoString();
     
     CubedSphereSeed cubedSphere;
-//     cubedSphere.initFromFile();
     std::cout << cubedSphere.infoString();
     
     QuadCubicSeed cubicPlane;

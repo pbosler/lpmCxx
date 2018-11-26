@@ -20,7 +20,7 @@ template <int ndim> std::string ParticleSet<ndim>::infoString(const bool printAl
     std::vector<std::string> fields = fieldNames();
     for (int i=0; i<fields.size(); ++i)
         oss << "\t\t" << fields[i] << std::endl;
-    oss << "\ttotal "<< _particles[0]->weightName() << " = " << totalWeight() << std::endl;
+    oss << "\ttotal weight("<< _particles[0]->weightName() << ") = " << totalWeight() << std::endl;
     if (printAll) {
     	oss << "PARTICLES DATA" << std::endl;
     	for (index_type i=0; i<_particles.size(); ++i) {

@@ -49,7 +49,7 @@ template <int ndim=2>  struct CubicGLL {
     Aos::Vec<ndim> bilinearMap(const std::vector<Aos::Vec<ndim>>& corners, 
         const scalar_type s1, const scalar_type s2) const;
         
-    inline Aos::Vec<ndim> bilinearMap(const std::vector<Aos::Vec<ndim>>& corners, const Aos::Vec<ndim> refcrds) const {
+    Aos::Vec<ndim> bilinearMap(const std::vector<Aos::Vec<ndim>>& corners, const Aos::Vec<ndim> refcrds) const {
         return bilinearMap(corners, refcrds[0], refcrds[1]);
     }
     

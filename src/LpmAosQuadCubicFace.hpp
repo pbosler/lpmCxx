@@ -23,7 +23,7 @@ template <int ndim> class QuadCubicFace : public Face<ndim> {
         	const scalar_type radius) const;
         
         void setArea(const scalar_type ar, ParticleSet<ndim>& particles) override;
-        void setArea(ParticleSet<ndim>& particles, const GeometryType geom, const scalar_type radius) override;
+        void setArea(ParticleSet<ndim>& particles, const GeometryType geom, const scalar_type radius=1.0) override;
     
     protected:
         static CubicGLL<ndim> gll;

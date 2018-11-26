@@ -138,6 +138,9 @@ int main (int argc, char* argv[]) {
 	
 	}
 	{ // Cubic section
+		
+		std::cout << std::endl << "vvvvvvvvvv CUBIC SECTION vvvvvvvvvv" << std::endl;
+	
 		std::shared_ptr<ParticleFactory<2>> cpfac(new SWEParticleFactory<2>());
 		std::shared_ptr<EdgeFactory<2>> cefac(new CubicEdgeFactory<2>());
 		std::shared_ptr<FaceFactory<2>> cffac(new QuadCubicFaceFactory<2>());
@@ -146,56 +149,45 @@ int main (int argc, char* argv[]) {
 		
 		ParticleSet<2> cps(cpfac, 100);
 		const scalar_type map_jac = 0.25;
-		cps.insert(Vec<2>(-1.00000000000000000,1.00000000000000000), map_jac*gll.quad16edgeqw(0), true);
-		cps.insert(Vec<2>(-1.00000000000000000,0.72360679774997894), map_jac*gll.quad16edgeqw(1), true);
-		cps.insert(Vec<2>(-1.00000000000000000,0.27639320225002106), map_jac*gll.quad16edgeqw(2), true);
-		cps.insert(Vec<2>(-1.00000000000000000,0.00000000000000000), map_jac*gll.quad16edgeqw(3), true);
-		cps.insert(Vec<2>(-0.72360679774997894,0.00000000000000000), map_jac*gll.quad16edgeqw(4), true);
-		cps.insert(Vec<2>(-0.27639320225002106,0.00000000000000000), map_jac*gll.quad16edgeqw(5), true);
-		cps.insert(Vec<2>(0.00000000000000000,0.00000000000000000), map_jac*gll.quad16edgeqw(6), true);
-		cps.insert(Vec<2>(0.00000000000000000,0.27639320225002106), map_jac*gll.quad16edgeqw(7), true);
-		cps.insert(Vec<2>(0.00000000000000000,0.72360679774997894), map_jac*gll.quad16edgeqw(8), true);
-		cps.insert(Vec<2>(0.00000000000000000,1.00000000000000000), map_jac*gll.quad16edgeqw(9), true);
-		cps.insert(Vec<2>(-0.27639320225002106,1.00000000000000000), map_jac*gll.quad16edgeqw(10), true);
-		cps.insert(Vec<2>(-0.72360679774997894,1.00000000000000000), map_jac*gll.quad16edgeqw(11), true);
-		cps.insert(Vec<2>(-0.72360679774997894,0.72360679774997894), map_jac*gll.quad16centerqw(0));
-		cps.insert(Vec<2>(-0.72360679774997894,0.27639320225002106), map_jac*gll.quad16centerqw(1));
-		cps.insert(Vec<2>(-0.27639320225002106,0.27639320225002106), map_jac*gll.quad16centerqw(2));
-		cps.insert(Vec<2>(-0.27639320225002106,0.72360679774997894), map_jac*gll.quad16centerqw(3));
-		cps.insert(Vec<2>(-1.00000000000000000,-0.27639320225002106), map_jac*gll.quad16edgeqw(1), true);
-		cps.insert(Vec<2>(-1.00000000000000000,-0.72360679774997894), map_jac*gll.quad16edgeqw(2), true);
-		cps.insert(Vec<2>(-1.00000000000000000,-1.00000000000000000), map_jac*gll.quad16edgeqw(3), true);
-		cps.insert(Vec<2>(-0.72360679774997894,-1.00000000000000000), map_jac*gll.quad16edgeqw(4), true);
-		cps.insert(Vec<2>(-0.27639320225002106,-1.00000000000000000), map_jac*gll.quad16edgeqw(5), true);
-		cps.insert(Vec<2>(0.00000000000000000,-1.00000000000000000), map_jac*gll.quad16edgeqw(6), true);
-		cps.insert(Vec<2>(0.00000000000000000,-0.72360679774997894), map_jac*gll.quad16edgeqw(7), true);
-		cps.insert(Vec<2>(0.00000000000000000,-0.27639320225002106), map_jac*gll.quad16edgeqw(8), true);
-		cps.insert(Vec<2>(-0.72360679774997894,-0.27639320225002106), map_jac*gll.quad16centerqw(0));
-		cps.insert(Vec<2>(-0.72360679774997894,-0.72360679774997894), map_jac*gll.quad16centerqw(1));
-		cps.insert(Vec<2>(-0.27639320225002106,-0.72360679774997894), map_jac*gll.quad16centerqw(2));
-		cps.insert(Vec<2>(-0.27639320225002106,-0.27639320225002106), map_jac*gll.quad16centerqw(3));
-		cps.insert(Vec<2>(0.27639320225002106,-1.00000000000000000), map_jac*gll.quad16edgeqw(4), true);
-		cps.insert(Vec<2>(0.72360679774997894,-1.00000000000000000), map_jac*gll.quad16edgeqw(5), true);
-		cps.insert(Vec<2>(1.00000000000000000,-1.00000000000000000), map_jac*gll.quad16edgeqw(6), true);
-		cps.insert(Vec<2>(1.00000000000000000,-0.72360679774997894), map_jac*gll.quad16edgeqw(7), true);
-		cps.insert(Vec<2>(1.00000000000000000,-0.27639320225002106), map_jac*gll.quad16edgeqw(8), true);
-		cps.insert(Vec<2>(1.00000000000000000,0.00000000000000000), map_jac*gll.quad16edgeqw(9), true);
-		cps.insert(Vec<2>(0.72360679774997894,0.00000000000000000), map_jac*gll.quad16edgeqw(10), true);
-		cps.insert(Vec<2>(0.27639320225002106,0.00000000000000000), map_jac*gll.quad16edgeqw(11), true);
-		cps.insert(Vec<2>(0.27639320225002106,-0.27639320225002106), map_jac*gll.quad16centerqw(0));
-		cps.insert(Vec<2>(0.27639320225002106,-0.72360679774997894), map_jac*gll.quad16centerqw(1));
-		cps.insert(Vec<2>(0.72360679774997894,-0.72360679774997894), map_jac*gll.quad16centerqw(2));
-		cps.insert(Vec<2>(0.72360679774997894,-0.27639320225002106), map_jac*gll.quad16centerqw(3));
-		cps.insert(Vec<2>(1.00000000000000000,0.27639320225002106), map_jac*gll.quad16edgeqw(7), true);
-		cps.insert(Vec<2>(1.00000000000000000,0.72360679774997894), map_jac*gll.quad16edgeqw(8), true);
-		cps.insert(Vec<2>(1.00000000000000000,1.00000000000000000), map_jac*gll.quad16edgeqw(9), true);
-		cps.insert(Vec<2>(0.72360679774997894,1.00000000000000000), map_jac*gll.quad16edgeqw(10), true);
-		cps.insert(Vec<2>(0.27639320225002106,1.00000000000000000), map_jac*gll.quad16edgeqw(11), true);
-		cps.insert(Vec<2>(0.27639320225002106,0.72360679774997894), map_jac*gll.quad16centerqw(0));
-		cps.insert(Vec<2>(0.27639320225002106,0.27639320225002106), map_jac*gll.quad16centerqw(1));
-		cps.insert(Vec<2>(0.72360679774997894,0.27639320225002106), map_jac*gll.quad16centerqw(2));
-		cps.insert(Vec<2>(0.72360679774997894,0.72360679774997894), map_jac*gll.quad16centerqw(3));
+		std::vector<Vec<2>> corners(4);
+		corners[0] = Vec<2>(-1,1);
+		corners[1] = Vec<2>(-1,0);
+		corners[2] = Vec<2>(0,0);
+		corners[3] = Vec<2>(0,1);
+		for (short i=0; i<12; ++i)
+			cps.insert(gll.bilinearMap(corners, gll.quad16edgeqp(i)), map_jac*gll.quad16edgeqw(i), true);
+		for (short i=0; i<4; ++i)
+			cps.insert(gll.bilinearMap(corners, gll.quad16centerqp(i)), map_jac*gll.quad16centerqw(i), false);
+		corners[0] = Vec<2>(-1,0);
+		corners[1] = Vec<2>(-1,-1);
+		corners[2] = Vec<2>(0,-1);
+		corners[3] = Vec<2>(0,0);
+		for (short i=1; i<=8; ++i)
+			cps.insert(gll.bilinearMap(corners, gll.quad16edgeqp(i)), map_jac*gll.quad16edgeqw(i), true);
+		for (short i=0; i<4; ++i)
+			cps.insert(gll.bilinearMap(corners, gll.quad16centerqp(i)), map_jac*gll.quad16centerqw(i), false);
+		corners[0] = Vec<2>(0,0);
+		corners[1] = Vec<2>(0,-1);
+		corners[2] = Vec<2>(1,-1);
+		corners[3] = Vec<2>(1,0);
+		for (short i=4; i<=11; ++i)
+			cps.insert(gll.bilinearMap(corners, gll.quad16edgeqp(i)), map_jac*gll.quad16edgeqw(i), true);
+		for (short i=0; i<4; ++i)
+			cps.insert(gll.bilinearMap(corners, gll.quad16centerqp(i)), map_jac*gll.quad16centerqw(i), false);
+		corners[0] = Vec<2>(0,1);
+		corners[1] = Vec<2>(0,0);
+		corners[2] = Vec<2>(1,0);
+		corners[3] = Vec<2>(1,1);
+		for (short i=7; i<=11; ++i)
+			cps.insert(gll.bilinearMap(corners, gll.quad16edgeqp(i)), map_jac*gll.quad16edgeqw(i), true);
+		for (short i=0; i<4; ++i)
+			cps.insert(gll.bilinearMap(corners, gll.quad16centerqp(i)), map_jac*gll.quad16centerqw(i), false);
 		
+		
+// 		std::cout << cps.infoString(true);
+// 		for (int i=0; i<49; ++i)
+// 			std::cout << i << ": " << cps.weight(i) << std::endl;
+				
 		EdgeSet<2> ces(cefac, PLANAR_GEOMETRY, 100);
 		std::vector<std::vector<index_type>> edge_ints(12,std::vector<index_type>(2,-1));
 		edge_ints[0] = {1,2};
@@ -251,6 +243,10 @@ int main (int argc, char* argv[]) {
 		cfs.divide(0, cps, ces);
 		std::cout << cps.infoString();
 		std::cout << ces.infoString();
+		std::cout << cfs.infoString();
+		
+		std::cout << "RESET AREA" << std::endl;
+		cfs.setArea(cps);
 		std::cout << cfs.infoString();
 	}
 
