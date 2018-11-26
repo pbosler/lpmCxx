@@ -18,6 +18,7 @@
 #include <iomanip>
 #include <memory>
 #include <vector>
+#include <exception>
 #ifdef HAVE_VTK
 
 #endif
@@ -41,6 +42,9 @@ int main (int argc, char* argv[]) {
         ss << "Test info: \n \t title: " << "Lpm Aos Face Unit Test" << std::endl;
         ss << "\t objectives: " << std::endl;
         ss << "\t 1. Verify basic functionality of Lpm::Face class & its subclasses." << std::endl;
+        ss << "\t\t a. Quad faces tested with ndim = 3, no connectivity tests." << std::endl;
+        ss << "\t\t b. Tri faces tested on the plane, ndim = 2, with trihex mesh connectivity." << std::endl;
+        ss << "\t\t c. QuadCubicFaces tested on the plane, ndim = 2, with connectivity." << std::endl;
         ss << "\t 2. Verify basic functionality of Lpm::FaceSet class." << std::endl;
         OutputMessage introMsg(ss.str(), OutputMessage::tracePriority, "main");
         log->logMessage(introMsg);
@@ -135,6 +139,10 @@ int main (int argc, char* argv[]) {
 	std::cout << trifaces.infoString(true) << std::endl;
 	std::cout << triedges.infoString(true) << std::endl;
 	std::cout << trihex.infoString(true) << std::endl;
+	
+	if (std::abs(trifaces.totalArea() - 2.5980762113533151236) > 1.0e-15) {
+		throw std::runtime_error("TriHex area error.");
+	}
 	
 	}
 	{ // Cubic section
@@ -248,6 +256,10 @@ int main (int argc, char* argv[]) {
 		std::cout << "RESET AREA" << std::endl;
 		cfs.setArea(cps);
 		std::cout << cfs.infoString();
+		
+		if (std::abs(cfs.totalArea()-4.0) > 1.0e-15) {
+			throw std::runtime_error("quadcubic area error.");
+		}
 	}
 
     
