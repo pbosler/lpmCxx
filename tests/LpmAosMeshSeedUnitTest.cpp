@@ -20,8 +20,6 @@ int main(int argc, char* argv[]) {
 
     TriHexSeed triPlane;
     std::cout << "id string = " << triPlane.idString() << std::endl;
-//     std::cout << "initializing from file." << std::endl;
-//     triPlane.initFromFile();
     std::cout << "returned." << std::endl;
     std::cout << triPlane.infoString();
     
