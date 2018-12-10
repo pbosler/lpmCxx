@@ -139,6 +139,9 @@ int main (int argc, char* argv[]) {
     
 #ifdef HAVE_VTK
     {
+    
+    std::cout << "TESTING VTK UTILITIES" << std::endl;
+    
     const std::string froot = "tmp/polymeshtest_";
     std::ostringstream ss;
     ss << froot << "planetri_" << initnest << ".vtk";
