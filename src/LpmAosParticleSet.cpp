@@ -331,7 +331,13 @@ template <int ndim> vtkSmartPointer<vtkCellData> ParticleSet<ndim>::fieldsToVtkC
 	}
     return result;
 }
+#endif
 
+#ifdef HAVE_KOKKOS
+template <int ndim>	Kokkos::View<scalar_type*[ndim]> ParticleSet<ndim>::packPhysCoords() const {
+		Kokkos::View<scalar_type*[ndim]> result("phys_coords", this->n());
+		return result;
+	}
 #endif
 
 template class ParticleSet<1>;

@@ -19,13 +19,11 @@
 
 #ifdef HAVE_KOKKOS
 #include "Kokkos_Core.hpp"
+#include "Kokkos_View.hpp"
 #endif
 
 namespace Lpm {
 namespace Aos {
-
-template <int ndim> class PolyMesh2d;
-template <int ndim> class Edge;
 
 /// A ParticleSet is a collection of Particles arranged linearly in memory.
 template <int ndim> class ParticleSet {
@@ -49,10 +47,6 @@ template <int ndim> class ParticleSet {
         index_type nPassive() const {return this->n() - this->_nActive;}
 		/// The sum of the weights carried by all particles.  (Note: Passive particles should have their weight set to zero)
         scalar_type totalWeight() const;
-        
-//         inline bool particlesHavewgtgth() const {return _particles[0]->_haswgtgth;}
-//         inline bool particlesHaveArea() const {return _particles[0]->_hasArea;}
-//         inline bool particlesHaveVolume() const {return _particles[0]->_haveVolume;}
 
 		/// Return the set of all field names registered on these particles
         std::vector<std::string> fieldNames() const;
@@ -137,8 +131,11 @@ template <int ndim> class ParticleSet {
 		/// Convert particle field data to a VtkCellData instance.
 		vtkSmartPointer<vtkCellData> fieldsToVtkCellData() const;
 #endif
-// 		friend class Edge<ndim>;
-// 		friend class PolyMesh2d<ndim>;
+
+#ifdef HAVE_KOKKOS
+		Kokkos::View<scalar_type*[ndim]> packPhysCoords() const;
+		void unpackPhysCoords(const Kokkos::View<scalar_type*[ndim]>& cview);
+#endif
     protected:
         index_type _nMax;
         index_type _nActive;
