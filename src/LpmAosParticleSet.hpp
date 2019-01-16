@@ -17,6 +17,10 @@
 #include "vtkCellData.h"
 #endif
 
+#ifdef HAVE_KOKKOS
+#include "Kokkos_Core.hpp"
+#endif
+
 namespace Lpm {
 namespace Aos {
 

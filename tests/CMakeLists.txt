@@ -1,6 +1,6 @@
 include(CTest)
 
-include_directories("${PROJECT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src" "${PROJECT_BINARY_DIR}" ${VTK_INCLUDE_DIRS})
+include_directories("${PROJECT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src" "${PROJECT_BINARY_DIR}" ${VTK_INCLUDE_DIRS} ${KokkosInclude})
 
 ADD_EXECUTABLE(lpmXyzVectorUnitTest.exe LpmXyzVectorUnitTests.cpp)
 TARGET_LINK_LIBRARIES(lpmXyzVectorUnitTest.exe lpm)
