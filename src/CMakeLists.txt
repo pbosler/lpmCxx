@@ -10,7 +10,7 @@ add_library( lpm LpmXyzVector.cpp LpmUtilities.cpp LpmOutputMessage.cpp LpmLogge
              LpmTimer.cpp LpmDirectSum.cpp
              LpmBox3d.cpp LpmOctree.cpp LpmSakajo2009.cpp
              LpmTreeSum.cpp
-             LpmAosTypes.cpp LpmAosParticleSet.cpp LpmAosEdge.cpp LpmAosEdgeSet.cpp 
+             LpmAosTypes.cpp LpmAosParticleFactory.cpp LpmAosParticleSet.cpp LpmAosEdge.cpp LpmAosEdgeSet.cpp 
              LpmAosFace.cpp LpmAosQuadFace.cpp LpmAosTriFace.cpp LpmAosQuadCubicFace.cpp
              LpmAosFaceSet.cpp LpmAosMeshSeed.cpp LpmAosPolyMesh2d.cpp LpmGll.cpp
 )

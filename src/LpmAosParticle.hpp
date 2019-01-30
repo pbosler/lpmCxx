@@ -24,30 +24,29 @@ template <int ndim> class ParticleSet;
     These weights may be generalized to mass densities and/or quadrature weights, etc.
 */
 template <int ndim=3> class Particle {
-    typedef std::vector<scalar_type>  vfield_type;
+    //typedef std::array<scalar_type, ndim>  vfield_type;
+    typedef std::vector<scalar_type> vfield_type;
 
     protected:
         Vec<ndim> _physCrd;
         Vec<ndim> _lagCrd;
         scalar_type _weight;
-        std::string _wgt_name;
         bool _is_vertex;
 
         std::map<std::string, scalar_type> _sFields;
         std::map<std::string, vfield_type> _vFields;
 
     public:
-        //friend class ParticleSet<ndim>;
+        virtual ~Particle() {}
 
         /// Constructor.  Initializes to zero/null.
-        Particle(const std::string& wname="nullweight", const bool isvert=false) : _physCrd(), _lagCrd(), _weight(0.0),
-            _wgt_name(wname), _is_vertex(isvert) {}
-        /// Constructor.
-        Particle(const Vec<ndim>& pos, const scalar_type wgt = 0.0, const std::string wname="nullweight",
-            const bool isvert=false) : _physCrd(pos), _lagCrd(pos), _weight(wgt), _wgt_name(wname), _is_vertex(isvert) {}
-        /// Constructor.
-        Particle(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt=0.0, const std::string wname="nullweight", 
-            const bool isvert=false) : _physCrd(xx), _lagCrd(aa), _weight(wgt), _wgt_name(wname), _is_vertex(isvert) {}
+        Particle(const bool isvert=false) : _physCrd(), _lagCrd(), _weight(0.0), _is_vertex(isvert) {}
+        /// Constructor.  Physical position and weight only.
+        Particle(const Vec<ndim>& pos, const scalar_type wgt = 0.0, const bool isvert=false) : 
+            _physCrd(pos), _lagCrd(pos), _weight(wgt), _is_vertex(isvert) {}
+        /// Constructor.  Physical and Lagrangian positions and weight.
+        Particle(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt=0.0,
+            const bool isvert=false) : _physCrd(xx), _lagCrd(aa), _weight(wgt), _is_vertex(isvert) {}
 
 
         inline bool isVertex() const {return _is_vertex;}
@@ -62,8 +61,7 @@ template <int ndim=3> class Particle {
         inline void setWeight(const scalar_type wgt) {_weight = wgt;}
         /// Return a particle's weight
         inline scalar_type weight() const {return _weight;}
-        /// Return the string that defines the physical meaning of the particle's weight value
-        inline std::string weightName() const {return _wgt_name;}
+
 
         /// Register a new scalar field on this particle
         void registerScalarField(const std::string& field_name) {
@@ -147,14 +145,13 @@ template <int ndim=3> class Particle {
         /**
             @deprecated
         */
-        virtual void init(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt=0.0, const std::string& wname="null") {
+        virtual void init(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt=0.0) {
             _physCrd = xx;
             _lagCrd = aa;
             _weight = wgt;
-            _wgt_name = wname;
         }
 
-        virtual ~Particle() {}
+        
 
         /// Return a string with data about the particle.  
         std::string infoString() const {
@@ -162,11 +159,7 @@ template <int ndim=3> class Particle {
             ss << "particle info:" << std::endl;
             ss << "\tphysCrd = " << this->_physCrd << std::endl;
             ss << "\tlagCrd = " << this->_lagCrd << std::endl;
-//             ss << "\tvelocity = [ ";
-//             for (int i=0; i<ndim; ++i)
-//                 ss << this->_velocity[i] << " ";
-//             ss << "]" << std::endl;
-            ss << "\tweight(" << _wgt_name << ") = " << this->_weight << std::endl;
+            ss << "\tweight = " << this->_weight << std::endl;
             for (auto& sf : this->_sFields) {
                 ss << "\t" << sf.first << " = " << sf.second << std::endl;
             }

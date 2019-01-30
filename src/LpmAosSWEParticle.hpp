@@ -11,8 +11,8 @@ namespace Aos {
 
 template <int ndim=3> class SWEParticle : public Particle<ndim> {
     public:
-        SWEParticle(const std::string& wname=(ndim==1 ? "length" : "area"), const bool isvert=false) : 
-        	Particle<ndim>(wname, isvert) {
+        SWEParticle(const bool isvert=false) : 
+        	Particle<ndim>(isvert) {
             if (ndim > 1) {
                 this->registerVectorField("velocity");
             }
@@ -28,7 +28,7 @@ template <int ndim=3> class SWEParticle : public Particle<ndim> {
         }
 
         SWEParticle(const Vec<ndim>& pos, const scalar_type wgt = 0.0, const bool isvert=false) : 
-        	Particle<ndim>(pos, wgt, (ndim==1 ? "length" : "area"), isvert) {
+        	Particle<ndim>(pos, wgt, isvert) {
             if (ndim > 1) {
                 this->registerVectorField("velocity");
             }
@@ -43,24 +43,8 @@ template <int ndim=3> class SWEParticle : public Particle<ndim> {
             this->registerScalarField("bottom_height");
         }
         
-        SWEParticle(const Vec<ndim>& pos, const scalar_type wgt=0.0, const std::string wname="area", const bool isvert=false) : 
-        	Particle<ndim>(pos, wgt, wname, isvert) {
-        	if (ndim > 1) {
-                this->registerVectorField("velocity");
-            }
-            else {
-                this->registerScalarField("velocity");
-            }
-            this->registerScalarField("potvort");
-            this->registerScalarField("relvort");
-            this->registerScalarField("divergence");
-            this->registerScalarField("depth");
-            this->registerScalarField("surf_height");
-            this->registerScalarField("bottom_height");
-        }
-
         SWEParticle(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt = 0.0, const bool isvert=false) :
-            Particle<ndim>(xx, aa, wgt, (ndim==1 ? "length" : "area"), isvert) {
+            Particle<ndim>(xx, aa, wgt, isvert) {
             if (ndim > 1) {
                 this->registerVectorField("velocity");
             }
@@ -75,23 +59,6 @@ template <int ndim=3> class SWEParticle : public Particle<ndim> {
             this->registerScalarField("bottom_height");
         }
         
-        SWEParticle(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt=0.0, const std::string wname="area",
-        	const bool isvert=false) :
-        	Particle<ndim>(xx, aa, wgt, wname, isvert) {
-        	if (ndim > 1) {
-                this->registerVectorField("velocity");
-            }
-            else {
-                this->registerScalarField("velocity");
-            }
-            this->registerScalarField("potvort");
-            this->registerScalarField("relvort");
-            this->registerScalarField("divergence");
-            this->registerScalarField("depth");
-            this->registerScalarField("surf_height");
-            this->registerScalarField("bottom_height");
-        }
-
         scalar_type calcPV(const scalar_type f) const {return (this->relvort + f)/this->depth;}
 
         void setDepthFromPV(const scalar_type f) {
