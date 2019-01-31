@@ -133,9 +133,29 @@ template <int ndim> class ParticleSet {
 #endif
 
 #ifdef HAVE_KOKKOS
-		Kokkos::View<scalar_type*[ndim]> packPhysCoords() const;
-		void unpackPhysCoords(const Kokkos::View<scalar_type*[ndim]>& cview);
+		typedef Kokkos::View<scalar_type*[ndim]> vec_view_type;
+		typedef Kokkos::View<scalar_type*> scalar_view_type;
+		
+		vec_view_type packPhysCoords() const;
+		void unpackPhysCoords(const vec_view_type& cview);
+
+// 		struct InitCoordView {
+// 			vec_view_type cview;
+// 			InitCoordView(vec_view_type cv) : cview(cv) {}
+// 			KOKKOS_INLINE_FUNCTION
+// 			void operator() (const index_type i) const {
+// 				const Vec<ndim> pc 
+// 				cview(i, 0) = 
+// 			}
+// 		};
+		
+		Kokkos::View<scalar_type*> packScalarField(const std::string& name) const;
+		void unpackScalarField(const Kokkos::View<scalar_type*>& fview);
+		
+		Kokkos::View<scalar_type*[ndim]> packVectorField(const std::string& name) const;
+		void unpackVectorField(const Kokkos::View<scalar_type*[ndim]>& fview);
 #endif
+
     protected:
         index_type _nMax;
         index_type _nActive;
