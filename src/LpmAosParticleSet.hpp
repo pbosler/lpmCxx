@@ -29,10 +29,10 @@ namespace Aos {
 template <int ndim> class ParticleSet {
     public:
     	/// Constructor. Initializes an empty set.
-        ParticleSet() : _factory(nullptr), _nMax(0), _nActive(0) {}
+        ParticleSet() : _factory(nullptr), _nMax(0), _nActive(0), kokkos_init(false) {}
     	/// Constructor. Initializes an empty set.
         ParticleSet(const std::shared_ptr<ParticleFactory<ndim>> factory, const index_type nMax) : 
-            _factory(factory), _nMax(nMax), _nActive(0) {
+            _factory(factory), _nMax(nMax), _nActive(0), kokkos_init(false) {
             _particles.reserve(nMax);
         }
 
@@ -135,25 +135,21 @@ template <int ndim> class ParticleSet {
 #ifdef HAVE_KOKKOS
 		typedef Kokkos::View<scalar_type*[ndim]> vec_view_type;
 		typedef Kokkos::View<scalar_type*> scalar_view_type;
-		
-		vec_view_type packPhysCoords() const;
-		void unpackPhysCoords(const vec_view_type& cview);
-
-// 		struct InitCoordView {
-// 			vec_view_type cview;
-// 			InitCoordView(vec_view_type cv) : cview(cv) {}
-// 			KOKKOS_INLINE_FUNCTION
-// 			void operator() (const index_type i) const {
-// 				const Vec<ndim> pc 
-// 				cview(i, 0) = 
-// 			}
-// 		};
-		
-		Kokkos::View<scalar_type*> packScalarField(const std::string& name) const;
-		void unpackScalarField(const Kokkos::View<scalar_type*>& fview);
-		
-		Kokkos::View<scalar_type*[ndim]> packVectorField(const std::string& name) const;
-		void unpackVectorField(const Kokkos::View<scalar_type*[ndim]>& fview);
+        typedef typename vec_view_type::HostMirror vec_host_view_type;
+        typedef typename scalar_view_type::HostMirror scalar_host_view_type;
+        
+        void init_coord_pack() {
+            coord_view = vec_view_type("phys_coords", this->n());
+            h_coord_view = Kokkos::create_mirror_view(coord_view);
+            for (index_type i=0; i<this->n(); ++i) {
+                const Vec<ndim> pc = _particles[i]->physCrd();
+                for (short j=0; j<ndim; ++j) {
+                    h_coord_view(i,j) = pc[j];
+                }
+            }
+            Kokkos::deep_copy(coord_view, h_coord_view);
+            kokkos_init = true;
+        }
 #endif
 
     protected:
@@ -161,6 +157,13 @@ template <int ndim> class ParticleSet {
         index_type _nActive;
         std::shared_ptr<ParticleFactory<ndim>> _factory;
         std::vector<std::unique_ptr<Particle<ndim>>> _particles;
+        bool kokkos_init;
+
+#ifdef HAVE_KOKKOS
+    public:
+        vec_view_type coord_view;
+        vec_host_view_type h_coord_view;
+#endif
         
 };
 }

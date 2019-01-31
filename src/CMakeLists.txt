@@ -26,7 +26,8 @@ install (FILES LpmConfig.h LpmXyzVector.h LpmUtilities.h
                LpmPolyMesh2d.h LpmVtkFileIO.h LpmParticles.h LpmMeshedParticles.h LpmMPIReplicatedData.h
                LpmTimer.h LpmMultiIndex.h LpmSakajo2009.h LpmTreeSum.h
                LpmDirectSum.h
-               LpmAosTypes.hpp LpmAosParticle.hpp LpmAosSWEParticle.hpp LpmAosParticleFactory.hpp LpmAosParticleSet.hpp
+               LpmAosTypes.hpp LpmAosParticle.hpp LpmAosSWEParticle.hpp LpmAosBVEParticle.hpp
+               LpmAosParticleFactory.hpp LpmAosParticleSet.hpp
                LpmAosEdge.hpp LpmAosEdgeFactory.hpp LpmAosEdgeSet.hpp LpmAosFace.hpp 
                LpmAosTriFace.hpp LpmAosQuadFace.hpp LpmAosQuadCubicFace.hpp
                LpmAosMeshSeed.hpp LpmAosPolyMesh2d.hpp LpmGll.hpp
