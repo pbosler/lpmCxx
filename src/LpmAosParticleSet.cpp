@@ -20,7 +20,7 @@ template <int ndim> std::string ParticleSet<ndim>::infoString(const bool printAl
     std::vector<std::string> fields = fieldNames();
     for (int i=0; i<fields.size(); ++i)
         oss << "\t\t" << fields[i] << std::endl;
-    oss << "\ttotal weight("<< _particles[0]->weightName() << ") = " << totalWeight() << std::endl;
+    oss << "\ttotal weight = " << totalWeight() << std::endl;
     if (printAll) {
     	oss << "PARTICLES DATA" << std::endl;
     	for (index_type i=0; i<_particles.size(); ++i) {
@@ -233,7 +233,7 @@ template <int ndim>	vtkSmartPointer<vtkPointData> ParticleSet<ndim>::fieldsToVtk
 	vtkSmartPointer<vtkPointData> result = vtkSmartPointer<vtkPointData>::New();
 	// add geometric data
 	vtkSmartPointer<vtkDoubleArray> wgt = vtkSmartPointer<vtkDoubleArray>::New();
-	wgt->SetName(_particles[0]->weightName().c_str());
+	wgt->SetName("weight");
 	wgt->SetNumberOfComponents(1);
 	wgt->SetNumberOfTuples(_nActive);
 	for (index_type j=0; j<_nActive; ++j) {
@@ -285,7 +285,7 @@ template <int ndim> vtkSmartPointer<vtkCellData> ParticleSet<ndim>::fieldsToVtkC
     vtkSmartPointer<vtkCellData> result = vtkSmartPointer<vtkCellData>::New();
     // Add geometric quantities
 	vtkSmartPointer<vtkDoubleArray> wgt = vtkSmartPointer<vtkDoubleArray>::New();
-	wgt->SetName(_particles[0]->weightName().c_str());
+	wgt->SetName("weight");
 	wgt->SetNumberOfComponents(1);
 	wgt->SetNumberOfTuples(_nActive);
 	for (index_type j=0; j<_nActive; ++j) {
