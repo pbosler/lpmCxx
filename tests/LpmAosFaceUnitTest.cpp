@@ -28,8 +28,8 @@ using Lpm::index_type;
 using Lpm::scalar_type;
 using Lpm::Logger;
 using Lpm::OutputMessage;
-using Lpm::GeometryType::SPHERICAL_SURFACE_GEOMETRY;
-using Lpm::GeometryType::PLANAR_GEOMETRY;
+using Lpm::SPHERICAL_SURFACE_GEOMETRY;
+using Lpm::PLANAR_GEOMETRY;
 
 typedef std::vector<index_type> ind_vec;
 

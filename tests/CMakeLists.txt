@@ -84,28 +84,32 @@ TARGET_LINK_LIBRARIES(lpmGllUnitTest.exe lpm)
 add_test(lpmGllTest lpmGllUnitTest.exe)
 
 ADD_EXECUTABLE(lpmAosTypesUnitTest.exe LpmAosUnitTest.cpp)
+SET_TARGET_PROPERTIES(lpmAosTypesUnitTest.exe PROPERTIES COMPILE_FLAGS ${LPM_COMPILE_FLAGS} LINK_FLAGS ${LPM_LINK_FLAGS})
 TARGET_LINK_LIBRARIES(lpmAosTypesUnitTest.exe lpm)
 add_test(aosTypeUnitTest lpmAosTypesUnitTest.exe)
 
 ADD_EXECUTABLE(lpmAosParticleUnitTest.exe LpmAosParticleUnitTest.cpp)
+SET_TARGET_PROPERTIES(lpmAosParticleUnitTest.exe PROPERTIES COMPILE_FLAGS ${LPM_COMPILE_FLAGS} LINK_FLAGS ${LPM_LINK_FLAGS})
 TARGET_LINK_LIBRARIES(lpmAosParticleUnitTest.exe lpm)
 add_test(aosParticleUnitTest lpmAosParticleUnitTest.exe)
 
 ADD_EXECUTABLE(lpmAosEdgeUnitTest.exe LpmAosEdgeUnitTest.cpp)
+SET_TARGET_PROPERTIES(lpmAosEdgeUnitTest.exe PROPERTIES COMPILE_FLAGS ${LPM_COMPILE_FLAGS} LINK_FLAGS ${LPM_LINK_FLAGS})
 TARGET_LINK_LIBRARIES(lpmAosEdgeUnitTest.exe lpm)
 add_test(aosEdgeUnitTest lpmAosEdgeUnitTest.exe)
 
 ADD_EXECUTABLE(lpmAosFaceUnitTest.exe LpmAosFaceUnitTest.cpp)
+SET_TARGET_PROPERTIES(lpmAosFaceUnitTest.exe PROPERTIES COMPILE_FLAGS ${LPM_COMPILE_FLAGS} LINK_FLAGS ${LPM_LINK_FLAGS})
 TARGET_LINK_LIBRARIES(lpmAosFaceUnitTest.exe lpm)
 add_test(aosFaceUnitTest lpmAosFaceUnitTest.exe)
 
 ADD_EXECUTABLE(lpmAosMeshSeedTest.exe LpmAosMeshSeedUnitTest.cpp)
+SET_TARGET_PROPERTIES(lpmAosMeshSeedTest.exe PROPERTIES COMPILE_FLAGS ${LPM_COMPILE_FLAGS} LINK_FLAGS ${LPM_LINK_FLAGS})
 TARGET_LINK_LIBRARIES(lpmAosMeshSeedTest.exe lpm)
 add_test(aosMeshSeedTest lpmAosMeshSeedTest.exe)
 
-
-
 ADD_EXECUTABLE(lpmAosPolyMesh2dUnitTest.exe LpmAosPolyMeshUnitTest.cpp)
+SET_TARGET_PROPERTIES(lpmAosPolyMesh2dUnitTest.exe PROPERTIES COMPILE_FLAGS ${LPM_COMPILE_FLAGS} LINK_FLAGS ${LPM_LINK_FLAGS})
 TARGET_LINK_LIBRARIES(lpmAosPolyMesh2dUnitTest.exe lpm)
 add_test(aosPolyMeshTest lpmAosPolyMesh2dUnitTest.exe)
 

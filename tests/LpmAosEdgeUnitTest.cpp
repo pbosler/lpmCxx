@@ -22,7 +22,7 @@ using Lpm::index_type;
 using Lpm::scalar_type;
 using Lpm::Logger;
 using Lpm::OutputMessage;
-using Lpm::GeometryType::SPHERICAL_SURFACE_GEOMETRY;
+using Lpm::SPHERICAL_SURFACE_GEOMETRY;
 
 int main (int argc, char* argv[]) {
 
