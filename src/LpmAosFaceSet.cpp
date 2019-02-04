@@ -26,7 +26,7 @@ template <int ndim> void FaceSet<ndim>::divide(const index_type ind, ParticleSet
         throw std::out_of_range("FaceSet::divide _nMax exceeded");
     }
     const KidFaceArrays<ndim> kids = _faces[ind]->divide(particles, edges, ind, _faces.size(), _radius, _geom);
-    std::cout << kids.infoString() << std::endl;
+    //std::cout << kids.infoString() << std::endl;
     for (short i=0; i<4; ++i) {
         this->insert(kids.newFaceInteriors[i], kids.newFaceVerts[i], kids.newFaceEdges[i], ind, kids.kidsFaceArea[i]);
     }   

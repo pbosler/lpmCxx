@@ -59,7 +59,6 @@ template <int ndim> void PolyMesh2d<ndim>::initStaggeredVerticesAndFacesFromSeed
         _faces->insert(_seed->faceInteriors[i], _seed->faceVerts[i], _seed->faceEdges[i], root_parent);
     }
     _faces->setArea(*_particles);
-    std::cout << this->infoString();
     
     // refine to desired uniform level
     index_type start_index = 0;

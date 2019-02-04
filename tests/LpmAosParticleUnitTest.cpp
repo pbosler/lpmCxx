@@ -41,6 +41,10 @@ int main (int argc, char* argv[]) {
         log->logMessage(introMsg);
         ss.str(nullstr);
     }
+#ifdef HAVE_KOKKOS
+	Kokkos::initialize(argc, argv);
+	{
+#endif
 
     std::shared_ptr<BasicParticleFactory<2>> planeFactory(new BasicParticleFactory<2>());
 
@@ -78,6 +82,7 @@ int main (int argc, char* argv[]) {
     }
 
 #ifdef HAVE_VTK
+	std::cout << "Testing ParticleSet VTK functions." << std::endl;
 	vtkSmartPointer<vtkPoints> vpts = cubedSphere.toVtkPoints();
 	scalar_type bounds[6];
 	vpts->ComputeBounds();
@@ -85,6 +90,20 @@ int main (int argc, char* argv[]) {
 	std::cout << "vtk computed bounds: (xmin, xmax), (ymin, ymax), (zmin, zmax) = " << std::endl;
 	std::cout << "\t(" << bounds[0] << ", " << bounds[1] << ") (" << bounds[2] << ", " << bounds[3] 
 		<< ") (" << bounds[4] << ", " << bounds[5] << ")" << std::endl;
+#endif
+
+#ifdef HAVE_KOKKOS
+	std::cout << "Testing ParticleSet Kokkos functions." << std::endl;
+	cubedSphere.init_coord_pack();
+	ParticleSet<3>::scalar_view_type hview;
+	ParticleSet<3>::scalar_host_view_type hhview;
+	ParticleSet<3>::vec_view_type velview;
+	ParticleSet<3>::vec_host_view_type velhview;
+	
+	cubedSphere.init_pack_scalar_field(hview, hhview, "depth");
+	cubedSphere.init_pack_vector_field(velview, velhview, "velocity");
+	}
+	Kokkos::finalize();
 #endif
 
 //     std::vector<std::string> allinfo = cubedSphere.particlesInfoStrings();

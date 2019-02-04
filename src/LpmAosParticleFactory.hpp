@@ -37,6 +37,23 @@ template <int ndim> class BasicParticleFactory : public ParticleFactory<ndim> {
         }
 };
 
+template <int ndim> class BVEParticleFactory : public ParticleFactory<ndim> {
+	public:
+		std::unique_ptr<Particle<ndim>> createParticle() const {
+			return std::unique_ptr<Particle<ndim>>(new BVEParticle<ndim>());
+		}
+		
+		std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& pos, const scalar_type wgt = 0.0, 
+			const bool isvert=false) const {
+			return std::unique_ptr<Particle<ndim>>(new BVEParticle<ndim>(pos, wgt, isvert));
+		}
+		
+		std::unique_ptr<Particle<ndim>> createParticle(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt = 0.0, 
+			const bool isvert=false) const {
+			return std::unique_ptr<Particle<ndim>>(new BVEParticle<ndim>(xx, aa, wgt, isvert));
+		}
+};
+
 template <int ndim> class SWEParticleFactory : public ParticleFactory<ndim> {
     public:
          std::unique_ptr<Particle<ndim>> createParticle() const {
@@ -54,6 +71,8 @@ template <int ndim> class SWEParticleFactory : public ParticleFactory<ndim> {
 		}
 		
 };
+
+
 
 }//namespace Aos
 

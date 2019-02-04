@@ -23,6 +23,31 @@ class AnalyticFunction {
         template <int ndim> Aos::Vec<ndim> evaluateVector(const Aos::Vec<ndim>& vec) const {return Aos::Vec<ndim>();}
 };
 
+class solidBodyVorticity : public AnalyticFunction {
+    public:
+        solidBodyVorticity(const scalar_type rr) : omg(rr) {}
+        
+        template <int ndim> scalar_type evaluateScalar(const Aos::Vec<ndim>& vec) const override {return 2.0 * omg * vec[2];}
+        scalar_type evaluateScalar(const scalar_type x, const scalar_type y, const scalar_type z) const {return 2.0 * omg *z;}
+        scalar_type evaluateScalar(const XyzVector& xv) const {return 2.0 * omg* xv.z;}
+        
+    protected:
+        scalar_type omg;
+};
+
+class solidBodyVelocity : public AnalyticFunction {
+    public:
+        solidBodyVelocity(const scalar_type rr) : omg(rr) {}
+        
+        template <int ndim> Aos::Vec<ndim> evaluateVector(const Aos::Vec<ndim>& vec) const {
+            return Aos::Vec<ndim>(-omg*vec[1], omg*vec[0], 0.0);}
+        XyzVector evaluateVector(const XyzVector& crdvec) const {return XyzVector(-omg*crdvec.y, omg*crdvec.y, 0.0);}
+        XyzVector evaluateVector(const scalar_type x, const scalar_type y, const scalar_type z) const {
+            return XyzVector(-omg*y, omg*x, 0.0);}
+    protected:
+        scalar_type omg;
+};
+
 class SineWave3D : public AnalyticFunction {
     public:
         SineWave3D(const int kk, const int ll, const int mm) : k(kk), l(ll), m(mm) {};

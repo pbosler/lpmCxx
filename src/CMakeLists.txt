@@ -14,6 +14,7 @@ add_library( lpm LpmXyzVector.cpp LpmUtilities.cpp LpmOutputMessage.cpp LpmLogge
              LpmAosFace.cpp LpmAosQuadFace.cpp LpmAosTriFace.cpp LpmAosQuadCubicFace.cpp
              LpmAosFaceSet.cpp LpmAosMeshSeed.cpp LpmAosPolyMesh2d.cpp LpmGll.cpp
 )
+SET_TARGET_PROPERTIES(lpm PROPERTIES COMPILE_FLAGS "${LPM_COMPILE_FLAGS}" LINK_FLAGS "${LPM_LINK_FLAGS}")
 TARGET_LINK_LIBRARIES(lpm ${VTK_LIBRARIES} ${Kokkos})
 
 

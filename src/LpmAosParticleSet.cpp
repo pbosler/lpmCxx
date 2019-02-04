@@ -59,14 +59,24 @@ template <int ndim> scalar_type ParticleSet<ndim>::scalarIntegral(const std::str
 template <int ndim> void ParticleSet<ndim>::initScalarFieldFromFn(const std::string& field_name,
     const AnalyticFunction* fn) {
     for (index_type i=0; i<_particles.size(); ++i) {
-        _particles[i]->setScalar(field_name, fn->evaluateScalar(_particles[i]->physCrd()));
+        _particles[i]->setScalar(field_name, fn->evaluateScalar<ndim>(_particles[i]->physCrd()));
     }
+}
+
+template <int ndim> void ParticleSet<ndim>::initScalarFieldValue(const std::string& field_name, 
+	const index_type i, const scalar_type val) {	
+		_particles[i]->setScalar(field_name, val);
+}
+
+template <int ndim> void ParticleSet<ndim>::initVectorFieldValue(const std::string& field_name, 
+	const index_type i, const Vec<ndim>& val) {
+		_particles[i]->setVector(field_name, val);
 }
 
 template <int ndim> void ParticleSet<ndim>::initVectorFieldFromFn(const std::string& field_name,
     const AnalyticFunction* fn) {
     for (index_type i=0; i<_particles.size(); ++i) {
-        _particles[i]->setVector(field_name, fn->evaluateVector(_particles[i]->physCrd()));
+        _particles[i]->setVector(field_name, fn->evaluateVector<ndim>(_particles[i]->physCrd()));
     }
 }
 

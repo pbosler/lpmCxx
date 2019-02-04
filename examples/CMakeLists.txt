@@ -2,3 +2,7 @@ include_directories("${PROJECT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src" "${PROJE
 
 ADD_EXECUTABLE(swe1d.exe SWEOneD.cpp)
 TARGET_LINK_LIBRARIES(swe1d.exe lpm)
+
+ADD_EXECUTABLE(bveSolidBodyRotation.exe BVESolidBody.cpp)
+SET_TARGET_PROPERTIES(bveSolidBodyRotation.exe PROPERTIES COMPILE_FLAGS ${LPM_COMPILE_FLAGS} LINK_FLAGS ${LPM_LINK_FLAGS})
+TARGET_LINK_LIBRARIES(bveSolidBodyRotation.exe lpm)

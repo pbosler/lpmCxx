@@ -53,6 +53,8 @@ template <int ndim> class PolyMesh2d {
         
         inline scalar_type surfaceArea() const {return _faces->totalArea();}
         
+        inline ParticleSet<ndim>* particle_set_raw_ptr() {return _particles.get();}
+        
 #ifdef HAVE_VTK
         vtkSmartPointer<vtkPolyData> toVtkPolyData(const bool useFieldForHeight=false, 
             const std::string field_name=std::string()) const;
