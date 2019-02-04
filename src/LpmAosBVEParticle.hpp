@@ -20,8 +20,9 @@ template <int ndim=3> class BVEParticle : public Particle<ndim> {
             else {
                 this->registerScalarField("velocity");
             }
-            this->registerScalarField("potvort");
+            this->registerScalarField("absvort");
             this->registerScalarField("relvort");
+            this->registerScalarField("stream_fn");
         }
 
         BVEParticle(const Vec<ndim>& pos, const scalar_type wgt = 0.0, const bool isvert=false) : 
@@ -32,8 +33,9 @@ template <int ndim=3> class BVEParticle : public Particle<ndim> {
             else {
                 this->registerScalarField("velocity");
             }
-            this->registerScalarField("potvort");
+            this->registerScalarField("absvort");
             this->registerScalarField("relvort");
+            this->registerScalarField("stream_fn");
         }
         
         BVEParticle(const Vec<ndim>& xx, const Vec<ndim>& aa, const scalar_type wgt = 0.0, const bool isvert=false) :
@@ -44,8 +46,9 @@ template <int ndim=3> class BVEParticle : public Particle<ndim> {
             else {
                 this->registerScalarField("velocity");
             }
-            this->registerScalarField("potvort");
+            this->registerScalarField("absvort");
             this->registerScalarField("relvort");
+            this->registerScalarField("stream_fn");
         }
 };
 

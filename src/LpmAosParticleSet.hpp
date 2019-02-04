@@ -108,6 +108,10 @@ template <int ndim> class ParticleSet {
         	return _particles[ind]->getVector(field_name);
         }
         
+        void registerScalarField(const std::string& name);
+        void registerVectorField(const std::string& name);
+        
+        
         /// Return the names of all registered fields (both scalar and vector).
         inline std::vector<std::string> getFieldNames() const {return _particles[0]->fieldNames();}
         /// Return the names of all scalar fields registered.
@@ -138,25 +142,44 @@ template <int ndim> class ParticleSet {
 #ifdef HAVE_KOKKOS
 		typedef Kokkos::View<scalar_type*[ndim]> vec_view_type;
 		typedef Kokkos::View<scalar_type*> scalar_view_type;
+		typedef Kokkos::View<index_type*> index_view_type;
+		typedef typename index_view_type::HostMirror index_host_view_type;
         typedef typename vec_view_type::HostMirror vec_host_view_type;
         typedef typename scalar_view_type::HostMirror scalar_host_view_type;
         
-		vec_view_type coord_view;
-        vec_host_view_type h_coord_view;
-        
-        void init_coord_pack() {
-            coord_view = vec_view_type("phys_coords", this->n());
-            h_coord_view = Kokkos::create_mirror_view(coord_view);
-            for (index_type i=0; i<this->n(); ++i) {
-                const Vec<ndim> pc = _particles[i]->physCrd();
-                for (short j=0; j<ndim; ++j) {
-                    h_coord_view(i,j) = pc[j];
-                }
-            }
-            Kokkos::deep_copy(coord_view, h_coord_view);
+        void init_pack_active_passive_coords(vec_view_type active_view, vec_host_view_type active_host, 
+        	vec_view_type passive_view, vec_host_view_type passive_host, 
+        	scalar_view_type wgt_view, scalar_host_view_type wgt_host) const {
+        	active_view = vec_view_type("active_coords", this->nActive());
+        	passive_view = vec_view_type("passive_coords", this->nPassive());
+        	wgt_view = scalar_view_type("active_weight", this->nActive());
+        	wgt_host = Kokkos::create_mirror_view(wgt_view);
+        	active_host = Kokkos::create_mirror_view(active_view);
+        	passive_host = Kokkos::create_mirror_view(passive_view);
+        	
+        	index_type pindex = 0;
+        	index_type aindex = 0;
+        	for (index_type i=0; i<this->n(); ++i) {
+        		const Vec<ndim> pc = this->physCrd(i);
+        		if (this->isVertex(i)) {
+        			for (short j=0; j<ndim; ++j) {
+        				passive_host(pindex, j) = pc[j];
+        			}
+        			pindex += 1;
+        		}
+        		else {
+        			for (short j=0; j<ndim; ++j) {
+        				active_host(aindex, j) = pc[j];
+        			}
+        			wgt_host(aindex++) = this->weight(i);
+        		}
+        	}
+        	Kokkos::deep_copy(active_view, active_host);
+        	Kokkos::deep_copy(passive_view, passive_host);
+        	Kokkos::deep_copy(wgt_view, wgt_host);
         }
         
-        void init_pack_scalar_field(scalar_view_type sv, scalar_host_view_type shv, const std::string& fname) {
+        void init_pack_scalar_field(scalar_view_type sv, scalar_host_view_type shv, const std::string& fname) const {
         	sv = scalar_view_type(fname, this->n());
         	shv = Kokkos::create_mirror_view(sv);
         	for (index_type i=0; i<this->n(); ++i) {
@@ -165,7 +188,7 @@ template <int ndim> class ParticleSet {
         	Kokkos::deep_copy(sv, shv);
         }
         
-        void init_pack_vector_field(vec_view_type vv, vec_host_view_type vhv, const std::string& fname) {
+        void init_pack_vector_field(vec_view_type vv, vec_host_view_type vhv, const std::string& fname) const {
         	vv = vec_view_type(fname, this->n());
         	vhv = Kokkos::create_mirror_view(vv);
         	std::vector<scalar_type> vval(ndim);

@@ -56,6 +56,18 @@ template <int ndim> scalar_type ParticleSet<ndim>::scalarIntegral(const std::str
     return result;
 }
 
+template <int ndim> void ParticleSet<ndim>::registerScalarField(const std::string& field_name) {
+	for (index_type i=0; i<_particles.size(); ++i) {
+		_particles[i]->registerScalarField(field_name);
+	}
+}
+
+template <int ndim> void ParticleSet<ndim>::registerVectorField(const std::string& field_name) {
+	for (index_type i=0; i<_particles.size(); ++i) {
+		_particles[i]->registerVectorField(field_name);
+	}
+}
+
 template <int ndim> void ParticleSet<ndim>::initScalarFieldFromFn(const std::string& field_name,
     const AnalyticFunction* fn) {
     for (index_type i=0; i<_particles.size(); ++i) {
