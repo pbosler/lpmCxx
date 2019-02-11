@@ -104,8 +104,12 @@ template <int ndim> class ParticleSet {
         	return _particles[ind]->getScalar(field_name);
         }
         /// Return a vector field value associated with a particular particle
-        inline std::vector<scalar_type> vectorVal(const index_type ind, const std::string field_name) const {
+        inline std::vector<scalar_type> vectorVal(const index_type ind, const std::string& field_name) const {
         	return _particles[ind]->getVector(field_name);
+        }
+        
+        inline Vec<ndim> vecVal(const index_type ind, const std::string& field_name) const {
+        	return Vec<ndim>(_particles[ind]->getVector(field_name));
         }
         
         void registerScalarField(const std::string& name);
@@ -134,7 +138,8 @@ template <int ndim> class ParticleSet {
 		/// Convert particles to a VtkPoints instance
 		vtkSmartPointer<vtkPoints> toVtkPoints(const bool useFieldForHeight = false, const std::string scalarFieldName="") const;
 		/// Convert particle field data to a VtkPointData instance.
-		vtkSmartPointer<vtkPointData> fieldsToVtkPointData() const;
+		vtkSmartPointer<vtkPointData> fieldsToVtkPointData(const std::vector<std::string>* scalar_field_names=0,
+														   const std::vector<std::string>* vector_field_names=0) const;
 		/// Convert particle field data to a VtkCellData instance.
 		vtkSmartPointer<vtkCellData> fieldsToVtkCellData() const;
 #endif

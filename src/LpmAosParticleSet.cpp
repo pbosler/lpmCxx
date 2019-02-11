@@ -251,7 +251,9 @@ template <int ndim> vtkSmartPointer<vtkPoints> ParticleSet<ndim>::toVtkPoints(co
 		return result;
 	}
 	
-template <int ndim>	vtkSmartPointer<vtkPointData> ParticleSet<ndim>::fieldsToVtkPointData() const{
+template <int ndim>	vtkSmartPointer<vtkPointData> 
+	ParticleSet<ndim>::fieldsToVtkPointData(const std::vector<std::string>* scalar_field_names, 
+											const std::vector<std::string>* vector_field_names) const{
 	vtkSmartPointer<vtkPointData> result = vtkSmartPointer<vtkPointData>::New();
 	// add geometric data
 	vtkSmartPointer<vtkDoubleArray> wgt = vtkSmartPointer<vtkDoubleArray>::New();
@@ -264,8 +266,20 @@ template <int ndim>	vtkSmartPointer<vtkPointData> ParticleSet<ndim>::fieldsToVtk
 	result->AddArray(wgt);
 
 	// collect field names
-	const std::vector<std::string> sfields = getScalarFieldNames();
-	const std::vector<std::string> vfields = getVectorFieldNames();
+	std::vector<std::string> sfields;
+	std::vector<std::string> vfields;
+	if (scalar_field_names) {
+		sfields = *scalar_field_names;
+	}
+	else {
+		sfields = getScalarFieldNames();
+	}
+	if (vector_field_names) {
+		vfields = *vector_field_names;
+	}
+	else {
+		vfields = getVectorFieldNames();
+	}
 	// add field data
 	for (int i=0; i<sfields.size(); ++i) {
 	    vtkSmartPointer<vtkDoubleArray> data = vtkSmartPointer<vtkDoubleArray>::New();

@@ -93,15 +93,8 @@ int main (int argc, char* argv[]) {
 #endif
 
 #ifdef HAVE_KOKKOS
-	std::cout << "Testing ParticleSet Kokkos functions." << std::endl;
-	cubedSphere.init_coord_pack();
-	ParticleSet<3>::scalar_view_type hview;
-	ParticleSet<3>::scalar_host_view_type hhview;
-	ParticleSet<3>::vec_view_type velview;
-	ParticleSet<3>::vec_host_view_type velhview;
-	
-	cubedSphere.init_pack_scalar_field(hview, hhview, "depth");
-	cubedSphere.init_pack_vector_field(velview, velhview, "velocity");
+	std::cout << "TO DO: Testing ParticleSet Kokkos functions." << std::endl;
+		
 	}
 	Kokkos::finalize();
 #endif
