@@ -30,7 +30,8 @@ endif()
 
 
 SET (CMAKE_CXX_STANDARD 11) 
-
+#cmake_policy(CMP0074 new)
+prc(_CMAKE_TOOLCHAIN_PREFIX)
 #
 #   MPI
 #
@@ -109,6 +110,7 @@ OPTION(DEBUG_ALL "Include all debug code" OFF)
 # configure a header file to pass cmake variables to source code
 #
 configure_file ( "${CMAKE_SOURCE_DIR}/LpmConfig.h.in" "${PROJECT_BINARY_DIR}/LpmConfig.h" @ONLY)
+
 
 
 ENABLE_TESTING()

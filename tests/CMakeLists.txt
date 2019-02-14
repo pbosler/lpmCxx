@@ -113,4 +113,7 @@ SET_TARGET_PROPERTIES(lpmAosPolyMesh2dUnitTest.exe PROPERTIES COMPILE_FLAGS ${LP
 TARGET_LINK_LIBRARIES(lpmAosPolyMesh2dUnitTest.exe lpm)
 add_test(aosPolyMeshTest lpmAosPolyMesh2dUnitTest.exe)
 
-
+ADD_EXECUTABLE(lpmMpiKokkosTest.exe LpmAosMPIKokkosTest.cpp)
+SET_TARGET_PROPERTIES(lpmMpiKokkosTest.exe PROPERTIES COMPILE_FLAGS ${LPM_COMPILE_FLAGS} LINK_FLAGS ${LPM_LINK_FLAGS})
+TARGET_LINK_LIBRARIES(lpmMpiKokkosTest.exe lpm)
+add_test(mpiKokkos lpmMpiKokkosTest.exe)

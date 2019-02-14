@@ -97,7 +97,8 @@ template <int ndim> class FaceSet {
 
 #ifdef HAVE_VTK
 		vtkSmartPointer<vtkCellArray> toVtkCellArray() const;
-		vtkSmartPointer<vtkCellData> fieldsToVtkCellData(const ParticleSet<ndim>& particles) const;
+		vtkSmartPointer<vtkCellData> fieldsToVtkCellData(const ParticleSet<ndim>& particles, 
+			const std::vector<std::string>* scalar_field_names=0, const std::vector<std::string>* vector_field_names=0) const;
 #endif
     
     	friend class PolyMesh2d<ndim>;

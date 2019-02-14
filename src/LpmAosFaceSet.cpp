@@ -106,7 +106,8 @@ template<int ndim> vtkSmartPointer<vtkCellArray> FaceSet<ndim>::toVtkCellArray()
     return result;
 }
 
-template <int ndim> vtkSmartPointer<vtkCellData> FaceSet<ndim>::fieldsToVtkCellData(const ParticleSet<ndim>& particles) const
+template <int ndim> vtkSmartPointer<vtkCellData> FaceSet<ndim>::fieldsToVtkCellData(const ParticleSet<ndim>& particles,
+    const std::vector<std::string>* scalar_field_names, const std::vector<std::string>* vector_field_names) const
 {
     vtkSmartPointer<vtkCellData> result;
     // add geometric quantities
@@ -122,8 +123,20 @@ template <int ndim> vtkSmartPointer<vtkCellData> FaceSet<ndim>::fieldsToVtkCellD
     }
     result->AddArray(ar);
     // collect field names
-    const std::vector<std::string> sfields = particles.getScalarFieldNames();
-    const std::vector<std::string> vfields = particles.getVectorFieldNames();
+    std::vector<std::string> sfields;
+	std::vector<std::string> vfields;
+    if (scalar_field_names) {
+        sfields = *scalar_field_names;
+    }
+    else {
+        sfields = particles.getScalarFieldNames();
+    }
+    if (vector_field_names) {
+        vfields = *vector_field_names;
+    }
+    else {
+        vfields = particles.getVectorFieldNames();
+    }
     // add field data
     for (int i=0; i<sfields.size(); ++i) {
         vtkSmartPointer<vtkDoubleArray> data = vtkSmartPointer<vtkDoubleArray>::New();

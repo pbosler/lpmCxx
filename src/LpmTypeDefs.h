@@ -10,7 +10,7 @@ namespace Lpm {
     typedef double scalar_type;
     
     /// Memory index type
-    typedef long index_type;
+    typedef int index_type;
     
     /// Pi
     static constexpr scalar_type PI = 3.1415926535897932384626433832795027975;
@@ -39,78 +39,11 @@ namespace Lpm {
     /// Basic face types
     enum FaceType {TRI, QUAD, QUAD_CUBIC, VORONOI};
     
-    inline std::string facekindString(const FaceType& fkind) {
-        switch (fkind) {
-            case (TRI) : {
-                return "TRI";
-                break;
-            }
-            case (QUAD) : {
-                return "QUAD";
-                break;
-            }
-            case (QUAD_CUBIC) : {
-                return "QUAD_CUBIC";
-                break;
-            }
-            case (VORONOI) : {
-                return "VORONOI";
-                break;
-            }
-        }
-    }
+    std::string facekindString(const FaceType& fkind);
     
-    inline std::string geometryString(const GeometryType& geom) {
-        std::string result;
-        switch (geom) {
-            case (ONED_FREE) : {
-                result = "ONED_FREE";
-                break;
-            }
-            case (ONED_PERIODIC) : {
-                result = "ONED_PERIODIC";
-                break;
-            }
-            case (PLANAR_GEOMETRY) : {
-                result = "PLANAR_GEOMETRY";
-                break;
-            }
-            case (SPHERICAL_SURFACE_GEOMETRY) : {
-                result = "SPHERICAL_SURFACE_GEOMETRY";
-                break;
-            }
-            case (CARTESIAN_3D_GEOMETRY) : {
-                result = "CARTESIAN_3D_GEOMETRY";
-                break;
-            }
-        }
-        return result;
-    }
+    std::string geometryString(const GeometryType& geom);
     
-    inline std::string geom_weight_name(const GeometryType& geom)  {
-        switch(geom) {
-            case (ONED_FREE) : {
-                return "length";
-                break;
-            }
-            case (ONED_PERIODIC) : {
-                return "length";
-                break;
-            }
-            case (PLANAR_GEOMETRY) : {
-                return "area";
-                break;
-            }
-            case (SPHERICAL_SURFACE_GEOMETRY) : {
-                return "area";
-                break;
-            }
-            case (CARTESIAN_3D_GEOMETRY) : {
-                return "volume";
-                break;
-            }
-    }
-  }
+    std::string geom_weight_name(const GeometryType& geom);
     
     /// Kinds of boundary conditions
     enum BoundaryCondition {FREE, DIRICHLET, NEUMANN, PERIODIC};

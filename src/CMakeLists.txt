@@ -3,7 +3,7 @@
 #
 include_directories("${PROJECT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src" "${PROJECT_BINARY_DIR}" "${VTK_INCLUDE_DIRS}" "${KokkosInclude}")
 
-add_library( lpm LpmXyzVector.cpp LpmUtilities.cpp LpmOutputMessage.cpp LpmLogger.cpp LpmCoords.cpp
+add_library( lpm LpmTypeDefs.cpp LpmXyzVector.cpp LpmUtilities.cpp LpmOutputMessage.cpp LpmLogger.cpp LpmCoords.cpp
              LpmEuclideanCoords.cpp LpmSphericalCoords.cpp LpmField.cpp LpmEdges.cpp
              LpmFaces.cpp LpmTriFaces.cpp LpmQuadFaces.cpp LpmMeshSeed.cpp LpmPolyMesh2d.cpp
              LpmVtkFileIO.cpp LpmParticles.cpp LpmMeshedParticles.cpp LpmMPIReplicatedData.cpp

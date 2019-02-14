@@ -14,6 +14,7 @@
 #include "LpmAosFaceFactory.hpp"
 #include "LpmAosParticleSet.hpp"
 #include "LpmAnalyticFunctions.h"
+#include "LpmAosTimeInt.hpp"
 
 #ifdef HAVE_VTK
 #include "vtkSmartPointer.h"
@@ -127,6 +128,10 @@ int main(int argc, char* argv[]) {
     scalar_view_type wgts;
     scalar_host_view_type hwgts;
     sphere.init_pack_all_coords(crds, hcrds, wgts, hwgts);
+    
+    vec_view_type velocity;
+    
+    Outer3dVectorSum<SphereBiotSavartKernel> direct_sum(velocity, crds, crds, wgts, wgts);
     
     }
     Kokkos::finalize();

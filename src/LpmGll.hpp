@@ -11,11 +11,11 @@
 namespace Lpm {
 
 template <int ndim=2>  struct CubicGLL {
-#ifdef USE_APPLE_CLANG
-    static constexpr scalar_type sqrt5 = 2.236067977499790; // double precision
-#else
-    static constexpr scalar_type sqrt5 = std::sqrt(5.0);
-#endif
+//#ifdef USE_APPLE_CLANG
+    static constexpr scalar_type sqrt5 = 2.2360679774997896964; // 20-digit precision
+//#else
+//    static constexpr scalar_type sqrt5 = std::sqrt(5.0);
+//#endif
     static constexpr scalar_type oosqrt5 = 1.0/sqrt5;
     static constexpr scalar_type oo6 = 1.0/6.0;
     static constexpr scalar_type qp0 = -1.0;
